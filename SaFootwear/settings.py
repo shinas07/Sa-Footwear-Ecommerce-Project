@@ -62,7 +62,7 @@ TEMPLATES = [
         'DIRS': [
             'Home/templates',
             'Admin/templates',
-            'Accounts/templates'
+            'Accounts/templates',
         ],
         'APP_DIRS': True,
         'OPTIONS': {

@@ -8844,3 +8844,11 @@ input[type="text"] {
 
 .js .animate-box {
   opacity: 0; }
+
+
+.description-column {
+    max-width: 200px; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

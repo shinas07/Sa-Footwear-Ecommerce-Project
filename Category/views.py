@@ -1,16 +1,53 @@
 from urllib import request
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from .models import Category
 from django.contrib.auth.decorators import login_required
-
+from django.contrib import messages
 # Create your views here.
 
 @login_required
-def create_category():
+def add_category(request):
     if request.method == 'POST':
-        category_name = request.POST.get('catergory_name')
-        description = request.POST.get('descrption')
-        Category.objects.create(name=category_name,description=description)
+        category_name = request.POST.get('category_name') 
+        description = request.POST.get('category_description') 
+        Category.objects.create(category_name=category_name, description=description)
+        messages.success(request, 'Category added successfully!')
         return redirect('admin_category')
     else:
-        return render(request,'add_category.html')
+        return render(request, 'add_category.html')
+
+@login_required
+def list_category(request,category_id):
+    category = Category.objects.get(id=category_id)
+    category.is_listed = True
+    category.save()
+    return redirect('admin_category')
+
+@login_required
+def unlist_category(request,category_id):
+    category = Category.objects.get(id=category_id)
+    category.is_listed = False
+    category.save()
+    return redirect('admin_category')
+
+@login_required
+def delete_category(request,category_id):
+    category = Category.objects.get(id=category_id)
+    category.delete()
+    return redirect('admin_category')
+
+@login_required
+def edit_category(request, category_id):
+    # Retrieve the category object
+    category = get_object_or_404(Category, pk=category_id)
+    
+    if request.method == 'POST':
+        # Update the category object with the form data
+        category.category_name = request.POST.get('edit_category_name')
+        category.description = request.POST.get('edit_category_description')
+        category.save()
+        
+        # Redirect back to the admin category page after editing
+        return redirect('admin_category')
+    
+    return render(request, 'admin_base.html')

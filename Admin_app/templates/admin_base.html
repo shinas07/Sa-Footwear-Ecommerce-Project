@@ -23,7 +23,6 @@
 
 
     <link href="{% static 'admin_static/css/sb-admin-2.min.css' %}" rel="stylesheet">
-
 </head>
 <body>
 
@@ -49,7 +48,34 @@
     <!-- Page level custom scripts -->
     <script src="{% static 'admin_static/js/demo/chart-area-demo.js' %}"></script>
     <script src="{% static 'admin_static/js/demo/chart-pie-demo.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
     
 </body>
+
+    <script>
+      $(document).ready(function(){
+          // Event listener for clicking the "Edit" button in each row
+          $('.edit-btn').on('click', function(){
+              // Get the category ID from the button's data attribute
+              var categoryId = $(this).data('category-id');
+              // Populate the modal form fields with the category details
+              $('#editCategoryName' + categoryId).val($('#editCategoryName' + categoryId).val().trim());
+              $('#editCategoryDescription' + categoryId).val($('#editCategoryDescription' + categoryId).val().trim());
+              // Update the form action URL based on the category ID
+              $('#editCategoryForm' + categoryId).attr('action', '/category/edit/' + categoryId);
+          });
+  
+          // Event listener for clicking the "Save Changes" button
+          $('.save-btn').on('click', function(){
+              // Get the category ID from the button's data attribute
+              var categoryId = $(this).data('category-id');
+              // Submit the form with updated category details
+              $('#editCategoryForm' + categoryId).submit();
+          });
+      });
+  </script>
+  
 
 </html>

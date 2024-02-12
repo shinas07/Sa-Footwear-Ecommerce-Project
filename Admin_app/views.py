@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect,get_object_or_404
+from django.shortcuts import render,redirect,get_object_or_404,HttpResponse
 from django.contrib.auth import authenticate,login,logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -30,7 +30,7 @@ def admin_dashboard(request):
 
 @login_required
 def user_list(request):
-    users = Customer.objects.all()
+    users = Customer.objects.all().order_by('-id')
     return render(request,'admin_curd.html',{'users':users})
 
 @login_required
@@ -53,11 +53,8 @@ def unblock_user(request,user_id):
 
 @login_required    
 def admin_category(request):
-    categorys = Category.objects.all()
+    categorys = Category.objects.all().order_by('-id')
     return render(request,'admin_category.html',{'categorys':categorys})
-
-
-
 
 
 
