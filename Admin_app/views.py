@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from Accounts.models import Customer
+from Category.models import Category
 
 # Create your views here.
 
@@ -24,7 +25,8 @@ def admin_login(request):
 
 @login_required
 def admin_dashboard(request):
-    return render(request,'admin_index.html')
+    return render(request, 'admin_index.html')
+
 
 @login_required
 def user_list(request):
@@ -49,10 +51,10 @@ def unblock_user(request,user_id):
         user.save()
         return redirect('admin_users')
 
-# @login_required    
-# def admin_category(request):
-#     categorys = Categorys.objects.all()
-#     return render(request,'admin_category.html',{'categorys':categorys})
+@login_required    
+def admin_category(request):
+    categorys = Category.objects.all()
+    return render(request,'admin_category.html',{'categorys':categorys})
 
 
 
