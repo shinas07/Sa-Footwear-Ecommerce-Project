@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <!-- Add Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Add Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .gradient-custom {
+            background: #6a11cb;
+            background: -webkit-linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));
+            background: linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));
+        }
+
+        .card {
+            border-radius: 1rem;
+        }
+
+        .card-title {
+            color: #ffffff;
+        }
+
+        .form-label {
+            color: #ffffff;
+        }
+    </style>
+</head>
+
+<body>
+    <section class="vh-100 gradient-custom">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                    <div class="card bg-dark text-white">
+                        <div class="card-body p-4 text-center">
+
+                            <div class="mb-md-4 mt-md-3 pb-4">
+
+                                <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
+                                <p class="text-white-50 mb-4">Please enter your login and password!</p>
+                                {% if error_message %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ error_message }}
+                                </div>
+                                {% endif %}
+                                <form method="post" action="{% url 'admin_login' %}">
+                                  {% csrf_token %}
+                                  <div class="form-outline form-white mb-3">
+                                      <input type="text" id="username" name="username" class="form-control form-control-lg" />
+                                      <label class="form-label" for="username">Username</label>
+                                  </div>
+                              
+                                  <div class="form-outline form-white mb-3">
+                                      <input type="password" id="password" name="password" class="form-control form-control-lg" />
+                                      <label class="form-label" for="password">Password</label>
+                                  </div>
+                              
+                                  <p class="small mb-4 pb-lg-1"><a class="text-white-50" href="#!">Forgot
+                                          password?</a></p>
+                              
+                                  <button class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>
+                              </form>
+                              
+
+                            </div>
+
+                            <div>
+                                <p class="mb-0">Don't have an account? <a href="#!"
+                                        class="text-white-50 fw-bold">Sign Up</a>
+                                </p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+</body>
+
+</html>
