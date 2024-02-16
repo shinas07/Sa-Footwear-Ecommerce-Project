@@ -1,55 +1,109 @@
+{% extends 'accounts_base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'account/css/styles.css' %}">
-</head>
-<body>
-    <div class="container">
-        <div class="row justify-content-center mt-5">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Sign Up</h3>
-                    </div>
-                    <div class="card-body">
-                        <form>
-                            <div class="form-group">
-                                <label for="firstName">First Name</label>
-                                <input type="text" class="form-control" id="firstName" placeholder="Enter first name">
-                            </div>
-                            <div class="form-group">
-                                <label for="lastName">Last Name</label>
-                                <input type="text" class="form-control" id="lastName" placeholder="Enter last name">
-                            </div>
-                            <div class="form-group">
-                                <label for="email">Email address</label>
-                                <input type="email" class="form-control" id="email" placeholder="Enter email">
-                            </div>
-                            <div class="form-group">
-                                <label for="password">Password</label>
-                                <input type="password" class="form-control" id="password" placeholder="Password">
-                            </div>
-                            <div class="form-group">
-                                <label for="confirmPassword">Confirm Password</label>
-                                <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm password">
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
-                        </form>
-                        <div class="mt-3 text-center">
-                            <span>Already have an account? </span>
-                            <a href="login.html">Login</a>
+{% block content %}
+<body class="config">
+        <!--====== Section 1 ======-->
+        <div class="u-s-p-y-60">
+            <div class="section__content">
+                <div class="container">
+                    <ul class="breadcrumb__list">
+                        <li class="has-separator">
+                            <a href="{% url 'home' %}">Home</a>
+                        </li>
+                        <li class="is-marked">
+                            <a href="{% url 'Accounts:signup' %}">Signup</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="section__text-wrap">
+                            <h1 class="section__heading u-c-secondary">CREATE AN ACCOUNT</h1>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</body>
-</html>
+        
+        
+        <!--====== End - Section 1 ======-->
+
+
+        <!--====== Section 2 ======-->
+        <div class="u-s-p-b-60">
+
+
+
+
+            <!--====== Section Content ======-->
+            <div class="section__content">
+                <div class="container">
+                    <div class="row row--center">
+                        <div class="col-lg-6 col-md-8 u-s-m-b-30">
+                            <div class="l-f-o">
+                                <div class="l-f-o__pad-box">
+
+                                    {% if error %}
+                                        <div class="alert alert-danger">
+                                            {{ error }}
+                                        </div>
+                                    {% endif %}
+                                    <h1 class="gl-h1">SIGNUP</h1>
+                                    <form class="" method="post" action="">
+                                        {% csrf_token %}
+                                        <div class="u-s-m-b-30">
+                                            <label class="gl-label" for="username">Username *</label>
+                                            <input class="input-text input-text--primary-style" type="text" id="username" name="username" placeholder="Enter Username" required>
+                                        </div>                                        
+                                        <div class="u-s-m-b-30">
+                                            <label class="gl-label" for="first_name">First Name *</label>
+                                            <input class="input-text input-text--primary-style" type="text" id="first_name" name="first_name" placeholder="Enter First Name" required>
+                                        </div>
+                                        <div class="u-s-m-b-30">
+                                            <label class="gl-label" for="last_name">Last Name *</label>
+                                            <input class="input-text input-text--primary-style" type="text" id="last_name" name="last_name" placeholder="Enter Last Name" required>
+                                        </div>
+                                        <div class="u-s-m-b-30">
+                                            <label class="gl-label" for="email">E-MAIL *</label>
+                                            <input class="input-text input-text--primary-style" type="email" id="email" name="email" placeholder="Enter E-mail" required>
+                                        </div>
+                                        <div class="u-s-m-b-30">
+                                            <label class="gl-label" for="phone">Phone *</label>
+                                            <input class="input-text input-text--primary-style" type="tel" id="phone" name="phone" placeholder="Enter Phone" required>
+                                        </div>
+                                        <div class="u-s-m-b-30">
+                                            <label class="gl-label" for="password">PASSWORD *</label>
+                                            <input class="input-text input-text--primary-style" type="password" id="password" name="password" placeholder="Enter Password" required>
+                                        </div>
+                                        <div class="u-s-m-b-30">
+                                            <label class="gl-label" for="confirm_password">CONFIRM PASSWORD *</label>
+                                            <input class="input-text input-text--primary-style" type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
+                                        </div>
+                                        <div class="gl-inline">
+                                            <div class="u-s-m-b-30">
+                                                <button class="btn btn--e-transparent-brand-b-2" type="submit">REGISTER</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    
+
+                                            <!--====== Check Box ======-->
+                                            <div class="check-box">
+
+                                                <input type="checkbox" id="remember-me">
+                                                <div class="check-box__state check-box__state--primary">
+
+                                                    <label class="check-box__label" for="remember-me">Remember Me</label></div>
+                                            </div>
+                                            <!--====== End - Check Box ======-->
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+{% endblock %}

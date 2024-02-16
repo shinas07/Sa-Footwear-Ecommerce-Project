@@ -4,8 +4,9 @@
         <div class="container">
             <div class="row">
                 <div class="col-sm-7 col-md-9">
-                    <div id="colorlib-logo"><a href="index.html">Footwear</a></div>
+                    <div id="colorlib-logo"><a href="index.html">Sa Footwear</a></div>
                 </div>
+                {% if user.is_authenticated %}
                 <div class="col-sm-5 col-md-3">
                     <form action="#" class="search-wrap">
                         <div class="form-group">
@@ -14,13 +15,14 @@
                         </div>
                     </form>
                 </div>
+                {% endif %}
             </div>
             <div class="row">
                 <div class="col-sm-12 text-left menu-1">
                     <ul>
                         <li class="active"><a href="index.html">Home</a></li>
                         <li class="has-dropdown">
-                            <a href="{% static 'men.html' %}">Men</a>
+                            <a href="{% url 'product:men_collections' %}">Men</a>
                             <ul class="dropdown">
                                 <li><a href="product-detail.html">Product Detail</a></li>
                                 <li><a href="cart.html">Shopping Cart</a></li>
@@ -29,21 +31,38 @@
                                 <li><a href="add-to-wishlist.html">Wishlist</a></li>
                             </ul>
                         </li>
-                        <li><a href="women.html">Women</a></li>
+                        <li><a href="{% url 'product:women_collections' %}">Women</a></li>
                         <li><a href="about.html">About</a></li>
                         <li><a href="contact.html">Contact</a></li>
-                        <!-- Accounts Dropdown -->
+                        
+                    {% comment %} <div class="col-sm-3 col-md-12 text-right"> {% endcomment %}
+                        {% if user.is_authenticated %}
+                        <!-- Show these options only if the user is logged in -->
+                        <li class="cart"><a href="cart.html"><i class="icon-shopping-cart"></i> Cart [0]</a></li>
+                        <li class="has-dropdown">
+                            <a href="#"><i class="icon-user"></i> Accounts</a>
+                            <ul class="dropdown">
+                                <li><a href="account.html">Account Details</a></li>
+                                <li><a href="{% url 'Accounts:logout' %}">Logout</a></li>
+                            </ul>
+                        </li>
+                        {% else %}
+                        <!-- Show these options only if the user is not logged in -->
                         <li class="has-dropdown">
                             <a href="#"><i class="icon-user"></i> Accounts</a>
                             <ul class="dropdown">
                                 <li><a href="{% url 'Accounts:signup' %}">Sign Up</a></li>
-                                <li><a href="login.html">Login</a></li>
-                                <li><a href="account.html">Account Details</a></li>
-                                <li><a href="logout.html">Logout</a></li>
+                                <li><a href="{% url 'Accounts:login' %}">Login</a></li>
                             </ul>
                         </li>
+                    </ul>   
+                        {% endif %}
+          
+                        {% comment %} <li class="cart"><a href="cart.html"><i class="icon-shopping-cart"></i> Cart [0]</a></li> {% endcomment %}
+                
+                        </li>
                         <!-- Cart Icon (Visible after login) -->
-                        <li class="cart"><a href="cart.html"><i class="icon-shopping-cart"></i> Cart [0]</a></li>
+                        {% comment %} <li class="cart"><a href="cart.html"><i class="icon-shopping-cart"></i> Cart [0]</a></li> {% endcomment %}
                     </ul>
                 </div>
             </div>
@@ -57,12 +76,12 @@
                         <div class="owl-carousel2">
                             <div class="item">
                                 <div class="col">
-                                    <h3><a href="#">25% off (Almost) Everything! Use Code: Summer Sale</a></h3>
-                                </div>
+                                    <h3><a href="#">Explore the Latest Footwear Collection!</a></h3>
+                                </div>  
                             </div>
                             <div class="item">
                                 <div class="col">
-                                    <h3><a href="#">Our biggest sale yet 50% off all summer shoes</a></h3>
+                                    <h3><a href="#">Discover Stylish and Comfortable Shoes for Every Occasion!</a></h3>
                                 </div>
                             </div>
                         </div>
@@ -70,5 +89,5 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> 
 </nav>

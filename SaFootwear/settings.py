@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'Home',
     'Admin_app',
     'Category',
+    'Products',
+
 ]
 
 MIDDLEWARE = [
@@ -63,6 +65,7 @@ TEMPLATES = [
             'Home/templates',
             'Admin/templates',
             'Accounts/templates',
+            'Products/templates',
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -85,7 +88,7 @@ WSGI_APPLICATION = 'SaFootwear.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'SaFootwear',
+        'NAME': 'ecommerce',
         'USER': 'postgres',
         'PASSWORD':'SA9207',
         'HOST':'localhost',
@@ -125,6 +128,16 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Email configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Specify your SMTP server
+EMAIL_PORT = 587  # Specify the port (587 for TLS)
+EMAIL_USE_TLS = True  # Enable TLS encryption
+EMAIL_HOST_USER = 'shinasaman07@gmail.com'  # Specify your email address
+EMAIL_HOST_PASSWORD = 'lewf bpko abdi wpch'  # Specify your email password
+
+
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
@@ -135,8 +148,13 @@ STATICFILES_DIRS = [
     'SaFootwear/static',
 ]
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'Accounts.Customer'
+

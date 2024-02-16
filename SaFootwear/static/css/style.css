@@ -7505,7 +7505,7 @@ h1, h2, h3, h4, h5,
         display: -moz-inline-stack;
         display: inline-block;
         zoom: 1;
-        *display: inline;
+        display: inline;
         -moz-transition: all 0.3s ease;
         -o-transition: all 0.3s ease;
         -webkit-transition: all 0.3s ease;

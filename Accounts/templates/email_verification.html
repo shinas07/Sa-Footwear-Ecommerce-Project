@@ -1,0 +1,55 @@
+{% extends 'accounts_base.html' %}
+
+{% block content %}
+    <title>OTP Verification</title>
+    <style>
+        /* Styles for the card */
+        .card {
+            width: 300px;
+            margin: auto;
+            margin-top: 3em; 
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Styles for the form */
+        .card form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Styles for the headline */
+        .headline {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+
+    </style> 
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav>
+
+    </nav>
+
+    <!-- Card for password reset -->
+    <div class="card">
+        <h2 class="headline">Forgotten your password?</h2>
+
+        <p>Enter your email address below, and we'll send you an email with a verification OTP to reset it.</p>
+        <form id="emailForm" method="post" action="{% url 'Accounts:password_reset' %}">
+            {% csrf_token %}
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required><br><br>
+            <input type="submit" value="Send OTP">
+        </form>
+        {% if email_error %}
+        <p class="error-messages">{{ email_error }}</p>
+        {% endif %}
+    </div>
+
+{% endblock %}
