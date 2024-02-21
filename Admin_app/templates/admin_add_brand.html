@@ -51,7 +51,11 @@
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseManage"
                     aria-expanded="true" aria-controls="collapseManage">
                     <i class="bi bi-basket"></i>
+<<<<<<< HEAD
                     <span>Products and Brands</span>
+=======
+                    <span>Manage Products and Brands</span>
+>>>>>>> 06e08b338c38307528c9a4d2d8f875a5ea9132a6
                 </a>
                 <div id="collapseManage" class="collapse" aria-labelledby="headingManage" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
@@ -254,13 +258,18 @@
                                                 <td>{{ brand.category }}</td>
                                                 <td><img src="{{ brand.brand_image.url }}" alt="{{ brand.brand_name }}" style="max-width: 100px;"></td>
                                                 <td>
+<<<<<<< HEAD
                                                     {% if brand.is_active %}
+=======
+                                                    {% comment %} {% if brand.is_available %}
+>>>>>>> 06e08b338c38307528c9a4d2d8f875a5ea9132a6 {% endcomment %}
                                                         <span class="status">Active</span>
                                                     {% else %}
                                                         <span class="status">Inactive</span>
                                                     {% endif %}
                                                 </td>                                                    
                                                 <td>
+<<<<<<< HEAD
                                                     {% if brand.is_active %}
                                                         <form action="{% url 'block_brand' brand_id=brand.id %}" method="post" style="display: inline-block;">
                                                             {% csrf_token %}
@@ -273,6 +282,13 @@
                                                         </form>
                                                     {% endif %}
                                                 </td>                                        
+=======
+                                                    <form action="{% url 'delete_brand' brand_id=brand.id %}" method="post">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                                    </form>                                                        
+                                                </td>
+>>>>>>> 06e08b338c38307528c9a4d2d8f875a5ea9132a6
                                             </tr>
                                         {% endfor %}
                                     </tbody>
@@ -283,7 +299,10 @@
                 </div>
             </div>
             
+<<<<<<< HEAD
             
+=======
+>>>>>>> 06e08b338c38307528c9a4d2d8f875a5ea9132a6
             <!-- Topbar -->
             <!-- Include your topbar HTML here -->
             <!-- End of Topbar -->
