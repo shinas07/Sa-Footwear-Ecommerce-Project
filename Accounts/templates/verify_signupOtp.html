@@ -1,0 +1,104 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <!-- Include Bootstrap CSS for styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Include jQuery for AJAX and timer functionality -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            background-image: url('/media/product_images/dd767aab7cec1111868df9cebe85d40601ad1395-1779x1125_1_5m3orZa.png');
+            background-size: cover; /* Cover the entire background */
+            background-position: center; /* Center the background image */
+            background-repeat: no-repeat; /* Do not repeat the background image */
+            height:  100vh; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width:   500px; 
+            padding:   20px; 
+            background-color: rgba(255,  255,  255,  0.8); 
+            border-radius:  10px; 
+            box-shadow:  0  0  10px rgba(0,  0,  0,  0.1); 
+        }
+        #timer {
+            font-weight: bold; /* Make the timer text bold */
+            color: #007bff; /* Blue color for the timer text */
+        }
+        #resend-otp {
+            margin-top:   10px; /* Add some space above the resend button */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>OTP Verification</h2>
+        <form id="otp-form" method="post" action="{% url 'Accounts:signup_verify_otp' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="otp" class="form-label">Enter OTP</label>
+                <input type="text" class="form-control" id="otp" name="otp" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Verify OTP</button>
+        </form>
+        <button id="resend-otp" class="btn btn-secondary" disabled>Resend OTP</button>
+        <div id="timer" class="mt-3">
+            Time remaining: <span id="time-left">5</span> minutes
+        </div>
+        <div id="timer-message" class="mt-3"></div>
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endif %}
+         
+
+    </div>
+
+    <script>
+        // Timer functionality
+        var timeLeft =  300;
+        var timer = setInterval(function() {
+            timeLeft--;
+            var minutes = Math.floor(timeLeft /  60);
+            var seconds = timeLeft - (minutes *  60);
+            document.getElementById('time-left').textContent =  minutes + ":" + (seconds <  10 ? "0" : "") + seconds;
+            if (timeLeft <=  0) {
+                clearInterval(timer);
+                document.getElementById('resend-otp').disabled = false;
+                document.getElementById('timer-message').textContent = 'OTP is invalid  expired.';
+            }
+        },  1000);
+
+        // Resend OTP functionality
+        $('#resend-otp').click(function() {
+            // Disable the resend button
+            $(this).prop('disabled', true);
+
+            // Send an AJAX request to resend the OTP
+            $.ajax({
+                url: '{% url 'Accounts:resend_otp' %}', // URL to your resend OTP view
+                type: 'POST',
+                data: {
+                    email: '{{ request.session.email }}', // Pass the email from the session
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    // Handle success (e.g., show a success message)
+                    alert('OTP has been resent to your email.');
+                },
+                error: function(xhr, status, error) {
+                    // Handle error (e.g., show an error message)
+                    alert('An error occurred while resending the OTP.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

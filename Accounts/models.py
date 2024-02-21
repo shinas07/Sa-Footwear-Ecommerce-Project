@@ -29,6 +29,5 @@ class Customer(AbstractUser):
     phone = models.CharField(max_length=50)
 
     # Optionally, you can add any additional fields or methods here
-    REQUIRED_FIELDS = ['email']
-    def __str__(self):
-        return self.email
+    # def __str__(self):
+    #     return self.email

@@ -51,11 +51,23 @@
 
             <!-- Nav Item - Utilities Collapse Menu -->
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'admin_product' %}">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseManage"
+                    aria-expanded="true" aria-controls="collapseManage">
                     <i class="bi bi-basket"></i>
-                    <span>Products</span>
+                    <span>Products and Brands</span>
                 </a>
-            <!-- Divider -->
+                <div id="collapseManage" class="collapse" aria-labelledby="headingManage" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="{% url 'admin_product' %}">Products Details</a>
+                        <a class="collapse-item" href="{% url 'admin_add_product' %}">Add Product</a>
+                 
+        
+                        <a class="collapse-item" href="{% url 'admin_add_brand' %}">Add Brand</a>
+                        <!-- Add other brand management links here -->
+                    </div>
+                </div>
+            </li>
+            
             <hr class="sidebar-divider">
 
             <!-- Nav Item - Pages Collapse Menu -->
@@ -101,7 +113,7 @@
             </li>
             <hr class="sidebar-divider">
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'admin_users' %}">
+              <a class="nav-link" href="{% url 'admin_add_banner' %} ">
                   <i class="bi bi-tag"></i>
                     <span>Banner</span></a>
             </li>

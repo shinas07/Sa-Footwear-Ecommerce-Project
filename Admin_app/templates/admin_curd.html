@@ -5,6 +5,7 @@
 
 <!-- Page Wrapper -->
 <div id="wrapper">
+    
 
     <!-- Sidebar -->
     <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
@@ -51,12 +52,21 @@
 
         <!-- Nav Item - Utilities Collapse Menu -->
         <li class="nav-item">
-            <a class="nav-link" href="{% url 'admin_product' %}">
+            <a class="nav-link collapsed" href="{% url 'admin_product' %}" data-toggle="collapse" data-target="#collapseManage"
+                aria-expanded="true" aria-controls="collapseManage">
                 <i class="bi bi-basket"></i>
-                <span>Products</span>
+                <span>Products and Brands</span>
             </a>
+            <div id="collapseManage" class="collapse" aria-labelledby="headingManage" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <a class="collapse-item" href="{% url 'admin_product' %}">Products Details</a>
+                    <a class="collapse-item" href="{% url 'admin_add_product' %}">Add Product</a>
+                    <a class="collapse-item" href="{% url 'admin_add_brand' %}">Add Brand</a>
+                    <!-- Add other brand management links here -->
+                </div>
+            </div>
         </li>
-
+        
         <!-- Divider -->
         <hr class="sidebar-divider">
 
@@ -104,7 +114,7 @@
         </li>
         <hr class="sidebar-divider">
         <li class="nav-item">
-            <a class="nav-link" href="tables.html">
+            <a class="nav-link" href="{% url 'admin_add_banner' %} ">
                 <i class="bi bi-tag"></i>
              
                 <span>Banner</span></a>
@@ -211,12 +221,22 @@
                                 <div class="card-header py-3">
                                     <h6 class="m-0 font-weight-bold text-primary">Customer Table</h6>
                                 </div>
+                                {% if messages %}
+                                    <div class="container mt-4">
+                                        {% for message in messages %}
+                                            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">
+                                                {{ message }}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
                                 <div class="card-body">
                                     <div class="table-responsive">
                                         <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                             <thead>
                                                 <tr>
                                                     <th>ID</th>
+                                                    <th>Username</th>
                                                     <th>First Name</th>
                                                     <th>Last Name</th>
                                                     <th>Email</th>
@@ -231,6 +251,7 @@
                                                 <tr {% if user.is_blocked %} class="blocked-user" {% endif %}>
                         
                                                     <td>{{ user.id }}</td>
+                                                    <td>{{ user.username }}</td>
                                                     <td>{{ user.first_name }}</td>
                                                     <td>{{ user.last_name }}</td>
                                                     <td>{{ user.email }}</td>
@@ -249,18 +270,11 @@
                                                             <button type="submit" class="btn {% if user.is_blocked %}btn-success unblock-btn{% else %}btn-danger block-btn{% endif %} btn-sm">
                                                                 {% if user.is_blocked %}Unblock{% else %}Block{% endif %}
                                                             </button>
-                                                        </form>
-                                                        <form action="{% url 'delete_user' user_id=user.id %}" method="post">
-                                                            {% csrf_token %}
-                                                            <input type="hidden" name="user_id" value="{{ user.id }}">
-                                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                                        </form>                                                        
-                                                    
-                                                    </td>
-                                                </>                                                
+                                                        </form>                                   
+                                                    </td>                                               
                                             {% endfor %}                                            
                                                 <!-- Add more rows as needed -->
-                                            </tbody>
+                                             </tbody>
                                         </table>
                                     </div>
                                 </div>

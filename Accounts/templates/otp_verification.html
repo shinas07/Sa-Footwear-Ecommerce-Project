@@ -1,72 +1,88 @@
 {% extends 'accounts_base.html' %}
 
 {% block content %}
-    <title>OTP Verification</title>
-    <style>
-        /* Styles for the card */
-        .card {
-            width: 300px;
-            margin: auto;
-            margin-top: 3em;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
+<title>OTP Verification</title>
+<style>
+    /* Styles for the card */
+    .card {
+        width: 300px;
+        margin: auto;
+        margin-top: 3em;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
 
-        /* Styles for the headline */
-        .headline {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+    /* Styles for the headline */
+    .headline {
+        text-align: center;
+        margin-bottom: 20px;
+    }
 
-        /* Styles for the OTP input */
-        .otp-input {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            outline: none;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-        }
+    /* Styles for the OTP input */
+    .otp-input {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        outline: none;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
 
-        /* Styles for the submit button */
-        .submit-btn {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+    /* Styles for the submit button */
+    .submit-btn {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
 
-        .submit-btn:hover {
-            background-color: #0056b3;
-        }
-        .error-message {
-            color: red; /* Change the color to red or any other color you prefer */
-        }
-        
-    </style>
+    .submit-btn:hover {
+        background-color: #0056b3;
+    }
 
-    <!-- Card for OTP entry -->
+    .error-message {
+        color: red;
+    }
 
-    <div class="card">
-        <h2 class="headline">Enter OTP</h2>
-        <p>Please enter the OTP sent to your email address.</p>
-        <form method="post" action="{% url 'Accounts:verify_otp' %}">
-            {% csrf_token %}
-            <input type="text" id="otp" name="otp" class="otp-input" placeholder="Enter OTP" required>
-            <input type="submit" value="Verify OTP" class="submit-btn">
-        </form>
-        {% if error %}
-        <p class="error-message" id="otp-error">{{ error }}</p>
-        {% endif %}  
-        <p class="timer-message">You have 5 minutes to enter the OTP.</p>
-    </div>
+    .resend-btn {
+        padding: 5px 10px;
+        font-size: 14px;
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .resend-btn:hover {
+        background-color: #0056b3; /* Darker shade on hover */
+    }
+</style>
+
+<!-- Card for OTP entry -->
+
+<div class="card">
+    <h2 class="headline">Enter OTP</h2>
+    <p>Please enter the OTP sent to your email address.</p>
+    <form method="post" action="{% url 'Accounts:password_reset' %}">
+        {% csrf_token %}
+        <input type="text" id="otp" name="otp" class="otp-input" placeholder="Enter OTP" required>
+        <input type="submit" value="Verify OTP" class="submit-btn">
+    </form>
+    {% if error %}
+    <p class="error-message" id="otp-error">{{ error }}</p>
+    {% endif %}  
+    <p class="timer-message">You have 5 minutes to enter the OTP.</p>
+    <button class="resend-btn" onclick="window.location.href='{% url 'Accounts:resend_otp' %}'">Resend OTP</button>
+</div>
 {% endblock %}

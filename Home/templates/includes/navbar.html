@@ -1,10 +1,13 @@
 {% load static %}
+
 <nav class="colorlib-nav" role="navigation">
     <div class="top-menu">
         <div class="container">
             <div class="row">
                 <div class="col-sm-7 col-md-9">
-                    <div id="colorlib-logo"><a href="index.html">Sa Footwear</a></div>
+                    <div id="colorlib-logo"><a href="#">
+                       Sa Footwear <img src="{% static 'images/icon.jpg' %}" alt="Shoe Icon" width="30" height="30"></a>
+                    </div>
                 </div>
                 {% if user.is_authenticated %}
                 <div class="col-sm-5 col-md-3">
@@ -20,20 +23,30 @@
             <div class="row">
                 <div class="col-sm-12 text-left menu-1">
                     <ul>
-                        <li class="active"><a href="index.html">Home</a></li>
+                        <li class="{% if active_category == 'home' %}active{% endif %}">
+                            <a href="{% url 'home' %}">Home</a>
+                        </li>
+                        {% for category in categories %}
+                            <li class="{% if category.category_name|lower == active_category  %}active{% endif %}">
+                                <a href="{% url 'product:category_collections' category.category_name %}">{{ category.category_name }}</a>
+                            </li>
+                        {% endfor %}
+            
                         <li class="has-dropdown">
-                            <a href="{% url 'product:men_collections' %}">Men</a>
+                            <a href=" ">Details</a>
                             <ul class="dropdown">
-                                <li><a href="product-detail.html">Product Detail</a></li>
+                                <li><a href="#">Product Detail</a></li>
                                 <li><a href="cart.html">Shopping Cart</a></li>
                                 <li><a href="checkout.html">Checkout</a></li>
                                 <li><a href="order-complete.html">Order Complete</a></li>
                                 <li><a href="add-to-wishlist.html">Wishlist</a></li>
+                                <li><a href="about.html">About</a></li>
                             </ul>
                         </li>
-                        <li><a href="{% url 'product:women_collections' %}">Women</a></li>
-                        <li><a href="about.html">About</a></li>
-                        <li><a href="contact.html">Contact</a></li>
+                        {% comment %} <li><a href="{% url 'product:women_collections' %}">Women</a></li> {% endcomment %}
+
+                       
+                        <li ><a href="contact.html">Contact</a></li>
                         
                     {% comment %} <div class="col-sm-3 col-md-12 text-right"> {% endcomment %}
                         {% if user.is_authenticated %}

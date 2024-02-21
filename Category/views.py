@@ -9,7 +9,11 @@ from django.contrib import messages
 def add_category(request):
     if request.method == 'POST':
         category_name = request.POST.get('category_name') 
-        description = request.POST.get('category_description') 
+        description = request.POST.get('category_description')
+        if Category.objects.filter(category_name__iexact=category_name).exists():
+            messages.error(request, 'Category already exists. Please choose a different name.')
+            return redirect('admin_category')
+        
         Category.objects.create(category_name=category_name, description=description)
         messages.success(request, 'Category added successfully!')
         return redirect('admin_category')
@@ -28,12 +32,6 @@ def unlist_category(request,category_id):
     category = Category.objects.get(id=category_id)
     category.is_listed = False
     category.save()
-    return redirect('admin_category')
-
-@login_required
-def delete_category(request,category_id):
-    category = Category.objects.get(id=category_id)
-    category.delete()
     return redirect('admin_category')
 
 @login_required

@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 from pathlib import Path
-from decouple import config
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,11 +20,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY= 'django-insecure-izeu(1=w+g)6g(+4g(da0%4+ma1afpwij@^+wr6*cbz4mjetg@'
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', cast=bool, default=True)
+DEBUG = DEBUG=True
 
 ALLOWED_HOSTS = []
 
@@ -43,6 +43,14 @@ INSTALLED_APPS = [
     'Admin_app',
     'Category',
     'Products',
+    'Cart',
+    
+
+
+    # 'allauth',
+    # 'allauth.account',
+    # 'allauth.socialaccount',
+    # 'allauth.socialaccount.providers.google',
 
 ]
 
@@ -54,6 +62,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'Accounts.middleware.BlockCheckMiddleware',
+    # 'django.template.context_processors.request',
+    # 'allauth.account.middleware.AccountMiddleware',
+
+
 ]
 
 ROOT_URLCONF = 'SaFootwear.urls'
@@ -66,6 +79,7 @@ TEMPLATES = [
             'Admin/templates',
             'Accounts/templates',
             'Products/templates',
+            'Cart/templates',
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -74,6 +88,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'Home.context_processors.categories',
             ],
         },
     },
@@ -88,7 +103,7 @@ WSGI_APPLICATION = 'SaFootwear.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ecommerce',
+        'NAME': 'sadatabase',
         'USER': 'postgres',
         'PASSWORD':'SA9207',
         'HOST':'localhost',
@@ -158,3 +173,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'Accounts.Customer'
 
+# AUTHENTICATION_BACKENDS = [
+   
+   
+#     'django.contrib.auth.backends.ModelBackend',
+
+   
+#     'allauth.account.auth_backends.AuthenticationBackend',
+   
+# ]
+
+# SITE_ID = 1

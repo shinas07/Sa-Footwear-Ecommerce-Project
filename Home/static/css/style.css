@@ -8852,3 +8852,15 @@ input[type="text"] {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+
+#img-container{
+
+  max-width: 500px;
+}
+
+#lens{
+  height: 125px;
+  width: 125px;
+  border:2px solid black;
+}

@@ -26,6 +26,7 @@
         <!--====== Section 2 ======-->
         <div class="u-s-p-b-60">
 
+
             <!--====== Section Intro ======-->
             <div class="section__intro u-s-m-b-60">
                 <div class="container">
@@ -38,6 +39,15 @@
                     </div>
                 </div>
             </div>
+
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             <!--====== End - Section Intro ======-->
 
 
@@ -57,17 +67,17 @@
 
                                     <h1 class="gl-h1">SIGNIN</h1>
 
-                                    <span class="gl-text u-s-m-b-30">If you have an account with us, please log in.</span>
+                                    {% comment %} <span class="gl-text u-s-m-b-30">If you have an account with us, please log in.</span> {% endcomment %}
                                     <form class="l-f-o__form" method="post">
                                         {% csrf_token %}
-                                        <div class="gl-s-api">
+                                        {% comment %} <div class="gl-s-api">
                                             <div class="u-s-m-b-15">
                                                 <button class="gl-s-api__btn gl-s-api__btn--gplus" type="button">
                                                     <i class="fab fa-google"></i>
                                                     <span>Sign in with Google</span>
                                                 </button>
                                             </div>
-                                        </div>
+                                        </div> {% endcomment %}
                                         <div class="u-s-m-b-30">
                                             <div class="u-s-m-b-30">
                                                 <label class="gl-label" for="login-username">USERNAME *</label>
@@ -77,7 +87,7 @@
                                             <div class="u-s-m-b-30">
                                                 <label class="gl-label" for="password">PASSWORD *</label>
                                                 <input class="input-text input-text--primary-style" type="password" id="password" name="password" placeholder="Enter Password" minlength="5" required>
-                                                <small>Password must be at least 5 characters long.</small>
+                                                {% comment %} <small>Password must be at least 5 characters long.</small> {% endcomment %}
                                             </div>
                                             <div class="gl-inline">
                                                 <div class="u-s-m-b-30">

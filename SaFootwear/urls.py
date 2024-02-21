@@ -26,5 +26,17 @@ urlpatterns = [
     path('',include('Accounts.urls')),
     path('',include('Category.urls')),
     path('', include('Products.urls', namespace='product')),
+    path('',include('Cart.urls',namespace='Cart')),
 
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+# urlpatterns = [
+#     path('admin/', admin.site.urls),
+#     path('admin_login/', include('Admin_app.urls')),  # Example URL for the admin app
+#     path('', include('Home.urls')),  # Example URL for the home app
+#     path('accounts/', include('Accounts.urls')),  # Example URL for the accounts app
+#     path('categories/', include('Category.urls')),  # Example URL for the category app
+#     path('products/', include('Products.urls', namespace='product')),  # Example URL for the products app
+#     # path('accounts/', include('allauth.urls')),  # URL for authentication provided by django-allauth
+# ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

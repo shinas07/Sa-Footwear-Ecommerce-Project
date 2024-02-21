@@ -3,6 +3,70 @@
 {% block content %}
 
 
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4 !important;
+        margin: 0;
+        padding: 0;
+        color: #333;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff !important;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    form {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    form label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    form input[type="text"],
+    form textarea,
+    form select {
+        width: 100%  !important;
+        padding: 10px  !important;
+        margin-bottom: 15px  !important;
+        border: 1px solid #ccc  !important;
+        border-radius: 5px  !important;
+        box-sizing: border-box  !important;
+    }
+
+    form input[type="file"] {
+        margin-top: 5px;
+    }
+
+    form button[type="submit"] {
+        background-color: #007bff  !important;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    form button[type="submit"]:hover {
+        background-color: #0056b3  !important;
+    }
+</style>
+
+
     <!-- Page Wrapper -->
     <div id="wrapper">
 
@@ -45,21 +109,23 @@
             <!-- Nav Item - Utilities Collapse Menu -->
             
 
-                
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="{% url  'admin_product' %}" data-toggle="collapse" data-target="#collapseProducts"
-                        aria-expanded="true" aria-controls="collapseProducts">
-                        <i class="bi bi-basket"></i>
-                        <span>Products</span>
-                    </a>
-                    <div id="collapseProducts" class="collapse" aria-labelledby="headingProducts" data-parent="#accordionSidebar">
-                        <div class="bg-white py-2 collapse-inner rounded">
-                            <h6 class="collapse-header">Manage Products:</h6>
-                            <a class="collapse-item" href="{% url 'admin_add_product' %}">Add Product</a>
-            
-                        </div>
+                      
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseManage"
+                    aria-expanded="true" aria-controls="collapseManage">
+                    <i class="bi bi-basket"></i>
+                    <span>Products and Brands</span>
+                </a>
+                <div id="collapseManage" class="collapse" aria-labelledby="headingManage" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="{% url 'admin_product' %}">Products Details</a>
+                        <a class="collapse-item" href="{% url 'admin_add_product' %}">Add Product</a>
+                        <a class="collapse-item" href="{% url 'admin_add_brand' %}">Add Brand</a>
+                        <!-- Add other brand management links here -->
                     </div>
-                </li>
+                </div>
+            </li>
+                
                 
                 
                 
@@ -109,7 +175,7 @@
             </li>
             <hr class="sidebar-divider">
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'admin_users' %}">
+              <a class="nav-link" href="{% url 'admin_add_banner' %} ">
                   <i class="bi bi-tag"></i>
                     <span>Banner</span></a>
             </li>
@@ -203,88 +269,77 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
+                 
+              
+                    <div class="container">
+                        <h1>Add Product</h1>
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <label for="product_name">Product Name:</label>
+                            {{ form.product_name }}
 
-                    <!-- Page Heading -->
-                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Add Products</h1>
+                            {% if form.product_name.errors %}
+                            <div class="text-danger">
+                                {{ form.product_name.errors }}
+                            </div>
+                            {% endif %}
+                            
+                            <label for="description">Description:</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                            <div class="text-danger">
+                                {{ form.description.errors }}
+                            </div>
+                            {% endif %}
+                                
+                            
+                            <label for="size">Size:</label>
+                            {{ form.size }}
+                            
+                            <label for="price">Price:</label>
+                            {{ form.price }}
+                            {% if form.price.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.price.errors %}
+                                        <span>{{ error }}</span><br>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            <label for="stock">Stock:</label>
+                            {{ form.stock }}
+                            
+                            <label for="category">Category:</label>
+                            {{ form.category }}
+                            
+                            <label for="product_brand">Brand:</label>
+                            {{ form.product_brand }}
+                            
+                            <label for="is_available">Is Available:</label>
+                            {{ form.is_available }}
+
+                            <label for="images">right_view_image:</label>
+                            {{ form.right_view_image }}
+                            
+                            <label for="images">right_view_image:</label>
+                            {{ form.right_view_image }}
+
+                            <label for="images">full_view_image</label>
+                            {{ form.full_view_image }}
+                            
+                            <button type="submit">Submit</button>
+                        </form>
                     </div>
 
 
-
-
-            
-
-                            
-                  
-
                 </div>
                 <!-- /.container-fluid -->
-            
-                <form method="POST" action="#" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="card">
-                        <div class="card-header">
-                            <h6 class="m-0 font-weight-bold text-primary">Add Product</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered" id="productsDataTable" width="100%" cellspacing="0">
-                                    <thead>
-                                        <tr>
-                                            <th>Product Name</th>
-                                            <th>Description</th>
-                                            <th>Size</th>
-                                            <th>Price</th>
-                                            <th>Stock</th>
-                                            <th>Category</th>
-                                            <th>Is Available</th>
-                                          
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{{ form.product_name }}</td>
-                                            <td>{{ form.description }}</td>
-                                            <td>{{ form.size }}</td> 
-                                            <td>{{ form.price }}</td>
-                                            <td>{{ form.stock }}</td>
-                                            <td>{{ form.category }}</td>
-                                            <td>{{ form.is_available }}</td>
-                                
-                                        </tr>
-                                        <tr>
-                                            <td  colspan="7">
-                                                <div class="form-group">
-                                                    <label for="left_view">Image left view:</label>
-                                                    {{ form.left_view_image }}
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="right_view">Image right view:</label>
-                                                    {{ form.right_view_image }}
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="full_view">Image full view:</label>
-                                                    {{ form.full_view_image }}
-                                                </div>                                            
-                                            </td>                                            
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <button type="submit" class="btn btn-primary">Submit</button>
-                        </div>
-                    </div> 
-                </form>
-                
-        
-            
-        </div>
-    </div>
-        <!-- End of Content Wrapper -->
-  
 
+
+            </div>
+            <!-- End of Main Content -->
+        </div>
+        <!-- End of Content Wrapper -->
     </div>
     <!-- End of Page Wrapper -->
 

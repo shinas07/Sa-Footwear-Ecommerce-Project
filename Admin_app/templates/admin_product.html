@@ -46,20 +46,22 @@
             
 
                 
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="{% url 'admin_product' %}" data-toggle="collapse" data-target="#collapseProducts"
-                        aria-expanded="true" aria-controls="collapseProducts">
-                        <i class="bi bi-basket"></i>
-                        <span>Products</span>
-                    </a>
-                    <div id="collapseProducts" class="collapse" aria-labelledby="headingProducts" data-parent="#accordionSidebar">
-                        <div class="bg-white py-2 collapse-inner rounded">
-                            <h6 class="collapse-header">Manage Products:</h6>
-                            <a class="collapse-item" href="{% url 'admin_add_product' %}">Add Product</a>
-                    
-                        </div>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseManage"
+                    aria-expanded="true" aria-controls="collapseManage">
+                    <i class="bi bi-basket"></i>
+                    <span>Products and Brands</span>
+                </a>
+                <div id="collapseManage" class="collapse" aria-labelledby="headingManage" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="{% url 'admin_product' %}">Products Details</a>
+                        <a class="collapse-item" href="{% url 'admin_add_product' %}">Add Product</a>
+                        <a class="collapse-item" href="{% url 'admin_add_brand' %}">Add Brand</a>
+                        <!-- Add other brand management links here -->
                     </div>
-                </li>
+                </div>
+            </li>
+            
                 
                 
                 
@@ -218,8 +220,21 @@
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800">Products</h1>
-                    </div>                      
-                  
+                    </div>
+
+                    {% if messages %}
+                    <div class="container">
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    </div>
+                    {% endif %}
+             
 
                 </div>
                 <!-- /.container-fluid -->
@@ -241,6 +256,7 @@
                                     <th>Stock</th>
                                     <th>Is Available</th>
                                     <th>Category</th>
+                                    <th>Brand</th>
                                     <th>Image</th>
                                     <th>Actions</th>
                                 </tr>
@@ -260,6 +276,7 @@
                                     <td>{{ product.stock }}</td>
                                     <td>{{ product.is_available }}</td>
                                     <td>{{ product.category }}</td>
+                                    <td>{{product.product_brand}}</td>
                                     <td>
                                         {% if product.full_view_image %}
                                                 <img src="{{ product.full_view_image.url  }}" width="110">
