@@ -8,8 +8,11 @@ from django.contrib import messages
 @login_required
 def add_category(request):
     if request.method == 'POST':
-        category_name = request.POST.get('category_name') 
-        description = request.POST.get('category_description')
+        category_name = request.POST.get('category_name').strip()
+        description = request.POST.get('category_description').strip()
+        if not category_name:
+            messages.error(request,'Category name cannot be empty.')
+            return redirect('admin_category')
         if Category.objects.filter(category_name__iexact=category_name).exists():
             messages.error(request, 'Category already exists. Please choose a different name.')
             return redirect('admin_category')

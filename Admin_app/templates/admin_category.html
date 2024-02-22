@@ -53,6 +53,7 @@
                 <div class="bg-white py-2 collapse-inner rounded">
                     <a class="collapse-item" href="{% url 'admin_product' %}">Products Details</a>
                     <a class="collapse-item" href="{% url 'admin_add_product' %}">Add Product</a>
+                    <a class="collapse-item" href="{% url 'product_size_color' %}">Add ProductSizeColor</a>
                     <a class="collapse-item" href="{% url 'admin_add_brand' %}">Add Brand</a>
                     <!-- Add other brand management links here -->
                 </div>
@@ -213,17 +214,17 @@
 
           <!-- Your form for editing category details goes here -->
           <form id="editCategoryForm">
-              {% csrf_token %}
-              <!-- Input fields for editing category details -->
-              <div class="form-group">
-                  <label for="editCategoryName">Category Name</label>
-                  <input type="text" class="form-control" id="editCategoryName" name="edit_category_name">
-              </div>
-              <div class="form-group">
-                  <label for="editCategoryDescription">Description</label>
-                  <textarea class="form-control" id="editCategoryDescription" name="edit_category_description" rows="3"></textarea>
-              </div>
-          </form>
+            {% csrf_token %}
+            <!-- Input fields for editing category details -->
+            <div class="form-group">
+                <label for="editCategoryName">Category Name</label>
+                <input type="text" class="form-control" id="editCategoryName" name="edit_category_name" required>
+            </div>
+            <div class="form-group">
+                <label for="editCategoryDescription">Description</label>
+                <textarea class="form-control" id="editCategoryDescription" name="edit_category_description" rows="3" required></textarea>
+            </div>
+        </form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

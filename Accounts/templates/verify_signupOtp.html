@@ -6,12 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OTP Verification</title>
     <!-- Include Bootstrap CSS for styling -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"> 
     <!-- Include jQuery for AJAX and timer functionality -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
     <style>
         body {
-            background-image: url('/media/product_images/dd767aab7cec1111868df9cebe85d40601ad1395-1779x1125_1_5m3orZa.png');
+            background-image: url('{% static "images/about.jpg" %}');
             background-size: cover; /* Cover the entire background */
             background-position: center; /* Center the background image */
             background-repeat: no-repeat; /* Do not repeat the background image */
@@ -37,6 +37,7 @@
     </style>
 </head>
 <body>
+    
     <div class="container">
         <h2>OTP Verification</h2>
         <form id="otp-form" method="post" action="{% url 'Accounts:signup_verify_otp' %}">

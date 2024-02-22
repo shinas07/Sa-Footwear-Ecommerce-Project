@@ -120,6 +120,7 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item" href="{% url 'admin_product' %}">Products Details</a>
                         <a class="collapse-item" href="{% url 'admin_add_product' %}">Add Product</a>
+                        <a class="collapse-item" href="{% url 'product_size_color' %}">Add ProductSizeColor</a>
                         <a class="collapse-item" href="{% url 'admin_add_brand' %}">Add Brand</a>
                         <!-- Add other brand management links here -->
                     </div>
@@ -269,68 +270,29 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-                 
-              
+                    {% if messages %}
+                    <div class="container">
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <div class="container">
                         <h1>Add Product</h1>
                         <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
-                            <label for="product_name">Product Name:</label>
-                            {{ form.product_name }}
-
-                            {% if form.product_name.errors %}
-                            <div class="text-danger">
-                                {{ form.product_name.errors }}
-                            </div>
-                            {% endif %}
-                            
-                            <label for="description">Description:</label>
-                            {{ form.description }}
-                            {% if form.description.errors %}
-                            <div class="text-danger">
-                                {{ form.description.errors }}
-                            </div>
-                            {% endif %}
-                                
-                            
-                            <label for="size">Size:</label>
-                            {{ form.size }}
-                            
-                            <label for="price">Price:</label>
-                            {{ form.price }}
-                            {% if form.price.errors %}
-                                <div class="text-danger">
-                                    {% for error in form.price.errors %}
-                                        <span>{{ error }}</span><br>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                            
-                            <label for="stock">Stock:</label>
-                            {{ form.stock }}
-                            
-                            <label for="category">Category:</label>
-                            {{ form.category }}
-                            
-                            <label for="product_brand">Brand:</label>
-                            {{ form.product_brand }}
-                            
-                            <label for="is_available">Is Available:</label>
-                            {{ form.is_available }}
-
-                            <label for="images">right_view_image:</label>
-                            {{ form.right_view_image }}
-                            
-                            <label for="images">right_view_image:</label>
-                            {{ form.right_view_image }}
-
-                            <label for="images">full_view_image</label>
-                            {{ form.full_view_image }}
-                            
+                            {{ product_form.as_p }}
                             <button type="submit">Submit</button>
                         </form>
                     </div>
-
+                 
+    
 
                 </div>
                 <!-- /.container-fluid -->

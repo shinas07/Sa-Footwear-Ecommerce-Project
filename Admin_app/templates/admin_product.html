@@ -56,6 +56,7 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item" href="{% url 'admin_product' %}">Products Details</a>
                         <a class="collapse-item" href="{% url 'admin_add_product' %}">Add Product</a>
+                        <a class="collapse-item" href="{% url 'product_size_color' %}">Add ProductSizeColor</a>
                         <a class="collapse-item" href="{% url 'admin_add_brand' %}">Add Brand</a>
                         <!-- Add other brand management links here -->
                     </div>
@@ -240,20 +241,17 @@
                 <!-- /.container-fluid -->
             
 
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="m-0 font-weight-bold text-primary">Products Data</h6>
-                </div>
-                <div class="card-body">
+                <div class="container">
                     <div class="table-responsive">
                         <table class="table table-bordered" id="productsDataTable" width="100%" cellspacing="0">
                             <thead>
                                 <tr>
                                     <th>Product Name</th>
                                     <th>Description</th>
-                                    <th>Size</th>
-                                    <th>Price</th>
+                                    <th>Sizes</th>
+                                    <th>Colors</th>
                                     <th>Stock</th>
+                                    <th>Price</th>
                                     <th>Is Available</th>
                                     <th>Category</th>
                                     <th>Brand</th>
@@ -262,67 +260,60 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Loop through each product -->
                                 {% for product in products %}
                                 <tr>
                                     <td>{{ product.product_name }}</td>
                                     <td>{{ product.description }}</td>
                                     <td>
-                                        {% for size in product.size.all %}
-                                        {{ size.name }}{% if not forloop.last %}, {% endif %}
+                                        {% for psc in product_size_colors %}
+                                        {% if psc.product_id == product.id %}
+                                        {{ psc.size }}{% if not forloop.last %},{% endif %}
+                                        {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% for psc in product_size_colors %}
+                                        {% if psc.product_id == product.id %}
+                                        {{ psc.color }}{% if not forloop.last %}{% endif %}
+                                        {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% for psc in product_size_colors %}
+                                        {% if psc.product_id == product.id %}
+                                        {{ psc.Stock }}{% if not forloop.last %}{% endif %}
+                                        {% endif %}
                                         {% endfor %}
                                     </td>
                                     <td>{{ product.price }}</td>
-                                    <td>{{ product.stock }}</td>
                                     <td>{{ product.is_available }}</td>
                                     <td>{{ product.category }}</td>
-                                    <td>{{product.product_brand}}</td>
+                                    <td>{{ product.product_brand }}</td>
                                     <td>
                                         {% if product.full_view_image %}
-                                                <img src="{{ product.full_view_image.url  }}" width="110">
+                                        <img src="{{ product.full_view_image.url }}" width="110">
                                         {% else %}
-                                            No images available
+                                        No images available
                                         {% endif %}
                                     </td>
                                     <td>
+                                        {% for product in products %}
                                         <a href="{% url 'edit_product' product.id %}" class="btn btn-primary">Edit</a>
+                                        {% endfor %}
                                         {% if product.is_available %}
                                         <a href="{% url 'unlist_product' product.id %}" class="btn btn-warning">Unlist</a>
                                         {% else %}
                                         <a href="{% url 'list_product' product.id %}" class="btn btn-success">List</a>
                                         {% endif %}
-                                                                      
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
                 </div>
+            
             </div>
-
-            <!-- Edit Product Modal -->
-            <div class="modal fade" id="editProductModal" tabindex="-1" role="dialog" aria-labelledby="editProductModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="editProductModalLabel">Edit Product</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <form id="editProductForm">
-                            <div class="modal-body">
-                                <!-- Product details will be loaded here via AJAX -->
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary">Save changes</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
         </div>
     </div>
         <!-- End of Content Wrapper -->
@@ -355,5 +346,38 @@
             </div>
         </div>
     </div>
-
+    
+<script>
+    $(document).ready(function() {
+        $('#editProductModal').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget); // Button that triggered the modal
+            var productId = button.data('product-id'); // Extract product ID from data-* attribute
+            console.log("Product ID:", productId); // Debugging line
+    
+            // Fetch product details via AJAX
+            $.ajax({
+                url: '/admin_edit_product/' + productId + '/',
+                data: {
+                    'product_id': productId
+                },
+                success: function(data) {
+                    console.log("AJAX Response:", data); // Debugging line
+                    var modalBody = $('#editProductModal .modal-body');
+                    modalBody.empty(); // Clear the modal body
+    
+                    // Dynamically create form fields based on the returned data
+                    $.each(data, function(key, value) {
+                        modalBody.append('<div class="form-group"><label for="' + key + '">' + key + '</label><input type="text" class="form-control" id="' + key + '" name="' + key + '" value="' + value + '"></div>');
+                    });
+    
+                    // Update the form action to include the product ID
+                    $('#editProductForm').attr('action', '/admin_edit_product/' + productId + '/');
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error:", error); // Debugging line
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}

@@ -60,6 +60,7 @@
                 <div class="bg-white py-2 collapse-inner rounded">
                     <a class="collapse-item" href="{% url 'admin_product' %}">Products Details</a>
                     <a class="collapse-item" href="{% url 'admin_add_product' %}">Add Product</a>
+                    <a class="collapse-item" href="{% url 'product_size_color' %}">Add ProductSizeColor</a>
                     <a class="collapse-item" href="{% url 'admin_add_brand' %}">Add Brand</a>
                     <!-- Add other brand management links here -->
                 </div>
@@ -210,8 +211,21 @@
                 <!-- Table -->
                 <div class="container-fluid">
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Customer</h1>
+                        <h1 class="h3 mb-0 text-gray-800">Banner</h1>
                     </div>  
+
+                    {% if messages %}
+                    <div class="container">
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    </div>
+                    {% endif %}
                 
                     <!-- Table -->
                     <div class="row">

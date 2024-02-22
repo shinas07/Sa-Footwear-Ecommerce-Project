@@ -20,8 +20,7 @@
 			<div class="container">
 				<div class="row">
 					<div class="col">
-						<div class="breadcrumbs-img" style="background-image: url({% static 'images/cover-img-1.jpg' %});">
-							<h2>{{gender}}</h2>
+						<div class="breadcrumbs-img" style="background-image: url({% static 'images/about.jpg' %});">
 						</div>
 						<div class="menu text-center">
 							<p><a href="#">New Arrivals</a> <a href="#">Best Sellers</a> <a href="#">Extended Widths</a> <a href="#">Sale</a></p>
@@ -58,7 +57,7 @@
 			<div class="container">
 				<div class="row">
 					<div class="col-sm-8 offset-sm-2 text-center colorlib-heading colorlib-heading-sm">
-						<h2>View {{brand.brand_name }} {{category.category_name}} Products</h2>
+						<h2>View {{brand.brand_name }} Products</h2>
 					</div>
 				</div>
 		
@@ -68,7 +67,7 @@
                         <div class="col-md-3 col-lg-3 mb-4 text-center">
                             <div class="product-entry border">
                                 <a href="{% url 'product:product_details' product_id=product.pk %}" class="prod-img">
-                                    {% comment %} <img src="{{ product.full_view_image.url }}" class="img-fluid" alt="{{ product.product_name }}"> {% endcomment %}
+                                    <img src="{{ product.full_view_image.url }}" class="img-fluid" alt="{{ product.product_name }}"> 
                                 </a>
                                 <div class="desc">
                                     <h2><a href="{% url 'product:product_details' product_id=product.pk %}">{{ product.product_name }}</a></h2>
@@ -81,50 +80,9 @@
 						
 					<div class="w-100"></div>
 
-				{% comment %} <div class="row">
-					<div class="col-md-12 text-center">
-						<div class="block-27">
-		               <ul>
-			               <li><a href="#"><i class="ion-ios-arrow-back"></i></a></li>
-		                  <li class="active"><span>1</span></li>
-		                  <li><a href="#">2</a></li>
-		                  <li><a href="#">3</a></li>
-		                  <li><a href="#">4</a></li>
-		                  <li><a href="#">5</a></li>
-		                  <li><a href="#"><i class="ion-ios-arrow-forward"></i></a></li>
-		               </ul>
-		            </div>
-					</div>
-				</div> {% endcomment %}
+	
 			</div>
 		</div>
-
-		{% comment %} <div class="colorlib-partner">
-			<div class="container">
-				<div class="row">
-					<div class="col-sm-8 offset-sm-2 text-center colorlib-heading colorlib-heading-sm">
-						<h2>Trusted Partners</h2>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col partner-col text-center">
-						<img src="{% static 'images/brand-1.jpg' %}" class="img-fluid" alt="Free html4 bootstrap 4 template">
-					</div>
-					<div class="col partner-col text-center">
-						<img src="{% static 'images/brand-2.jpg' %}" class="img-fluid" alt="Free html4 bootstrap 4 template">
-					</div>
-					<div class="col partner-col text-center">
-						<img src="{% static 'images/brand-3.jpg' %}" class="img-fluid" alt="Free html4 bootstrap 4 template">
-					</div>
-					<div class="col partner-col text-center">
-						<img src="{% static 'images/brand-4.jpg' %}" class="img-fluid" alt="Free html4 bootstrap 4 template">
-					</div>
-					<div class="col partner-col text-center">
-						<img src="{% static 'images/brand-5.jpg' %}" class="img-fluid" alt="Free html4 bootstrap 4 template">
-					</div>
-				</div>
-			</div>
-		</div> {% endcomment %}
 
 		<footer id="colorlib-footer" role="contentinfo">
 			<div class="container">

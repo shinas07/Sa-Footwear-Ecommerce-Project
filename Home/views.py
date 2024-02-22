@@ -9,7 +9,6 @@ def home(request):
     active_category = 'home'
     products = Product.objects.filter(Q(category__category_name="Men") | Q(category__category_name='Women'),
         category__is_listed=True,is_available=True)
-    print('haai')
     lasted_categories = Product.objects.exclude(Q(category__category_name='Men') | Q(category__category_name='Women'))
     banners = Banner.objects.all()
     categorys = Category.objects.all()

@@ -11,6 +11,12 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,11 +26,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-SECRET_KEY= 'django-insecure-izeu(1=w+g)6g(+4g(da0%4+ma1afpwij@^+wr6*cbz4mjetg@'
 
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = DEBUG=True
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-izeu(1=w+g)6g(+4g(da0%4+ma1afpwij@^+wr6*cbz4mjetg@')
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = []
 
@@ -100,18 +104,17 @@ WSGI_APPLICATION = 'SaFootwear.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'sadatabase',
-        'USER': 'postgres',
-        'PASSWORD':'SA9207',
-        'HOST':'localhost',
-        'PORT':'5432',
-
+        'NAME': os.environ.get('DATABASE_NAME', 'sadatabase'),
+        'USER': os.environ.get('DATABASE_USER', 'postgres'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD','SA9207'),
+        'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
+        'PORT': os.environ.get('DATABASE_PORT', '5432'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -144,13 +147,13 @@ USE_I18N = True
 USE_TZ = True
 
 # Email configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Specify your SMTP server
-EMAIL_PORT = 587  # Specify the port (587 for TLS)
-EMAIL_USE_TLS = True  # Enable TLS encryption
-EMAIL_HOST_USER = 'shinasaman07@gmail.com'  # Specify your email address
-EMAIL_HOST_PASSWORD = 'lewf bpko abdi wpch'  # Specify your email password
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = os.environ.get('EMAIL_PORT',  587)
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'shinasaman07@gmail.com')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'lewf bpko abdi wpch')
 
 
 
@@ -184,3 +187,6 @@ AUTH_USER_MODEL = 'Accounts.Customer'
 # ]
 
 # SITE_ID = 1
+
+
+

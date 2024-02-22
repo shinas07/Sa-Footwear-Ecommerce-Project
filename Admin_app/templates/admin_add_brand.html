@@ -51,16 +51,14 @@
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseManage"
                     aria-expanded="true" aria-controls="collapseManage">
                     <i class="bi bi-basket"></i>
-<<<<<<< HEAD
+
                     <span>Products and Brands</span>
-=======
-                    <span>Manage Products and Brands</span>
->>>>>>> 06e08b338c38307528c9a4d2d8f875a5ea9132a6
                 </a>
                 <div id="collapseManage" class="collapse" aria-labelledby="headingManage" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item" href="{% url 'admin_product' %}">Products Details</a>
                         <a class="collapse-item" href="{% url 'admin_add_product' %}">Add Product</a>
+                        <a class="collapse-item" href="{% url 'product_size_color' %}">Add ProductSizeColor</a>
                         <a class="collapse-item" href="{% url 'admin_add_brand' %}">Add Brand</a>
                         <!-- Add other brand management links here -->
                     </div>
@@ -229,6 +227,18 @@
             <div class="d-sm-flex align-items-center justify-content-between mb-4">
                 <h1 class="h3 mb-0 text-gray-800">Brand</h1>
             </div>
+            {% if messages %}
+            <div class="container">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {% for message in messages %}
+                        {{ message }}
+                    {% endfor %}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            {% endif %}
 
 
             <div class="row">
@@ -258,18 +268,17 @@
                                                 <td>{{ brand.category }}</td>
                                                 <td><img src="{{ brand.brand_image.url }}" alt="{{ brand.brand_name }}" style="max-width: 100px;"></td>
                                                 <td>
-<<<<<<< HEAD
+
                                                     {% if brand.is_active %}
-=======
-                                                    {% comment %} {% if brand.is_available %}
->>>>>>> 06e08b338c38307528c9a4d2d8f875a5ea9132a6 {% endcomment %}
+
+                                                    {% comment %} {% if brand.is_available %}{% endcomment %}
                                                         <span class="status">Active</span>
                                                     {% else %}
                                                         <span class="status">Inactive</span>
                                                     {% endif %}
                                                 </td>                                                    
                                                 <td>
-<<<<<<< HEAD
+
                                                     {% if brand.is_active %}
                                                         <form action="{% url 'block_brand' brand_id=brand.id %}" method="post" style="display: inline-block;">
                                                             {% csrf_token %}
@@ -281,14 +290,8 @@
                                                             <button type="submit" class="btn btn-success btn-sm">List</button>
                                                         </form>
                                                     {% endif %}
-                                                </td>                                        
-=======
-                                                    <form action="{% url 'delete_brand' brand_id=brand.id %}" method="post">
-                                                        {% csrf_token %}
-                                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                                    </form>                                                        
+                                                </td>                                         
                                                 </td>
->>>>>>> 06e08b338c38307528c9a4d2d8f875a5ea9132a6
                                             </tr>
                                         {% endfor %}
                                     </tbody>
@@ -299,10 +302,7 @@
                 </div>
             </div>
             
-<<<<<<< HEAD
-            
-=======
->>>>>>> 06e08b338c38307528c9a4d2d8f875a5ea9132a6
+
             <!-- Topbar -->
             <!-- Include your topbar HTML here -->
             <!-- End of Topbar -->
@@ -323,18 +323,33 @@
                             <div class="form-group">
                                 <label for="brand_name">Brand Name:</label>
                                 <input type="text" id="brand_name" name="brand_name" class="form-control" required>
+                                {% if form.brand_name.errors %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ form.brand_name.errors }}
+                                </div>
+                                {% endif %}
                             </div>
                             <div class="form-group">
                                 <label for="category">Category:</label>
                                 <select id="category" name="category" class="form-control" required>
-                                    {% for category  in categories %}
+                                    {% for category in categories %}
                                         <option value="{{ category.id }}">{{ category.category_name }}</option>
                                     {% endfor %}
                                 </select>
+                                {% if form.category.errors %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ form.category.errors }}
+                                </div>
+                                {% endif %}
                             </div>
                             <div class="form-group">
                                 <label for="brand_image">Brand Image:</label>
                                 <input type="file" id="brand_image" name="brand_image" class="form-control" required>
+                                {% if form.brand_image.errors %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ form.brand_image.errors }}
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="card-footer">
@@ -342,6 +357,7 @@
                         </div>
                     </div>
                 </form>
+                
                 
                 <!-- End of Add Brand Form -->
             </div>

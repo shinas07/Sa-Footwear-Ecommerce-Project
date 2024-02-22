@@ -1,24 +1,18 @@
 from django import forms
-from Products.models import Product
+from Products.models import Product,ProductSizeColor
 # from django.core.files.uploadedfile import InMemoryUploadedFile
 from django import forms
 # from PIL import Image
 # from io import BytesIO
 from Products.models import Brand
-from Category.models import Category
 from Home.models import Banner
 
 
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['product_name', 'description', 'size', 'price', 'stock', 'category', 'is_available', 'left_view_image', 'right_view_image', 'full_view_image','product_brand']
+        fields = ['product_name', 'description', 'price', 'category', 'is_available', 'product_brand', 'left_view_image', 'right_view_image', 'full_view_image']
 
-    # left_view_image = forms.ImageField(label='Image left view')
-    # right_view_image = forms.ImageField(label='Image right view')
-    # full_view_image = forms.ImageField(label='Image full view')
-    # product_brand = forms.ModelChoiceField(queryset=Brand.objects.all())
-        
 
     def clean_product_name(self):
         product_name = self.cleaned_data['product_name']
@@ -37,12 +31,62 @@ class ProductForm(forms.ModelForm):
         if price <= 0:
             raise forms.ValidationError("Price must be greater than zero.")
         return price
+    
+    def clean_left_image(self):
+        image = self.cleaned_data.get('left_view_image')
+        if image:
+            if not image.name.endswith(('.png', '.jpg', '.jpeg')):
+                raise forms.ValidationError("Please upload a valid image file (.png, .jpg, .jpeg) for left view image.")
+            return image
+        
+    def clean_right_view_image(self):
+        image = self.cleaned_data.get('right_view_image')
+        if image:
+            if not image.name.endswith(('.png', '.jpg', '.jpeg')):
+                raise forms.ValidationError(_("Please upload a valid image file (.png, .jpg, .jpeg) for right view image."))
+        return image
+    
+    def clean_full_view_image(self):
+        image = self.cleaned_data.get('full_view_image')
+        if image:
+            if not image.name.endswith(('.png', '.jpg', '.jpeg')):
+                raise forms.ValidationError(("Please upload a valid image file (.png, .jpg, .jpeg) for full view image."))
+        return image
+
+class ProductSizeColorForm(forms.ModelForm):
+    class Meta:
+        model = ProductSizeColor
+        fields = ['product','size','Stock','color']
+
 
 class BrandForm(forms.ModelForm):
-
     class Meta:
         model = Brand
-        fields = ['brand_name', 'brand_image','category']
+        fields = ['brand_name', 'brand_image', 'category', 'is_active']
+
+    def clean_brand_image(self):
+        image = self.cleaned_data.get('brand_image')
+        if image:
+            if not image.name.endswith(('.png', '.jpg', '.jpeg')):
+                raise forms.ValidationError("Please upload a valid image file (.png, .jpg, .jpeg)")
+            return image
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class BannerForm(forms.ModelForm):
@@ -51,6 +95,12 @@ class BannerForm(forms.ModelForm):
         fields = ['banner_name', 'banner_image']
 
 
+    def clean_brand_image(self):
+        image = self.cleaned_data.get('brand_iamge')
+        if image:
+            if not image.name.endswith(('.png','.jpg','.jpeg')):
+                raise forms.VaildationError(("Please upload a valid image file (.png, .jpg, .jpeg) "))
+            return image
 
 
     # def save(self,*args, **kwargs):

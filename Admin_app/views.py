@@ -5,12 +5,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from Accounts.models import Customer
 from Category.models import Category
-from Products.models import Product,Brand
+from Products.models import Product,Brand,ProductSizeColor
 from .form import ProductForm
 from django.http import JsonResponse
 from Admin_app.form import BrandForm
 from Home.models import Banner
-from .form import BannerForm
+from .form import BannerForm,ProductSizeColorForm
+from django.views import View
 # Create your views here.
 
 def admin_login(request):
@@ -36,7 +37,6 @@ def admin_dashboard(request):
 @login_required
 def admin_users(request):
     users = Customer.objects.all().order_by('id')
-    print(users)
     return render(request,'admin_curd.html',{'users':users})
 
 @login_required
@@ -67,26 +67,33 @@ def admin_category(request):
 @login_required
 def admin_product(request):
     products = Product.objects.all()
-    return render(request,'admin_product.html',{'products':products})
+    product_size_colors = ProductSizeColor.objects.all()
+    context = {
+        'products' : products,
+        'product_size_colors' : product_size_colors
+
+        
+    }
+    return render(request,'admin_product.html',context)
 
 @login_required
 def admin_add_product(request):
     # categories = Category.objects.all()
     if request.method == 'POST':
-        form = ProductForm(request.POST,request.FILES)
-        if form.is_valid():
-            form.save()
+        product_form = ProductForm(request.POST,request.FILES)
+        product_size_color_form = ProductSizeColorForm(request.POST)
+        if product_form.is_valid():
+            product = product_form.save()
             messages.success(request,'Product added successfully!')
             return redirect('admin_product')
         else:
-            for field, errors in form.errors.items():
+            for field, errors in product_form.errors.items():
                 for error in errors:
-                    print('haai')
-                    messages.error(request,f"{field} : {error}") 
-                return render(request, 'admin_add_product.html', {'form': form})      
+                    messages.error(request, f"{field} : {error}")
+            return render(request, 'admin_add_product.html', {'product_form': product_form})
     else:
-        form = ProductForm()
-    return render(request, 'admin_add_product.html',{'form': form})
+        product_form = ProductForm()
+        return render(request, 'admin_add_product.html', {'product_form': product_form})
 
 
 
@@ -97,10 +104,15 @@ def edit_product(request, pk):
         form = ProductForm(request.POST, request.FILES, instance=product)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Product updated successfully.')
             return redirect('admin_product')
+        else:
+            messages.error(request, 'Please correct the errors below.')
     else:
         form = ProductForm(instance=product)
-    return render(request, 'admin_add_product.html', {'form': form})
+    return render(request, 'admin_edit_product.html', {'form': form})
+
+
 
 
 
@@ -120,6 +132,24 @@ def list_product(request,pk):
 
 
 @login_required
+def product_size_color(request):
+    if request.method == 'POST':
+        form = ProductSizeColorForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Product size and color added successfully!')
+            return redirect('admin_product')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ProductSizeColorForm()
+    return render(request, 'admin_product_size_color.html', {'form': form})
+
+
+
+
+
+@login_required
 def admin_add_brand(request):
     categories = Category.objects.all()
     brands = Brand.objects.all()  # Retrieve all categories
@@ -127,7 +157,7 @@ def admin_add_brand(request):
         form = BrandForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('admin_add_brand') 
+            return redirect('admin_add_brand')  
     else:
         form = BrandForm()
     return render(request, 'admin_add_brand.html', {'form': form, 'categories': categories, 'brands': brands})
@@ -157,7 +187,6 @@ def admin_add_banner(request,baner_id):
         brand = Brand.objects.create()
         brand.save()
     else:
-
         return render(request,'admin_add_banner.html',{'banners':banners})
         
 @login_required

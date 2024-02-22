@@ -31,7 +31,6 @@
                                 <a href="{% url 'product:category_collections' category.category_name %}">{{ category.category_name }}</a>
                             </li>
                         {% endfor %}
-            
                         <li class="has-dropdown">
                             <a href=" ">Details</a>
                             <ul class="dropdown">
@@ -43,12 +42,9 @@
                                 <li><a href="about.html">About</a></li>
                             </ul>
                         </li>
-                        {% comment %} <li><a href="{% url 'product:women_collections' %}">Women</a></li> {% endcomment %}
 
                        
                         <li ><a href="contact.html">Contact</a></li>
-                        
-                    {% comment %} <div class="col-sm-3 col-md-12 text-right"> {% endcomment %}
                         {% if user.is_authenticated %}
                         <!-- Show these options only if the user is logged in -->
                         <li class="cart"><a href="cart.html"><i class="icon-shopping-cart"></i> Cart [0]</a></li>
