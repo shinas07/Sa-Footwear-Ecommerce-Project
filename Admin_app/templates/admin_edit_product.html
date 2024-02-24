@@ -244,28 +244,50 @@
                         <div class="col-md-6">
                             <form method="post" enctype="multipart/form-data">
                                 {% csrf_token %}
-                                <table class="table">
-                                    <tbody>
-                                        {% for field in form %}
-                                        <tr>
-                                            <td>{{ field.label_tag }}</td>
-                                            <td>{{ field }}</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                                <button type="submit" class="btn btn-primary">Save Changes</button>
-                            </form>
+                                <form method="post" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <table class="table">
+                                        <tbody>
+                                            {% for field in product_form %}
+                                            <tr>
+                                                <td>{{ field.label_tag }}</td>
+                                                <td>
+                                                    {% if field.name == 'left_view_image' or field.name == 'right_view_image' or field.name == 'full_view_image' %}
+                                                        {% if product_form.instance.pk %}
+                                                            {% if field.value %}
+                                                                <img src="{{ field.value.url }}" alt="{{ field.label }}" style="max-width: 200px; max-height: 200px;">
+                                                            {% else %}
+                                                                No image uploaded
+                                                            {% endif %}
+                                                            {{ field }}
+                                                        {% else %}
+                                                            {{ field }}
+                                                        {% endif %}
+                                                    {% else %}
+                                                        {{ field }}
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+
+            
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </form>
+                                
+                            </div>
                         </div>
                     </div>
-                </div>
-            
-
-               
-            
+                
             </div>
         </div>
+
     </div>
+  
+
+    
+    
         <!-- End of Content Wrapper -->
   
 

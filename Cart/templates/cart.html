@@ -159,7 +159,7 @@
                             <span class="price">{{ related_product.price }}</span>
                             <p>Brand: {{ related_product.product_brand.brand_name }}</p>
                             <div class="add-to-cart-btn">
-                                <button onclick="addToCart({{ related_product.id }})" class="btn btn-primary">Add to Cart</button>
+                                <button onclick="related_add_to_cart({{ related_product.id }})" class="btn btn-primary">Add to Cart</button>
                             </div>
                         </div>
                         <!-- Button added here -->
@@ -253,7 +253,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 	</div>
 
     <script>
-        function addToCart(productId) {
+        function related_add_to_cart(productId) {
             // Make an AJAX request to add the product to the cart
             // You can customize this according to your backend implementation
             // For example:

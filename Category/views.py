@@ -43,7 +43,12 @@ def edit_category(request, category_id):
     category = get_object_or_404(Category, pk=category_id)
     
     if request.method == 'POST':
-        # Update the category object with the form data
+
+        new_category_name = request.POST.get('edit_category_name')
+
+        if Category.objects.filter(category_name=new_category_name).exclude(pk=category_id).exists():
+            messages.error(request, 'Category already exists. Please choose a different name.')
+            return redirect('admin_category')
         category.category_name = request.POST.get('edit_category_name')
         category.description = request.POST.get('edit_category_description')
         category.save()

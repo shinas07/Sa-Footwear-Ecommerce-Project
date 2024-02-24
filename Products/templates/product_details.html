@@ -9,25 +9,32 @@
 	
 <style>
 
-	/* Adjust the image container to maintain aspect ratio and fill the container */
-
-/* Ensure the image fills the container and maintains aspect ratio */
-.product-img {
-    display: block;
-    width: 100%;
-    height: auto;
-}
-
-/* Ensure the owl-carousel items fill the container and maintain alignment */
 .owl-carousel .item {
-    width: 100%;
-    height: 100%; /* Ensure each item takes up the full height of the carousel */
-    display: flex; /* Use flexbox to align items */
-    justify-content: center; /* Center items horizontally */
-    align-items: center; /* Center items vertically */
+    width:  100%;
+    height:  100%; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    position: relative; 
 }
 
+.img-container {
+    width:  100%; 
+    height:  400px; 
+    overflow: hidden;
+    position: relative;
+}
 
+.product-img {
+    width:  100%;
+    height:  100%;
+    object-fit: cover; 
+    transition: transform  0.6s ease;
+}
+
+.img-container:hover .product-img {
+    transform: scale(1.2);
+}
 </style>
 
 		
@@ -54,6 +61,15 @@
 				<div class="row row-pb-lg product-detail-wrap">
 					<div class="col-sm-7">
 						<div class="owl-carousel">
+							{% comment %} <div class="item">
+								<a href="#" class="prod-img">
+									<div class="product-entry border">
+										<div id="img-container" class="img-container">
+											<img id="featured" src="{{ product.full_view_image.url }}" alt="Product Image" class="product-img">
+										</div>
+									</div>
+								</a>
+							</div> {% endcomment %}
 							<div class="item">
 								<a href="#" class="prod-img">
 									<div class="product-entry border">
@@ -63,47 +79,30 @@
 									</div>
 								</a>
 							</div>
-							<div class="item">
-								<div class="product-entry border">
-									{% comment %} <img src="{{ product.left_view_image.url }}" alt="Product Image" class="product-img"> {% endcomment %}
-								</div>
-							</div>
-							<div class="item">
-								<div class="product-entry border">
-									<a href="#" class="prod-img">
-										{% comment %} <img src="{{ product.right_view_image.url }}" alt="Full View" class="product-img"> {% endcomment %}
-									</a>
-								</div>
-							</div>
-						</div>
-					</div>
-					
-					 {% comment %} <div class="col-sm-7">
-						<div class="owl-carousel">
+
 							<div class="item">
 								<a href="#" class="prod-img">
 									<div class="product-entry border">
-										<div id="img-container" style="position: relative; overflow: hidden;">
-											<div id="lens" style="position: absolute; border: 1px solid #ccc;"></div>
-											<img id="featured" src="{{ product.full_view_image.url }}" alt="Product Image" class="product-img">
+										<div id="img-container" class="img-container">
+											<img src="{{ product.left_view_image.url }}" alt="Product Image" class="product-img">
 										</div>
 									</div>
 								</a>
 							</div>
+
 							<div class="item">
-								<div class="product-entry border">
-									<img src="{{ product.left_view_image.url }}" alt="Product Image" class="product-img">		
-								</div>
-							</div>
-							<div class="item">
-								<div class="product-entry border">
-									<a href="#" class="prod-img">
-										<img src="{{ product.right_view_image.url }}" alt="Full View" class="product-img">
-									</a>
-								</div>
+								<a href="#" class="prod-img">
+									<div class="product-entry border">
+										<div id="img-container" class="img-container">
+											<img src="{{ product.right_view_image.url }}" alt="Full View" class="product-img">
+										</div>
+									</div>
+								</a>
 							</div>
 						</div>
-					</div> {% endcomment %}
+					</div>
+					
+				
 					<div class="col-sm-4">
 						<div class="product-desc">
 							<h3>{{product.product_name}}</h3>
@@ -144,13 +143,13 @@
 								</div>
 							</div>
 							<span>
-								{% for psc in product_size_colors %}
+								 {% for psc in product_size_colors %} 
 								{% if psc.Stock >  0 %}
 									Stock : {{ psc.Stock }}
 								{% else %}
 									<span style="color: red;">Sold Out</span>
 								{% endif %}
-								{% endfor %}
+								{% endfor %} 
 							</span>
 						
 					
@@ -174,15 +173,17 @@
                   	<div class="row">
 	                  	<div class="col-sm-12 text-center">
 							<p class="addtocart">
+								{% for psc in product_size_colors %} 
                                 {% if psc.Stock > 0 %}
-                                    <a href="{% url 'Cart:product_cart' product_id=product.pk  %}" class="btn btn-primary btn-addtocart"><i class="icon-shopping-cart"></i> Add to Cart</a>
+                                    <a href="{% url 'Cart:add_to_cart' product_id=product.pk  %}" class="btn btn-primary btn-addtocart"><i class="icon-shopping-cart"></i> Add to Cart</a>
+									{% comment %} <a href="{% url 'Cart:add_to_cart' product_id=psc.product.pk  %}" class="btn btn-primary btn-addtocart"><i class="icon-shopping-cart"></i> Add to Cart</a> {% endcomment %}
                                 {% else %}
                                     <span style="color: red;">This item is currently out of stock</span>
                                 {% endif %}
+								{% endfor %} 
                             </p>
 								</div>
 							</div>
-							
 						</div>
 					</div>
 				</div>
@@ -438,13 +439,10 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 		            }
 		    });
 		    
-		});
+		}
 
-
+          
 
 
 	</script>
-
-	
-
 {% endblock %}

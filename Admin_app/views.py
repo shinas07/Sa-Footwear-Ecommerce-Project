@@ -36,7 +36,7 @@ def admin_dashboard(request):
 
 @login_required
 def admin_users(request):
-    users = Customer.objects.all().order_by('id')
+    users = Customer.objects.filter(is_staff=False).order_by('id')
     return render(request,'admin_curd.html',{'users':users})
 
 @login_required
@@ -87,9 +87,21 @@ def admin_add_product(request):
             messages.success(request,'Product added successfully!')
             return redirect('admin_product')
         else:
+            FIELD_NAME_MAPPING = {
+                'product_name': 'Product Name',
+                'description': 'Description',
+                'price': 'Price',
+                'category': 'Category',
+                'is_available': 'Availability',
+                'product_brand': 'Brand',
+                'left_view_image': 'Left View Image',
+                'right_view_image': 'Right View Image',
+                'full_view_image': 'Full View Image',
+            }
             for field, errors in product_form.errors.items():
                 for error in errors:
-                    messages.error(request, f"{field} : {error}")
+                    field_name = FIELD_NAME_MAPPING.get(field,field)
+                    messages.error(request, f"{field_name } : {error}")
             return render(request, 'admin_add_product.html', {'product_form': product_form})
     else:
         product_form = ProductForm()
@@ -100,18 +112,32 @@ def admin_add_product(request):
 @login_required
 def edit_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
+    product_form = ProductForm(request.POST or None, request.FILES or None, instance=product)
     if request.method == 'POST':
-        form = ProductForm(request.POST, request.FILES, instance=product)
-        if form.is_valid():
-            form.save()
+        if product_form.is_valid:
+            product_form.save()
             messages.success(request, 'Product updated successfully.')
             return redirect('admin_product')
         else:
             messages.error(request, 'Please correct the errors below.')
-    else:
-        form = ProductForm(instance=product)
-    return render(request, 'admin_edit_product.html', {'form': form})
+    return render(request, 'admin_edit_product.html', {'product_form': product_form,})
 
+
+@login_required
+def edit_product_size_color(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    product_size_color = ProductSizeColor.objects.filter(product=product).first()
+    size_color_form = ProductSizeColorForm(request.POST or None, instance=product_size_color)
+    
+    if request.method == 'POST':
+        if size_color_form.is_valid():
+            size_color_form.save()
+            messages.success(request, 'Product size and color updated successfully')
+            return redirect('admin_product')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    
+    return render(request, 'admin_edit_product_size_color.html', {'size_color_form': size_color_form})
 
 
 
@@ -170,7 +196,7 @@ def block_brand(request,brand_id):
         brand.save()
         return redirect('admin_add_brand')
     
-
+@login_required
 def unblock_brand(request,brand_id):
     if request.method == 'POST':
         brand = Brand.objects.get(id=brand_id)
@@ -178,6 +204,17 @@ def unblock_brand(request,brand_id):
         brand.save()
         return redirect('admin_add_brand')
     
+@login_required
+def edit_brand(request,brand_id):
+    brand = get_object_or_404(brand,id=brand_id)
+    if request.method == 'POST':
+        if BrandForm.is_valid():
+            BrandForm.save()
+            messages.success(request, 'Product size and color updated successfully')
+        return redirect('admin_product')
+
+
+
 
 
 @login_required

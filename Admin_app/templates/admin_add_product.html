@@ -288,12 +288,10 @@
                         <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             {{ product_form.as_p }}
-                            <button type="submit">Submit</button>
+   
+                            <button type="submit" class="btn btn-primary">Add Product</button>
                         </form>
                     </div>
-                 
-    
-
                 </div>
                 <!-- /.container-fluid -->
 

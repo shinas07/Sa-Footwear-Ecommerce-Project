@@ -1,4 +1,5 @@
 
+from django.http import JsonResponse
 from django.shortcuts import render, redirect , HttpResponse
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
@@ -17,6 +18,9 @@ import re
 from django.utils.crypto import get_random_string
 from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator,RegexValidator
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
 
 class Signup(View):
     def get(self, request):
@@ -47,24 +51,16 @@ class Signup(View):
         error_message = self.validateCustomer(value)
 
         if not error_message:
-            # enterd_otp = self.SignupOtp(email)
-            # if enterd_otp == request.session.get('otp'):
-            #     hashed_password = make_password(password)
-            #     customer = Customer(username=username,first_name=first_name, last_name=last_name, phone=phone, email=email, password=hashed_password)
-            #     customer.save()
-            #     return redirect('Accounts:signup_otp')
-            # else:
-            #     return render(request,'signupOtpV.html')
 
             otp = generate_otp()
-            request.session['otp'] = otp
             request.session['signup_data'] = {
                 'username': username,
                 'first_name': first_name,
                 'last_name': last_name,
                 'phone': phone,
                 'email': email,
-                'password': password
+                'password': password,
+                'otp' : otp,
             }
             
             send_otp_email(email,otp)
@@ -72,7 +68,7 @@ class Signup(View):
 
               
         else:
-            print(error_message)
+     
             data = {
             
                 'error': error_message,
@@ -109,6 +105,8 @@ class Signup(View):
             error_message = "Please enter your Username!"
         elif len(data['username']) < 3:
             error_message = "Username must be at least 3 characters long."
+        elif len(data['username']) >  10:
+            error_message = "Username must be no more than  10 characters long."
         elif Customer.objects.filter(username=data['username']).exists():
             error_message ='Username is already taken.'
         elif not data['first_name']:
@@ -129,6 +127,9 @@ class Signup(View):
             error_message = "Please enter your Email!"
         elif Customer.objects.filter(email=data['email']).exists():
             error_message = 'Email Address Already Registered'
+        elif not re.match(r"[^@]+@[^@]+\.[^@]+", data['email']):
+            error_message = "Invalid Email Address"
+
         return error_message
     
     def SignupOtp(request,email):
@@ -144,7 +145,7 @@ class SignUpVerifyOTP(View):
 
     def post(self, request):
         entered_otp = request.POST.get('otp')
-        session_otp = request.session.get('otp')
+        session_otp = request.session.get('signup_data').get('otp')
         email = request.session.get('signup_data').get('email')
 
         if entered_otp == session_otp:
@@ -155,34 +156,12 @@ class SignUpVerifyOTP(View):
                                 email=signup_data['email'], password=hashed_password)
             customer.save()
 
-            del request.session['otp']
             del request.session['signup_data']
 
             messages.success(request, 'User registered successfully!')
             return redirect('Accounts:login')
         else:
             return render(request, 'verify_signupOtp.html', {'error': 'Incorrect OTP. Please try again.'})
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -206,7 +185,7 @@ class UserLogin(View):
             login(request, user)
             return redirect('home')
         else:
-            error_message = 'Invalid email or password. Please try again.'
+            error_message = 'Invalid Username or password. Please try again.'
             return render(request, 'login.html', {'error': error_message})
 
 
@@ -252,6 +231,8 @@ class VerifyOTP(View):
     
     def new_password(self, request):
         return render(request,'new_password.html')
+    
+
 
 
 
@@ -294,18 +275,38 @@ def calculate_expiry_time():
     expiry_time = datetime.now() + timedelta(minutes=5)
     return expiry_time.isoformat()
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
 def resend_otp(request):
-    print('haai')
-    email = request.session.get('email')
-    print(email)
-    otp = generate_otp()
-    send_otp_email(email,otp)
-    request.session['otp'] = otp 
-    request.session['otp_expiry'] = calculate_expiry_time()
-    return render(request,'otp_verification.html')
+    print('hlwwww')
+    if request.method == 'POST':
+        signup_data = request.session.get('signup_data', {})
+
+        otp = generate_otp()
+      
+        signup_data['otp'] = otp
+        
+     
+        email = signup_data.get('email')
+        
+        send_otp_email(email, otp)
+        
+
+        request.session['signup_data'] = signup_data
+        
+        return JsonResponse({'status': 'success'})
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
 
 
 
 def user_logout(request):
     logout(request)
     return redirect('home')
+
+
+
+

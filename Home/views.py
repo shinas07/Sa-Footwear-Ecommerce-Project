@@ -4,6 +4,7 @@ from Category.models import Category
 from Home.models import Banner
 from django.db.models import Q
 # Create your views here.
+from allauth.socialaccount.models import SocialApp
 
 def home(request):
     active_category = 'home'
@@ -20,6 +21,8 @@ def home(request):
         'active_category' : active_category,
     }
     return render(request, 'home.html',context)
+
+    
 
 
 # def category_men(request):

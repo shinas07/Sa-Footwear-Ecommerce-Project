@@ -79,10 +79,54 @@
         <input type="text" id="otp" name="otp" class="otp-input" placeholder="Enter OTP" required>
         <input type="submit" value="Verify OTP" class="submit-btn">
     </form>
-    {% if error %}
+   {% if error %}
     <p class="error-message" id="otp-error">{{ error }}</p>
-    {% endif %}  
-    <p class="timer-message">You have 5 minutes to enter the OTP.</p>
+    {% endif %}   
     <button class="resend-btn" onclick="window.location.href='{% url 'Accounts:resend_otp' %}'">Resend OTP</button>
+    <div id="timer" class="mt-3">
+        Time remaining: <span id="time-left">5</span> minutes
+    </div>
 </div>
+
+
+
+<script>
+    // Timer functionality
+    var timeLeft =  300;
+    var timer = setInterval(function() {
+        timeLeft--;
+        var minutes = Math.floor(timeLeft /  60);
+        var seconds = timeLeft - (minutes *  60);
+        document.getElementById('time-left').textContent =  minutes + ":" + (seconds <  10 ? "0" : "") + seconds;
+        if (timeLeft <=  0) {
+            clearInterval(timer);
+            document.getElementById('resend-otp').disabled = false;
+            document.getElementById('timer-message').textContent = 'OTP is invalid  expired.';
+        }
+    },  1000);
+
+    // Resend OTP functionality
+    $('#resend-otp').click(function() {
+        // Disable the resend button
+        $(this).prop('disabled', true);
+
+        // Send an AJAX request to resend the OTP
+        $.ajax({
+            url: '{% url 'Accounts:resend_otp' %}', // URL to your resend OTP view
+            type: 'POST',
+            data: {
+                email: '{{ request.session.email }}', // Pass the email from the session
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                // Handle success (e.g., show a success message)
+                alert('OTP has been resent to your email.');
+            },
+            error: function(xhr, status, error) {
+                // Handle error (e.g., show an error message)
+                alert('An error occurred while resending the OTP.');
+            }
+        });
+    });
+</script>
 {% endblock %}

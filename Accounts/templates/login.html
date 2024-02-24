@@ -40,13 +40,13 @@
                 </div>
             </div>
 
-            {% if messages %}
-                <div class="messages">
-                    {% for message in messages %}
-                        <div {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
+            {% if messages and not user.is_blocked %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
             <!--====== End - Section Intro ======-->
 
@@ -177,7 +177,7 @@
                 </div>
             </div>
         </div>
-    </div> {% endcomment %}
+    </div> 
 
     {% comment %} <!-- Vendor JS -->
     <script src="{% static 'accounts/js/vendor.js' %}"></script>

@@ -5,6 +5,15 @@
          
 {% block content %}
 
+<style>
+    .prod-img img {
+        width:  100%;
+        height:  300px;
+        object-fit: cover;
+    }
+</style>
+
+
 
 	<div class="colorlib-loader"></div>
 	<div id="page">
@@ -66,11 +75,15 @@
                         {% for product in products %}
                         <div class="col-md-3 col-lg-3 mb-4 text-center">
                             <div class="product-entry border">
-                                <a href="{% url 'product:product_details' product_id=product.pk %}" class="prod-img">
-                                    <img src="{{ product.full_view_image.url }}" class="img-fluid" alt="{{ product.product_name }}"> 
+                              <a href="{% url 'product:product_details' product_id=product.pk %}" class="prod-img">
+                                    <img src="{{ product.full_view_image.url }}" class="img-fluid" alt="{{ product.product_name }}">  
+									
                                 </a>
                                 <div class="desc">
                                     <h2><a href="{% url 'product:product_details' product_id=product.pk %}">{{ product.product_name }}</a></h2>
+
+									
+									
                                     <span class="price">MRP : ₹{{ product.price }}</span>
                                 </div>
                             </div>

@@ -297,14 +297,17 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {% for product in products %}
-                                        <a href="{% url 'edit_product' product.id %}" class="btn btn-primary">Edit</a>
-                                        {% endfor %}
+                                
+                                     <a href="{% url 'edit_product' product.id %}" class="btn btn-primary">Edit</a> 
+                                     <a href="{% url 'edit_product_size_color' pk=product.pk %}" class="btn btn-secondary">variant</a>
+
+                            
                                         {% if product.is_available %}
                                         <a href="{% url 'unlist_product' product.id %}" class="btn btn-warning">Unlist</a>
                                         {% else %}
                                         <a href="{% url 'list_product' product.id %}" class="btn btn-success">List</a>
                                         {% endif %}
+                      
                                     </td>
                                 </tr>
                                 {% endfor %}
