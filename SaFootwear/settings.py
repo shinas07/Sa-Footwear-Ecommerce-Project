@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'Category',
     'Products',
     'Cart',
+    'Orders',
     
 
     'django.contrib.sites',
@@ -130,6 +131,7 @@ TEMPLATES = [
             'Accounts/templates',
             'Products/templates',
             'Cart/templates',
+            'Orders/templates',
         ],
         'APP_DIRS': True,
         'OPTIONS': {

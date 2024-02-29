@@ -35,6 +35,43 @@
 .img-container:hover .product-img {
     transform: scale(1.2);
 }
+
+/* Style for the dropdown menu */
+#size-select {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Style for the stock display */
+#stock-info {
+    margin-top: 10px;
+    font-size: 16px;
+    color: #333;
+}
+
+.coming-soon {
+    color: #FF5733; /* Nice color */
+    font-size: 24px; /* Increase font size */
+    font-weight: bold; /* Make it bold */
+    display: block; /* Make it a block-level element */
+    text-align: center; /* Center the text */
+    margin-top: 10px; /* Add some top margin for spacing */
+}
+
+
+.size-wrap {
+    text-align: left; /* Align content to the left */
+}
+
+.size-heading {
+    margin-bottom: 10px; /* Add some bottom margin for spacing */
+}
+
+
 </style>
 
 		
@@ -50,7 +87,22 @@
 			</div>
 		</div>
 
-
+		{% comment %} {% if messages %}
+			{% for message in messages %}
+				<div class ="alert alert-{{ message.tags }}" >
+					{{ message }}
+				</div>
+			{% endfor %}
+		{% endif %} {% endcomment %}
+			
+		{% if messages %}
+		{% for message in messages %}
+			<div class="alert alert-dismissible fade show {% if message.tags == 'success' %} alert-success {% elif message.tags == 'info' %} alert-info {% elif message.tags == 'warning' %} alert-warning {% elif message.tags == 'error' %} alert-danger {% endif %}" role="alert">
+				{{ message }}
+			</div>
+		{% endfor %}
+	{% endif %}
+	
 
 
 		<div class="row row-pb-lg product-detail-wrap">
@@ -105,7 +157,7 @@
 				
 					<div class="col-sm-4">
 						<div class="product-desc">
-							<h3>{{product.product_name}}</h3>
+							<h3>{{ product.product_name }}</h3>
 							<p class="price">
 								<span>MRP : ₹{{ product.price }}</span> 
 								<span class="rate">
@@ -117,76 +169,62 @@
 									(74 Rating)
 								</span>
 							</p>
-							<div class="size-wrap">
-								<div class="block-26 mb-2">
-									<h4>Size</h4>
-									<ul>
-										{% for psc in product_size_colors %}
-											{% if psc.product_id == product.id %}
-												<li><a href="#">{{ psc.size }}</a></li>
-											{% endif %}
-										{% endfor %}
-									</ul>
-								</div>
-							</div>
-						
-							<div class="color-variants">
-								<div class="block-26 mb-2">
-									<h4>Color</h4>
-									<ul>
-										{% for psc in product_size_colors %}
-											{% if psc.product_id == product.id %}
-												<li><a href="#">{{ psc.color }}</a></li>
-											{% endif %}
-										{% endfor %}
-									</ul>
-								</div>
-							</div>
-							<span>
-								 {% for psc in product_size_colors %} 
-								{% if psc.Stock >  0 %}
-									Stock : {{ psc.Stock }}
-								{% else %}
-									<span style="color: red;">Sold Out</span>
-								{% endif %}
-								{% endfor %} 
-							</span>
-						
+							
+
+							<div class="row">
+								<div class="col-sm-12 text-center">
+									<p class="addtocart">
+										{% if not product_size_colors or product_size_colors.0.is_unlisted %}
+										<span class="coming-soon">Coming soon</span>
+
+										{% else %}
+
+										<div class="size-wrap">
+											<div class="block-26 mb-2">
+												<h3 class="size-heading">Size</h3>
+												<ul>
+													{% for psc in product_size_colors %}
+														{% if psc.product_id == product.id %}
+															<li><a href="{% url 'product:stock_of_size' size_id=psc.id %}">{{ psc.size }}</a></li>
+														{% endif %}
+													{% endfor %}
+												</ul>
+											</div>
 					
-						
-						{% comment %} {% if psc.Stock > 0 %} {% endcomment %}
-                     <div class="input-group mb-4">
-                     	<span class="input-group-btn">
-                        	<button type="button" class="quantity-left-minus btn"  data-type="minus" data-field="">
-                           <i class="icon-minus2"></i>
-                        	</button>
-                    		</span>
-                     	<input type="text" id="quantity" name="quantity" class="form-control input-number" value="1" min="1" max="100">
-                     	<span class="input-group-btn ml-1">
-                        	<button type="button" class="quantity-right-plus btn" data-type="plus" data-field="">
-                             <i class="icon-plus2"></i>
-                         </button>
-                     	</span>
-                  	</div>
-					  {% comment %} {% endif %} {% endcomment %}
-		
-                  	<div class="row">
-	                  	<div class="col-sm-12 text-center">
-							<p class="addtocart">
-								{% for psc in product_size_colors %} 
-                                {% if psc.Stock > 0 %}
-                                    <a href="{% url 'Cart:add_to_cart' product_id=product.pk  %}" class="btn btn-primary btn-addtocart"><i class="icon-shopping-cart"></i> Add to Cart</a>
-									{% comment %} <a href="{% url 'Cart:add_to_cart' product_id=psc.product.pk  %}" class="btn btn-primary btn-addtocart"><i class="icon-shopping-cart"></i> Add to Cart</a> {% endcomment %}
-                                {% else %}
-                                    <span style="color: red;">This item is currently out of stock</span>
-                                {% endif %}
-								{% endfor %} 
-                            </p>
+											<div class="stock-info">
+												{% if selected_product_size %}
+													<h6>Stock Availability for Size: {{ selected_product_size.size }}</h6>
+													<p><strong>Stock</strong> {% if selected_product_size.Stock > 0 %} : {{ selected_product_size.Stock }} {% else %} Out of Stock {% endif %}</p>
+												{% endif %}
+											</div>
+										</div> 
+
+
+											<form id="add-to-cart-form" action="{% url 'Cart:add_to_cart' product_id=product.pk %}" method="post">
+												{% csrf_token %}
+												<input type="hidden" name="product_id" value="{{ product.pk }}">
+												<div class="input-group mb-4">
+													<span class="input-group-btn">
+														<button type="button" class="quantity-left-minus btn" data-type="minus" data-field="">
+															<i class="icon-minus2"></i>
+														</button>
+													</span>
+													<input type="text" id="quantity" name="quantity" class="form-control input-number" value="1" min="1" max="100">
+													<span class="input-group-btn ml-1">
+														<button type="button" class="quantity-right-plus btn" data-type="plus" data-field="">
+															<i class="icon-plus2"></i>
+														</button>
+													</span>
+												</div>
+												<button type="submit" class="btn btn-primary btn-addtocart"> Add to Cart</button>
+											</form>
+										{% endif %}
+									</p>
 								</div>
 							</div>
 						</div>
 					</div>
-				</div>
+					
 
 				<div class="row">
 					<div class="col-sm-12">
@@ -387,62 +425,89 @@
 					</div>
 				</div>
 			</div>
-			<div class="copy">
-				<div class="row">
-					<div class="col-sm-12 text-center">
-						<p>
-							<span><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="icon-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></span> 
-							<span class="block">Demo Images: <a href="http://unsplash.co/" target="_blank">Unsplash</a> , <a href="http://pexels.com/" target="_blank">Pexels.com</a></span>
-						</p>
-					</div>
-				</div>
-			</div>
+			
 		</footer>
 	</div>
 
 	<div class="gototop js-top">
 		<a href="#" class="js-gotop"><i class="ion-ios-arrow-up"></i></a>
 	</div>
+
+
  <script>
-		$(document).ready(function(){
+	document.addEventListener('DOMContentLoaded', function() {
+		document.querySelectorAll('.quantity-right-plus').forEach(function(button) {
+			button.addEventListener('click', function(e) {
+				e.preventDefault();
+				var quantity = parseInt(document.getElementById('quantity').value);
+				document.getElementById('quantity').value = quantity +   1;
+			});
+		});
+	
+		document.querySelectorAll('.quantity-left-minus').forEach(function(button) {
+			button.addEventListener('click', function(e) {
+				e.preventDefault();
+				var quantity = parseInt(document.getElementById('quantity').value);
+				if (quantity >   0) {
+					document.getElementById('quantity').value = quantity -   1;
+				}
+			});
+		});
+	});
+	
+	
+			document.addEventListener('DOMContentLoaded', function() {
+				var productSizeColors = JSON.parse('{{ product_size_colors_json|escapejs }}');
+				var stockDisplay = document.getElementById('stock-display');
+				
+				function updateStockDisplay(selectedSize) {
+					var selectedSizeStock = productSizeColors[selectedSize].Stock;
+					if (selectedSizeStock > 0) {
+						stockDisplay.innerText = 'In stock: ' + selectedSizeStock;
+						stockDisplay.style.color = 'green';
+					} else {
+						stockDisplay.innerText = 'Out of stock';
+						stockDisplay.style.color = 'red';
+					}
+				}
+		
+				// Initial display with stock of the first size
+				updateStockDisplay(Object.keys(productSizeColors)[0]);
+		
+				// Event listener to update stock display on size selection change
+				document.getElementById('size-selector').addEventListener('change', function() {
+					var selectedSize = this.value;
+					updateStockDisplay(selectedSize);
+				});
+			});
 
-		var quantitiy=0;
-		   $('.quantity-right-plus').click(function(e){
-		        
-		        // Stop acting like a button
-		        e.preventDefault();
-		        // Get the field name
-		        var quantity = parseInt($('#quantity').val());
-		        
-		        // If is not undefined
-		            
-		            $('#quantity').val(quantity + 1);
 
-		          
-		            // Increment
-		        
-		    });
 
-		     $('.quantity-left-minus').click(function(e){
-		        // Stop acting like a button
-		        e.preventDefault();
-		        // Get the field name
-		        var quantity = parseInt($('#quantity').val());
-		        
-		        // If is not undefined
-		      
-		            // Increment
-		            if(quantity>0){
-		            $('#quantity').val(quantity - 1);
-		            }
-		    });
-		    
-		}
 
-          
 
+			document.addEventListener('DOMContentLoaded', function() {
+				document.getElementById('size-select').addEventListener('change', function() {
+					var selectedSize = this.value;
+					var stockInfoDiv = document.getElementById('stock-info');
+					stockInfoDiv.innerHTML = ''; // Clear previous stock info
+			
+					{% for psc in product_size_colors %}
+						if ({{ psc.size }} == selectedSize) {
+							var stockInfo = document.createElement('p');
+							if ({{ psc.Stock }} > 0) {
+								stockInfo.textContent = 'Size {{ psc.size }}: {{ psc.Stock }} in stock';
+							} else {
+								stockInfo.textContent = 'Size {{ psc.size }}: Out of stock';
+								stockInfo.style.color = 'red'; // Style for out-of-stock message
+							}
+							stockInfoDiv.appendChild(stockInfo);
+						}
+					{% endfor %}
+				});
+			});
+			
+
+		
 
 	</script>
 {% endblock %}

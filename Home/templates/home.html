@@ -11,6 +11,58 @@
         height:  300px;
         object-fit: cover;
     }
+
+    /* Dropdown container */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Dropdown button */
+.dropbtn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Dropdown content (hidden by default) */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+    z-index: 1;
+    padding: 5px 0;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #f1f1f1;}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {display: block;}
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown:hover .dropbtn {background-color: #3e8e41;}
+
+/* Horizontal line */
+.dropdown-content hr {
+    margin: 5px 0;
+    border: none;
+    border-top: 1px solid #ddd;
+}
+
 </style>
     
 
@@ -20,27 +72,9 @@
     <aside id="colorlib-hero">
         <div class="flexslider">
             <ul class="slides">
-   
-            {% comment %} <li style="background-image: url('{% static 'images/img_bg_1.jpg' %}');">
 
-                <div class="overlay"></div>
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-sm-6 offset-sm-3 text-center slider-text">
-                            <div class="slider-text-inner">
-                                <div class="desc">
-                                    <h1 class="head-1">Men's</h1>
-                                    <h2 class="head-2">Shoes</h2>
-                                    <h2 class="head-3">Collection</h2>
-                                    <p class="category"><span>New trending shoes</span></p>
-                                    <p><a href="#" class="btn btn-primary">Shop Collection</a></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </li> {% endcomment %}
-            {% comment %} <li style="background-image: url('images/img_bg_2.jpg);"> {% endcomment %}
+             
+
                 {% for banner in banners %}
             <li style="background-image: url('{{ banner.banner_image.url }}');">
                 <div class="overlay"></div>
@@ -61,6 +95,10 @@
                 </div>
             </li>
             {% endfor %}
+
+
+         
+            
             
         </div>
     </aside>
@@ -98,12 +136,62 @@
         </div>
     </div>
 
+    {% comment %} <form method="GET" action="{% url 'search_results' %}">
+        <input type="text" name="query" placeholder="Search...">
+        <select name="sort_by">
+            <option value="price_low_to_high">Price: Low to High</option>
+            <!-- Add more sorting options if needed -->
+        </select>
+        <button type="submit">Search</button>
+    </form> {% endcomment %}
+
+ 
+
     <div class="colorlib-product">
         <div class="container">
+            <div class="dropdown">
+                <button class="dropbtn">Sort by</button>
+                <div class="dropdown-content">
+                    <a href="#">Popularity</a>
+                    <a href="#">Price: Low to High</a>
+                    <a href="#">Price: High to Low</a>
+                    <a href="#">Average Ratings</a>
+                    <hr>
+                    <a href="#">Featured</a>
+                    <a href="#">New Arrivals</a>
+                    <hr>
+                    <a href="#">aA - zZ</a>
+                    <a href="#">zZ - aA</a>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-sm-8 offset-sm-2 text-center colorlib-heading">
-                    <h2>Best Sellers</h2>
+                    <h2>All Product</h2>
                 </div>
+
+
+               
+                
+{% comment %} 
+                <select name="sort_by">
+                    <option value="">Sort by:</option>
+                    <option value=" ">Popularity</option>
+                    <option value=" ">Price: Low to High</option>
+                    <option value="price_high_to_low">Price: High to Low</option>
+                    <option value="average_ratings">Average Ratings</option>
+                    <option value="featured">Featured</option>
+                    <option value="new_arrivals">New Arrivals</option>
+                    <option value="a_to_z">A - Z</option>
+                    <option value="z_to_a">Z - A</option>
+                </select> {% endcomment %}
+
+
+
+
+               
+
+
+
             </div>
             <div class="row row-pb-md">
                 {% for product in products %}

@@ -24,6 +24,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 class Signup(View):
     def get(self, request):
+        if request.user.is_authenticated:
+            return redirect('home')
         return render(request, 'signup.html')
 
     def post(self, request):
@@ -105,8 +107,8 @@ class Signup(View):
             error_message = "Please enter your Username!"
         elif len(data['username']) < 3:
             error_message = "Username must be at least 3 characters long."
-        elif len(data['username']) >  10:
-            error_message = "Username must be no more than  10 characters long."
+        elif len(data['username']) >  15:
+            error_message = "Username must be no more than  15 characters long."
         elif Customer.objects.filter(username=data['username']).exists():
             error_message ='Username is already taken.'
         elif not data['first_name']:
@@ -128,7 +130,16 @@ class Signup(View):
         elif Customer.objects.filter(email=data['email']).exists():
             error_message = 'Email Address Already Registered'
         elif not re.match(r"[^@]+@[^@]+\.[^@]+", data['email']):
+            error_message = 'Pleace enter a valid Email address format.'
+        elif data['email'].strip() != data['email']:
+            error_message = 'Email address cannot start or end with spaces.'
             error_message = "Invalid Email Address"
+        elif data['email'].strip() != data['email']:
+            error_message = 'Email address cannot start or end with spaces.'
+        elif data['phone'] == '1234567890':
+            error_message = "Phone number cannot be a sequence of  1234567890."
+        elif data['phone'] == '9876543210':
+            error_message = "Phone number cannot be a sequence of  9876543210."
 
         return error_message
     
@@ -140,7 +151,9 @@ class Signup(View):
 
 
 class SignUpVerifyOTP(View):
-    def get(self, request):
+    def get(self, request): 
+        if request.user.is_authenticated:
+            return redirect('home')
         return render(request, 'verify_signupOtp.html')
 
     def post(self, request):
@@ -171,6 +184,8 @@ class SignUpVerifyOTP(View):
 
 class UserLogin(View):
     def get(self,request):
+        if request.user.is_authenticated:
+            return redirect('home')
         return render(request,'login.html')     
     def post(self, request):
         username = request.POST.get('username')
@@ -182,8 +197,10 @@ class UserLogin(View):
             if user.is_blocked:
                 error_message = 'Your account has been blocked. Please contact the customer care'
                 return render(request,'login.html',{'error':error_message})
-            login(request, user)
-            return redirect('home')
+            else:
+                # messages.success(request, f"Welcome back, {user.username}!")
+                login(request, user)
+                return redirect('home')
         else:
             error_message = 'Invalid Username or password. Please try again.'
             return render(request, 'login.html', {'error': error_message})
@@ -299,6 +316,23 @@ def resend_otp(request):
         return JsonResponse({'status': 'success'})
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

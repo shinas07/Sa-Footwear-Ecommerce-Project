@@ -24,9 +24,14 @@ urlpatterns = [
     path('admin_add_brand', views.admin_add_brand, name='admin_add_brand'),
     path('block_brand/<int:brand_id>',views.block_brand,name='block_brand'),
     path('unblock_brand/<int:brand_id>',views.unblock_brand,name='unblock_brand'),
+    path('edit_brand/<int:brand_id>/',views.edit_brand,name='edit_brand'),
+
+    path('admin_oders_management/',views.admin_oders_management,name='admin_oders_management'),
 
     path('admin-add-banner/', views.admin_add_banner, name='admin_add_banner'),
     path('delete-banner/<int:banner_id>/', views.delete_banner, name='delete_banner'),
+
+
 ]
 
 

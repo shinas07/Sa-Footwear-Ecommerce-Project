@@ -38,6 +38,24 @@
 		</div>
 
 
+
+		{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-dismissible fade show {% if message.tags == 'success' %} alert-success {% elif message.tags == 'info' %} alert-info {% elif message.tags == 'warning' %} alert-warning {% elif message.tags == 'error' %} alert-danger {% endif %}" role="alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+
+
+
+
+
+
+
+
+
 		<div class="colorlib-product">
 			<div class="container">
 				<div class="row row-pb-lg">
@@ -77,99 +95,112 @@
 								<span>Remove</span>
 							</div>
 						</div>
-						<div class="product-cart d-flex">
-							<div class="one-forth">
-								{% comment %} <div class="product-img" style="background-image: {{product.full_view_image.url}};">
-								</div> {% endcomment %}
-								<div class="display-tc">
-									<h3>{{product.product_name}}</h3>
+						{% for item in cart_items %}
+							<div class="product-cart d-flex">
+								<div class="one-forth">
+									<img src="{{ item.product.full_view_image.url }}" class="img-fluid" alt="{{ item.product.product_name }}" style="max-width:  100px; height: auto;">
+									<div class="display-tc">
+									
+										<h3>{{ item.product.product_name }}</h3>
+									</div>
+								</div>
+								<div class="one-eight text-center">
+									<div class="display-tc">
+										<span class="price">{{ item.product.price }}</span>
+									</div>
+								</div>
+								<div class="one-eight text-center">
+									<div class="display-tc">
+										<input type="text" id="quantity" name="quantity" class="form-control input-number text-center" value= "{{ item.quantity }}" min="1" max="100">
+										{% comment %} <span class="price">{{ item.quantity }}</span> {% endcomment %}
+									</div>
+								</div>
+
+								<div class="one-eight text-center">
+									<div class="display-tc">
+										<span class="price">{{ item.product.price }}</span>
+									</div>
+								</div>
+
+							
+
+
+								<div class="one-eight text-center">
+									<div class="display-tc">
+										<a href="{% url 'Cart:remove_from_cart' item.pk %}" class="closed"></a>
+									</div>
 								</div>
 							</div>
-							<div class="one-eight text-center">
-								<div class="display-tc">
-									<span class="price">{{product.price}}</span>
-								</div>
-							</div>
-							<div class="one-eight text-center">
-								<div class="display-tc">
-									<input type="text" id="quantity" name="quantity" class="form-control input-number text-center" value="1" min="1" max="100">
-								</div>
-							</div>
-							<div class="one-eight text-center">
-								<div class="display-tc">
-									<span class="price">{{product.price}}</span>
-								</div>
-							</div>
-							<div class="one-eight text-center">
-								<div class="display-tc">
-									<a href="#" class="closed"></a>
+						{% endfor %}
+						<div class="row row-pb-lg">
+							<div class="col-md-12">
+								<div class="total-wrap">
+									<div class="row">
+										<div class="col-sm-8">
+											<form action="#">
+												<div class="row form-group mt-4">
+													<div class="col-sm-9">
+														<input type="text" name="quantity" class="form-control input-number" placeholder="Your Coupon Number...">
+													</div>
+													<div class="col-sm-3">
+														<input type="submit" value="Apply Coupon" class="btn btn-primary">
+													</div>
+												</div>
+											</form>
+										</div>
+										<div class="col-sm-4 text-center mt-4">
+											<div class="total">
+												<div class="sub">
+													<p><span>Subtotal:</span> <span>{{ total_price }}</span></p>
+													<p><span>Delivery:</span> <span>0.00</span></p>
+													<p><span>Discount:</span> <span>0.00</span></p> 
+												</div>
+												<div class="grand-total">
+													<p><span><strong>Total:</strong></span><span>{{ total_price }}</span></p>
+												</div>
+											</div>
+											<div class="col-sm-3 mt-4">
+												<a href="{% url 'checkout' %}">
+													<input type="submit" value="Check Out" class="btn btn-primary">
+												</a>												
+											</div>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
-                        <div class="row row-pb-lg">
-                            <div class="col-md-12">
-                                <div class="total-wrap">
-                                    <div class="row">
-                                        <div class="col-sm-8">
-                                            <form action="#">
-                                                <div class="row form-group">
-                                                    <div class="col-sm-9">
-                                                        <input type="text" name="quantity" class="form-control input-number" placeholder="Your Coupon Number...">
-                                                    </div>
-                                                    <div class="col-sm-3">
-                                                        <input type="submit" value="Apply Coupon" class="btn btn-primary">
-                                                    </div>
-                                                </div>
-                                            </form>
-                                        </div>
-                                        <div class="col-sm-4 text-center">
-                                            <div class="total">
-                                                <div class="sub">
-                                                    <img src="{{ product.full_view_image.url  }}" width="110">
-                                                    <p><span>Subtotal:</span> <span>{{product.price}}</span></p>
-                                                    <p><span>Delivery:</span> <span>0.00</span></p>
-                                                    <p><span>Discount:</span> <span>0.00</span></p> 
-                                                </div>
-                                                <div class="grand-total">
-                                                    <p><span><strong>Total:</strong></span> <span>{{product.price}}</span></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-					    </div>
-				    </div>
-                </div>
-				<div class="row">
+					</div>
+				</div>
+				{% comment %} <div class="row">
 					<div class="col-sm-8 offset-sm-2 text-center colorlib-heading colorlib-heading-sm">
 						<h2>Related Products</h2>
 					</div>
-				</div>
-				<div class="row">
-                    {% for related_product in related_products %}
-                <div class="col-md-3 col-lg-3 mb-4 text-center">
-                    <div class="product-entry border">
-                        <a href="#" class="prod-img">
-                            <img src="{{ related_product.full_view_image.url }}" class="img-fluid" alt="{{ related_product.product_name }}">
-                        </a>
-           
-                        <div class="desc">
-                            <h2><a href="#">{{ related_product.product_name }}</a></h2>
-                            <span class="price">{{ related_product.price }}</span>
-                            <p>Brand: {{ related_product.product_brand.brand_name }}</p>
-                            <div class="add-to-cart-btn">
-                                <button onclick="related_add_to_cart({{ related_product.id }})" class="btn btn-primary">Add to Cart</button>
-                            </div>
-                        </div>
-                        <!-- Button added here -->
-                    </div>
-                </div>
-                {% endfor %}
-			
-				</div>
+				</div> {% endcomment %}
+				{% comment %} <div class="row">
+					{% for related_product in related_products %}
+						<div class="col-md-3 col-lg-3 mb-4 text-center">
+							<div class="product-entry border">
+								<a href="#" class="prod-img">
+									<img src="{{ related_product.full_view_image.url }}" class="img-fluid" alt="{{ related_product.product_name }}">
+								</a>
+								<div class="desc">
+									<h2><a href="#">{{ related_product.product_name }}</a></h2>
+									<span class="price">{{ related_product.price }}</span>
+									<p>Brand: {{ related_product.product_brand.brand_name }}</p>
+									<div class="add-to-cart-btn">
+										<button onclick="related_add_to_cart({{ related_product.id }})" class="btn btn-primary"><i class="icon-shopping-cart"></i> Add to Cart</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+				</div> {% endcomment %}
 			</div>
 		</div>
+		
+
+
+
 
 		<footer id="colorlib-footer" role="contentinfo">
 			<div class="container">
@@ -237,9 +268,9 @@
 				<div class="row">
 					<div class="col-sm-12 text-center">
 						<p>
-							<span><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="icon-heart" aria-hidden="true"></i> 
-<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></span> 
+							<span>
+Copyright &copy; All rights reserved | This template is made with <i class="icon-heart" aria-hidden="true"></i> 
+</span> 
 							
 						</p>
 					</div>
@@ -252,25 +283,16 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 		<a href="#" class="js-gotop"><i class="ion-ios-arrow-up"></i></a>
 	</div>
 
-    <script>
-        function related_add_to_cart(productId) {
-            // Make an AJAX request to add the product to the cart
-            // You can customize this according to your backend implementation
-            // For example:
-            fetch('/add-to-cart/' + productId)
-                .then(response => {
-                    if (response.ok) {
-                        alert('Product added to cart successfully!');
-                    } else {
-                        alert('Failed to add product to cart. Please try again.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred. Please try again later.');
-                });
-        }
-    </script>
-    
+<script>
+		{
+			// In your JavaScript file (e.g., my_script.js)
+	document.getElementById('myButton').addEventListener('click', function() {
+		// This function will be executed when the button is clicked
+		alert('Button clicked!');
+		// You can perform other actions here, such as making AJAX requests
+	});
+
+		}
+	</script>
 {% endblock %}
 

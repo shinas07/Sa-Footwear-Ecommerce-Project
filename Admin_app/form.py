@@ -56,7 +56,7 @@ class ProductForm(forms.ModelForm):
 class ProductSizeColorForm(forms.ModelForm):
     class Meta:
         model = ProductSizeColor
-        fields = ['product','size','Stock','color']
+        fields = ['id','product','size','Stock','color','is_unlisted']
 
 
 class BrandForm(forms.ModelForm):

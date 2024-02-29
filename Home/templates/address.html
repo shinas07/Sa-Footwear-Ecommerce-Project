@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+  <h2 class="mb-4">User Addresses</h2>
+  {% if addresses %}
+    <div class="list-group">
+      {% for address in addresses %}
+        <div class="list-group-item">
+          <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">{{ address.address }}</h5>
+            <small><a href="{% url 'edit_address' address.id %}">Edit</a> | <a href="{% url 'delete_address' address.id %}">Delete</a></small>
+          </div>
+          <p class="mb-1">{{ address.House_no}}</p>
+          <p class="mb-1">{{ address.city }}, {{ address.state }}, {{ address.country }}</p>
+          <small>Pincode: {{ address.pincode }}</small>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No addresses found.</p>
+  {% endif %}
+  <a href="{% url 'add_address' %}" class="btn btn-primary mt-3">Add New Address</a>
+</div>
+{% endblock %}

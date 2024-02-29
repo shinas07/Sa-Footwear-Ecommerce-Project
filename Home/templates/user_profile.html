@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    .sidebar {
+        height:  100%;
+        width:  250px;
+        position: fixed;
+        z-index:  1;
+        top:  228px; /* Adjusted to position below the navbar */
+        left:  0;
+        background-color: #fff; /* Changed background color to a green shade */
+        overflow-x: hidden;
+        transition:  0.5s;
+        padding-top:  60px;
+        box-shadow:rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
+    }
+    
+    .sidebar a {
+        padding:  10px  15px;
+        text-decoration: none;
+        font-size:  18px;
+        color: #000; /* Changed text color to white */
+        display: block;
+        transition:  0.3s;
+    }
+    
+    .sidebar a:hover {
+        background-color: #45a04; /* Darker green shade on hover */
+    }
+    
+    .sidebar-header {
+        padding:  20px;
+        background: #fff; /* Lighter green shade for the header */
+        color: #000; /* Changed text color to white */
+    }
+    
+    .sidebar-header h3 {
+        margin: 0;
+    }
+    
+    .list-unstyled {
+        padding-left:  0;
+        list-style: none;
+    }
+    
+    .list-unstyled a {
+
+        margin-bottom:  7px;
+        border-radius:  5px; /* Rounded corners for links */
+    }
+    
+    .list-unstyled a:hover {
+        background: #88c8bc; /* Darker green shade on hover */
+    }
+
+    table {
+        width: 60%; /* Adjust width as needed */
+        margin: 20px auto;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+</style>    
+
+
+
+<!-- Button to open the sidebar -->
+<!-- The sidebar -->
+<div class="sidebar"> <!-- Adjusted width is removed -->
+    {% comment %} <div class="sidebar-header">
+        <h3>User Details</h3>
+    </div> {% endcomment %}
+        <div class="sidebar-section">
+            <ul class="list-unstyled components">
+                <li class="active">
+                    <a href="#userSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Profile</a>
+                    <ul class="collapse list-unstyled" id="userSubmenu">
+                        {% comment %} <li>
+                            <a href="#">Profile</a>
+                        </li> {% endcomment %}
+                        <li>
+                            <a href="{% url 'edit_user' %}">Edit Profile</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'change_password' %}">Change Password</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-section">
+            <ul class="list-unstyled components">
+                <li>
+                    <a href="#addressSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Address</a>
+                    <ul class="collapse list-unstyled" id="addressSubmenu">
+                        <li>
+                            <a href="{% url 'address_list' %}">Address List</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'add_address' %}">Add Address</a>
+                        </li>
+                        <li>
+                            <a href="#">Edit Address</a>
+
+                            {% comment %} <a href="{% url 'edit_address' address_id=address.id %}">Edit Address</a> {% endcomment %}
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-section">
+            <ul class="list-unstyled components">
+                <li>
+                    <a href="#ordersSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Orders</a>
+                    <ul class="collapse list-unstyled" id="ordersSubmenu">
+                        <li>
+                            <a href="{% url 'order_history' %}">View Orders</a>
+                        </li>
+                        <li>
+                            <a href="#">Cancel Order</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>    
+</div>
+
+<!-- User Details Table -->
+<table>
+    <tr>
+        <th>Attribute</th>
+        <th>Value</th>
+    </tr>
+    <tr>
+        <td>Username</td>
+        <td>{{ user.username }}</td>
+    </tr>
+    <tr>
+        <td>Email</td>
+        <td>{{ user.email }}</td>
+    </tr>
+    <tr>
+        <td>First Name</td>
+        <td>{{ user.first_name }}</td>
+    </tr>
+    <tr>
+        <td>Last Name</td>
+        <td>{{ user.last_name }}</td>
+    </tr>
+    <tr>
+        <td>Phone Numer</td>
+        <td>{{ user.phone }}
+    <!-- Add more rows for additional user details as needed -->
+</table>
+{% endblock %}

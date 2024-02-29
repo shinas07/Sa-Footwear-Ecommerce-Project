@@ -1,3 +1,4 @@
+from django import forms
 from django.shortcuts import render,redirect,get_object_or_404,HttpResponse
 from django.contrib.auth import authenticate,login,logout
 from django.contrib import messages
@@ -12,6 +13,8 @@ from Admin_app.form import BrandForm
 from Home.models import Banner
 from .form import BannerForm,ProductSizeColorForm
 from django.views import View
+from Orders.models import Order
+# from .forms import ChangeOrderStatusForm
 # Create your views here.
 
 def admin_login(request):
@@ -67,7 +70,7 @@ def admin_category(request):
 @login_required
 def admin_product(request):
     products = Product.objects.all()
-    product_size_colors = ProductSizeColor.objects.all()
+    product_size_colors = ProductSizeColor.objects.filter(is_unlisted=False)
     context = {
         'products' : products,
         'product_size_colors' : product_size_colors
@@ -123,21 +126,29 @@ def edit_product(request, pk):
     return render(request, 'admin_edit_product.html', {'product_form': product_form,})
 
 
+
 @login_required
 def edit_product_size_color(request, pk):
-    product = get_object_or_404(Product, pk=pk)
-    product_size_color = ProductSizeColor.objects.filter(product=product).first()
-    size_color_form = ProductSizeColorForm(request.POST or None, instance=product_size_color)
-    
-    if request.method == 'POST':
-        if size_color_form.is_valid():
-            size_color_form.save()
-            messages.success(request, 'Product size and color updated successfully')
-            return redirect('admin_product')
+    if pk:
+        product = get_object_or_404(Product, id=pk)
+        queryset = ProductSizeColor.objects.filter(product=product)
+        ProductSizeColorFormSet = forms.modelformset_factory(ProductSizeColor, form=ProductSizeColorForm, extra=0)
+        if request.method == 'POST':
+            formset = ProductSizeColorFormSet(request.POST, queryset=queryset)
+            if formset.is_valid():
+                formset.save()
+                messages.success(request, 'Product size and color updated successfully!')
+                return redirect('admin_product')
+            else:     
+                print(formset.errors)  # Debugging: Print formset errors
+                messages.error(request, 'Please correct the errors below.')
+   
         else:
-            messages.error(request, 'Please correct the errors below.')
-    
-    return render(request, 'admin_edit_product_size_color.html', {'size_color_form': size_color_form})
+            formset = ProductSizeColorFormSet(queryset=queryset)
+        return render(request, 'admin_edit_product_size_color.html', {'formset': formset})
+    else:
+        messages.error(request, 'Product ID is required.')
+        return redirect('admin_product')
 
 
 
@@ -178,12 +189,18 @@ def product_size_color(request):
 @login_required
 def admin_add_brand(request):
     categories = Category.objects.all()
-    brands = Brand.objects.all()  # Retrieve all categories
+    brands = Brand.objects.all()  
     if request.method == 'POST':
         form = BrandForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            return redirect('admin_add_brand')  
+            name = form.cleaned_data.get('brand_name')
+
+            if Brand.objects.filter(brand_name=name).exists():
+                messages.error(request,'Brand already exsists.')
+            else:
+                form.save()
+                messages.success(request, 'Brand added successfully.')
+                return redirect('admin_add_brand')  
     else:
         form = BrandForm()
     return render(request, 'admin_add_brand.html', {'form': form, 'categories': categories, 'brands': brands})
@@ -206,13 +223,41 @@ def unblock_brand(request,brand_id):
     
 @login_required
 def edit_brand(request,brand_id):
-    brand = get_object_or_404(brand,id=brand_id)
+    brand = get_object_or_404(Brand, id=brand_id) 
+    
     if request.method == 'POST':
-        if BrandForm.is_valid():
-            BrandForm.save()
-            messages.success(request, 'Product size and color updated successfully')
-        return redirect('admin_product')
+        form = BrandForm(request.POST,request.FILES,instance=brand)
+        if form.is_valid():
+            form.save()
+            return redirect('admin_add_brand')
+        else:
+            messages.error(request, 'Error updating brand. Please check it correctly.')
+    else:
+        form = BrandForm(instance=brand)
+    return render(request,'admin_edit_brand.html',{'form':form,'brand':brand})
 
+
+
+#  List orders
+def admin_oders_management(request):
+    if request.method == 'POST':
+        order_id = request.POST.get('order_id')
+        action = request.POST.get('action')
+
+        if 'change_status' in request.POST:
+            order_id = request.POST.get('order_id')
+            new_status = request.POST.get('new_status')
+            order = Order.objects.get(id=order_id)
+            order.status == new_status
+            order.save()
+        elif 'cancel_order' in request.POST:
+            order_id = request.POST.get('order_id')
+            order = Order.objects.get(id=order_id)
+            order.cancel_order()
+        return redirect('manage_orders')
+    
+    order = Order.objects.all()
+    return render(request,'manage_order.html',{'order':order})
 
 
 

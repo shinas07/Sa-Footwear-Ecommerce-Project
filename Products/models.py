@@ -1,6 +1,7 @@
 from django.db import models
 from Category.models import Category
 from PIL import Image
+from datetime import datetime
 
 # Create your models here.
 
@@ -40,6 +41,7 @@ class Product(models.Model):
     left_view_image = models.ImageField(upload_to='product_images/', blank=True, null=True)
     right_view_image = models.ImageField(upload_to='product_images/', blank=True, null=True)
     full_view_image = models.ImageField(upload_to='product_images/', blank=True, null=True)
+    created_at = models.DateTimeField(default=datetime.now,null=True)
 
     def __str__(self):
         return self.product_name
@@ -49,6 +51,7 @@ class ProductSizeColor(models.Model):
     size = models.CharField(max_length=50)
     Stock = models.IntegerField()
     color = models.CharField(max_length=50,null=True)
+    is_unlisted = models.BooleanField(default=False)
 
     def __str__(self):
         return self.product.product_name

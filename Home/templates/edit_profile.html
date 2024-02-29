@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    /* Add your custom CSS styles here */
+</style>
+
+<div class="container">
+    <h2>Edit User Details</h2>
+    <form method="post" action="{% url 'edit_user' %}">
+        {% csrf_token %}
+        <div class='error-message'>
+            {% if error %}
+            <p class="text-danger">{{ error }}</p>
+            {% endif %}
+        </div>
+        
+
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required pattern="[a-zA-Z0-9_]{3,15}">
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+        </div>
+        <div class="form-group">
+            <label for="first_name">First Name:</label>
+            <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}" required>
+        </div>
+        <div class="form-group">
+            <label for="last_name">Last Name:</label>
+            <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}" required>
+        </div>
+        <div class="form-group">
+            <label for="phone">Phone Number:</label>
+            <input type="tel" class="form-control" id="phone" name="phone" value="{{ user.phone }}" required pattern="[0-9]{10}" title="Please enter a 10-digit phone number">
+            {% comment %} <small id="phoneHelp" class="form-text text-muted">Please enter a 10-digit phone number.</small> {% endcomment %}
+        </div>
+        
+        
+        <!-- Add more fields for additional user details as needed -->
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+{% endblock %}

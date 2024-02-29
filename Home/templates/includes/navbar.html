@@ -1,4 +1,23 @@
 {% load static %}
+<style>
+
+.has-dropdown {
+    position: relative;
+}
+
+.dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1;
+}
+
+.has-dropdown.active .dropdown {
+    display: block;
+}
+
+</style>
 
 <nav class="colorlib-nav" role="navigation">
     <div class="top-menu">
@@ -11,13 +30,14 @@
                 </div>
                 {% if user.is_authenticated %}
                 <div class="col-sm-5 col-md-3">
-                    <form action="#" class="search-wrap">
+                    <form action="{% url 'search_results' %}" method="get" class="search-wrap">
                         <div class="form-group">
-                            <input type="search" class="form-control search" placeholder="Search">
+                            <input type="search" name="query" class="form-control search" placeholder="Search"> <!-- Add name attribute -->
                             <button class="btn btn-primary submit-search text-center" type="submit"><i class="icon-search"></i></button>
                         </div>
                     </form>
                 </div>
+                
                 {% endif %}
             </div>
             <div class="row">
@@ -46,26 +66,27 @@
                        
                         <li ><a href="contact.html">Contact</a></li>
                         {% if user.is_authenticated %}
-                        <!-- Show these options only if the user is logged in -->
-                        <li class="cart"><a href="cart.html"><i class="icon-shopping-cart"></i> Cart [0]</a></li>
-                        <li class="has-dropdown">
+    <!-- Show these options only if the user is logged in -->
+                        <li class="cart"><a href="{% url 'Cart:view_cart' %}"><i class="icon-shopping-cart"></i> Cart [0]</a></li>
+                        <li class="has-dropdown ">
                             <a href="#"><i class="icon-user"></i> Accounts</a>
                             <ul class="dropdown">
-                                <li><a href="account.html">Account Details</a></li>
+                                <li><a href="{% url 'user_profile' %}">Account Details</a></li>
                                 <li><a href="{% url 'Accounts:logout' %}">Logout</a></li>
                             </ul>
                         </li>
-                        {% else %}
+                    {% else %}
                         <!-- Show these options only if the user is not logged in -->
-                        <li class="has-dropdown">
+                        <li class="has-dropdown ">
                             <a href="#"><i class="icon-user"></i> Accounts</a>
                             <ul class="dropdown">
                                 <li><a href="{% url 'Accounts:signup' %}">Sign Up</a></li>
                                 <li><a href="{% url 'Accounts:login' %}">Login</a></li>
                             </ul>
                         </li>
-                    </ul>   
-                        {% endif %}
+                    {% endif %}
+
+                     
           
                         {% comment %} <li class="cart"><a href="cart.html"><i class="icon-shopping-cart"></i> Cart [0]</a></li> {% endcomment %}
                 

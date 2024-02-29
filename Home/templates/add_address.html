@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8">
+            <div class="card">
+                <h2 class="card-header">Add Address</h2>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <td>{{ form.address.label_tag }}</td>
+                                    <td>{{ form.address }}</td>
+                                </tr>
+                                <tr>
+                                    <td>{{ form.House_no.label_tag }}</td>
+                                    <td>{{ form.House_no }}</td>
+                                </tr>
+                                <tr>
+                                    <td>{{ form.city.label_tag }}</td>
+                                    <td>{{ form.city }}</td>
+                                </tr>
+                                <tr>
+                                    <td>{{ form.state.label_tag }}</td>
+                                    <td>{{ form.state }}</td>
+                                </tr>
+                                <tr>
+                                    <td>{{ form.country.label_tag }}</td>
+                                    <td>{{ form.country }}</td>
+                                </tr>
+                                <tr>
+                                    <td>{{ form.pincode.label_tag }}</td>
+                                    <td>{{ form.pincode }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button type="submit" class="btn btn-primary mt-3">Save Address</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
