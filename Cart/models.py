@@ -9,6 +9,16 @@ class Cart(models.Model):
     products = models.ManyToManyField(Product, through='CartItem')
 
 
+    def calculate_total_amount(self):
+        total_amount = 0
+        cart_items = self.cartitem_set.all()
+
+        for cart_item in cart_items:
+            total_amount += cart_item.product.price * cart_item.quantity
+
+        return total_amount
+
+
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8">
+            <div class="card">
+                <h2 class="card-header">Add Address</h2>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <table class="table">
+                            <tbody>
+                                <!-- Render form fields -->
+                                {% for field in form %}
+                                <tr>
+                                    <td>{{ field.label_tag }}</td>
+                                    <td>{{ field }}</td>
+                                </tr>
+                                <!-- Display field errors -->
+                                {% if field.errors %}
+                                <tr>
+                                    <td colspan="2">
+                                        {% for error in field.errors %}
+                                        <span class="text-danger">{{ error }}</span>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <button type="submit" class="btn btn-primary mt-3">Save Address</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

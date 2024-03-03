@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Custom CSS for increasing table width */
+
+    
+    .error-message {
+        color: red; /* Set the color of error messages to red */
+        font-size: 14px; /* Adjust the font size of error messages */
+        margin-top: 4px; /* Add some spacing between the error messages and form fields */
+    }
+</style>
+
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Edit Address</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <table class="table">
+                            <tbody>
+                                {% for field in form %}
+                                    <tr>
+                                        <th>{{ field.label_tag }}</th>
+                                        <td>{{ field }}</td>
+                                        <td>
+                                            {% if field.errors %}
+                                                <span class="error-message">
+                                                    {% for error in field.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

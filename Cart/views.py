@@ -20,9 +20,6 @@ from django.contrib.auth.decorators import login_required
 #     }
 #     return render(request,'cart.html',context)
 
-
-
-
 @login_required
 def add_to_cart(request, product_id):
     if request.method == 'POST':
@@ -32,30 +29,44 @@ def add_to_cart(request, product_id):
             cart = Cart.objects.create(user=request.user)
             
         product = get_object_or_404(Product, pk=product_id)
-        form = AddToCartForm(request.POST, product=product)
-        if form.is_valid():
-            quantity = form.cleaned_data['quantity']
-            print(quantity)
-            product_size_color = product.productsizecolor_set.first()
-            if quantity <= product_size_color.Stock:
-                max_quantity_per_person = 10
+        product_size_color = product.productsizecolor_set.first()
+        
+        if product_size_color.Stock > 0:  # Check if product is in stock
+            form = AddToCartForm(request.POST, product=product)
+            if form.is_valid():
+                quantity = form.cleaned_data['quantity']
+                max_quantity_per_person = 5
 
-                cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-                if not created:
-                    cart_item.quantity += quantity  
-                    cart_item.save()
+                if quantity < max_quantity_per_person:
+                    if quantity <= product_size_color.Stock:
+                        cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+                        if not created:
+                            cart_item.quantity += quantity  
+                            cart_item.save()
+                        else:
+                            cart_item.quantity = quantity  
+                            cart_item.save()
+                        messages.success(request, 'Item added to cart successfully.')
+                        return redirect('Cart:view_cart')
+                    else:
+                        messages.error(request, 'Exceeded maximum quantity per person.')
+                        return redirect('product:product_details', product_id=product_id)
                 else:
-                    cart_item.quantity = quantity  
-                    cart_item.save()
-                messages.success(request, 'Item added to cart successfully.')
-                return redirect('Cart:view_cart')
+                    messages.error(request,'"Maximum quantity allowed per person exceeded. Please adjust the quantity and try again.')
+                    return redirect('product:product_details', product_id=product_id)
             else:
-                messages.error(request, 'Not enough stock available.')
-                return redirect('product:product_details',product_id=product_id)
+                messages.error(request, 'Please correct the quantity field and try again.')
+                return redirect('product:product_details', product_id=product_id)
         else:
-            messages.error(request, 'validation failed.')
-            return redirect('product:product_details',product_id=product_id)
+            messages.error(request, 'Product is out of stock.')
+            return redirect('product:product_details', product_id=product_id)
+    
     return redirect('Cart:view_cart')
+
+
+
+
+
 
 @login_required
 def view_cart(request):
@@ -66,13 +77,14 @@ def view_cart(request):
     else:
         # Retrieve cart items associated with the cart
         cart_items = CartItem.objects.all()
-        total_price = sum(item.product.price for item in cart_items)
-        context = {
-            'cart':cart,
-            'cart_items':cart_items,
-            'total_price':total_price,
-        }
-    return render(request, 'cart.html',context)
+    
+    total_price = sum(item.product.price for item in cart_items)
+    context = {
+        'cart': cart,
+        'cart_items': cart_items,
+        'total_price': total_price,
+    }
+    return render(request, 'cart.html', context)
 
 
 

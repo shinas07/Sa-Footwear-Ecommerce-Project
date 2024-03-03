@@ -13,7 +13,7 @@ from Admin_app.form import BrandForm
 from Home.models import Banner
 from .form import BannerForm,ProductSizeColorForm
 from django.views import View
-from Orders.models import Order
+from Orders.models import Order, OrderProduct
 # from .forms import ChangeOrderStatusForm
 # Create your views here.
 
@@ -239,26 +239,49 @@ def edit_brand(request,brand_id):
 
 
 #  List orders
-def admin_oders_management(request):
-    if request.method == 'POST':
-        order_id = request.POST.get('order_id')
-        action = request.POST.get('action')
 
-        if 'change_status' in request.POST:
-            order_id = request.POST.get('order_id')
-            new_status = request.POST.get('new_status')
-            order = Order.objects.get(id=order_id)
-            order.status == new_status
-            order.save()
-        elif 'cancel_order' in request.POST:
-            order_id = request.POST.get('order_id')
-            order = Order.objects.get(id=order_id)
-            order.cancel_order()
-        return redirect('manage_orders')
+# def admin_order_management(request):
+#     if request.method == 'POST':
+#         order_id = request.POST.get('order_id')
+#         action = request.POST.get('action')
+
+#         if action in dict(Order.ORDER_STATUS_CHOICES):
+#             new_status = action
+#             order = get_object_or_404(Order, id=order_id)
+#             order.status = new_status
+#             order.save()
+#             messages.success(request,f"order status updated to '{new_status}' succesfully.")
+
+
+#         return redirect('admin_order_management')
+
+#     orders = Order.objects.all()
+#     return render(request, 'manage_order.html', {'orders': orders})
+
+
+def admin_order_management(request):
+    orders = Order.objects.all()
+    return render(request, 'manage_order.html', {'orders': orders})
+
+def order_products_details(request,order_id):
+    order = get_object_or_404(Order, id=order_id)
+    order_products = order.orderproduct_set.all()
+    return render(request, 'manage_order_details.html', {'order': order, 'order_products': order_products})
+
+
+
+def admin_product_status(request, order_id, order_product_id):
+    order_product = get_object_or_404(OrderProduct, id=order_product_id)
     
-    order = Order.objects.all()
-    return render(request,'manage_order.html',{'order':order})
+    if request.method == 'POST':
+        new_status = request.POST.get('new_status')
+        if new_status:
+            order_product.status = new_status
+            order_product.save()
+            return redirect("admin_order_management")
 
+    return redirect("admin_order_management") 
+        
 
 
 

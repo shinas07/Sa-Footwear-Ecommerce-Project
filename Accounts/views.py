@@ -1,5 +1,5 @@
 
-from django.http import JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect , HttpResponse
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
@@ -316,7 +316,6 @@ def resend_otp(request):
         return JsonResponse({'status': 'success'})
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
-
 
 
 

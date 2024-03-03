@@ -20,8 +20,9 @@
     }
     
     #product-list .product-entry .prod-img img {
-        max-width: 100%;
-        height: auto;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
     
     #product-list .product-entry .desc {
@@ -33,6 +34,7 @@
         font-size: 18px;
         margin-bottom: 10px;
     }
+    
     .sidebar a {
         color: #333; /* Default text color */
         transition: color 0.3s ease; /* Smooth transition for color change */
@@ -41,11 +43,11 @@
     .sidebar a:hover {
         color: #88c8bc; /* Change to desired hover text color */
     }
-        
-    .prod-img {
-        width:  100%;
-        height:  290px;
-        object-fit: cover;
+
+    .prod-img-container {
+        width: 100%; /* Set container width */
+        height: 190px; /* Set container height */
+        overflow: hidden; /* Hide overflow */
     }
 
 </style>
@@ -62,26 +64,29 @@
             <div class="sidebar">
                 <h4>Filter Options</h4>
                 <ul class="list-group">
-                    <h4>Filter Options</h4>
-                    <ul class="list-group">
-                        <li class="list-group-item"><a href="{% url 'search_results_price' %}?sort_by=price_low_to_high">Price: low to high</a></li>
-                        <li class="list-group-item"><a href="{% url 'search_results_price' %}?sort_by=price_high_to_low">Price: high to low</a></li>
-                        <li class="list-group-item"><a href="{% url 'search_results_price' %}?sort_by=average_ratings">Average ratings</a></li>
-                        <li class="list-group-item"><a href="{% url 'search_results_price' %}?sort_by=featured">Featured</a></li>
-                        <li class="list-group-item"><a href="{% url 'search_results_price' %}?sort_by=new_arrivals">New arrivals</a></li>
-                        <li class="list-group-item"><a href="{% url 'search_results_price' %}?sort_by=aA_to_zZ">aA - zZ</a></li>
-                        <li class="list-group-item"><a href="{% url 'search_results_price' %}?sort_by=zZ_to_aA">zZ - aA</a></li>
-                    </ul>
+                    <li class="list-group-item"><a href="{% url 'search_filter_result' %}?sort_by=price_low_to_high">Price: low to high</a></li>
+                    <li class="list-group-item"><a href="{% url 'search_filter_result' %}?sort_by=price_high_to_low">Price: high to low</a></li>
+                    <li class="list-group-item"><a href="{% url 'search_filter_result' %}?sort_by=average_ratings">Average ratings</a></li>
+                    <li class="list-group-item"><a href="{% url 'search_filter_result' %}?sort_by=featured">Featured</a></li>
+                    <li class="list-group-item"><a href="{% url 'search_filter_result' %}?sort_by=new_arrivals">New arrivals</a></li>
+                    <li class="list-group-item"><a href="{% url 'search_filter_result' %}?sort_by=aA_to_zZ">aA - zZ</a></li>
+                    <li class="list-group-item"><a href="{% url 'search_filter_result' %}?sort_by=zZ_to_aA">zZ - aA</a></li>
+                    <li class="list-group-item">
+                            <a href="{% url 'search_filter_result' %}?sort_by=Hide_out_of_stock">Hide Out of Stock</a>
+                    </li>
                 </ul>
             </div>
         </div>
+        
         <div class="col-md-9 order-first">
             <div class="row row-pb-md" id="product-list">
                 {% for product in products %}
                 <div class="col-md-3 col-lg-3 mb-4 text-center">
                     <div class="product-entry border">
                         <a href="{% url 'product:product_details' product_id=product.pk %}" class="prod-img">
-                            <img src="{{ product.full_view_image.url }}" class="img-fluid" alt="{{ product.product_name }}">  
+                            <div class="prod-img-container">
+                                <img src="{{ product.full_view_image.url }}" class="img-fluid" alt="{{ product.product_name }}">  
+                            </div>
                         </a>
                         <div class="desc">
                             <h2><a href="{% url 'product:product_details' product_id=product.pk %}">{{ product.product_name }}</a></h2>

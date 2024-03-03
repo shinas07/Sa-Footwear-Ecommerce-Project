@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib import messages
 from Home.forms import ChangePasswordForm,AddressForm
@@ -8,7 +9,7 @@ from Category.models import Category
 from Home.models import Banner,Address
 from django.db.models import Q
 from django.core.mail import send_mail
-from allauth.socialaccount.models import SocialApp
+# from allauth.socialaccount.models import SocialApp
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator
@@ -21,6 +22,10 @@ from Accounts.models import Customer
 from django.utils import timezone
 from datetime import datetime,timedelta
 from Orders.models import OrderProduct,Order
+from Products.models import ProductSizeColor
+from django.db.models import F
+from django.db import transaction
+
 
 def home(request):
     active_category = 'home'
@@ -168,7 +173,7 @@ def change_password(request):
                     user.set_password(new_password)
                     user.save()
                     messages.success(request, 'Password changed successfully.')
-                    return redirect('user_profile')
+                    return redirect('Accounts:login')
                 else:
                     messages.error(request, 'New passwords do not match.')
             else:
@@ -216,25 +221,6 @@ def delete_address(request, address_id):
     return redirect('address_list')
 
 
-# @login_required
-# def order_history(request):
-
-#     order_details = OrderProduct.objects.filter(order__user=request.user)
-#     print(order_details)
-
-#     orders = Order.objects.filter(user=request.user)
-#     for o in orders:
-#         print(o.address.address)
-#     order_total = sum(order.payment.amount for order in orders)
-#     print(order_total)
-#     print(orders)
-
-#     context = {
-#         'orders': orders,
-#         'order_total': order_total,
-#     }
-#     return render(request, 'order_history.html',context)
-
 
 
 @login_required
@@ -244,32 +230,52 @@ def order_history(request):
 
 
 
-# @login_required
-# def order_history(request):
-#     orders = Order.objects.filter(user=request.user).select_related('address', 'payment')
-#     order_details = []
-#     for order in orders:
-#         order_products = OrderProduct.objects.filter(order=order)
-#         products = []
-#         total_price = 0
-#         for op in order_products:
-#             product = Product.objects.get(id=op.product.id)
-#             total_price += product.price * op.quantity
-#             products.append({
-#                 'name': product.product_name,
-#                 'quantity': op.quantity,
-#                 'price': product.price,
-#             })
-#         order_details.append({
-#             'order': order,
-#             'products': products,
-#             'total_price': total_price,
-#         })
-#         print(order_details) # Add this line to debug
-#     context = {
-#         'order_details': order_details,
-#     }
-#     return render(request, 'order_history.html', context)
+
+
+@login_required
+def order_details(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    return render(request,'order_details.html',{'order':order})
+
+
+
+
+
+def cancel_product(request, order_product_id):
+    order_product = get_object_or_404(OrderProduct, id=order_product_id)
+
+    if request.method == 'POST':
+        order_product.status = 'Cancelled'
+        order_product.save()
+        messages.success(request, 'Product successfully cancelled.')
+        return redirect('order_history') 
+    return render(request, 'cancel_product.html', {'order_product': order_product})
+
+
+
+# def submit_review_and_rating(requst, object_id, is_order_product=False):
+#     if is_order_product:
+
+
+def submit_review_and_rating(request):
+    if request.method == 'POST':
+        order_product_id = request.POST.get('order_product_id')
+        rating = request.POST.get('rating')
+        print('haai')
+        review = request.POST.get('review')
+
+        order_product = get_object_or_404(OrderProduct, id=order_product_id)
+        # Check if the order product is delivered before allowing review submission
+        if order_product.status == "Delivered":
+            order_product.user = request.user
+            order_product.rating = rating
+            order_product.review = review
+            order_product.save()
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'error': 'Product must be delivered to submit review.'})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'})
 
 
 # Search
@@ -298,7 +304,7 @@ def search_results(request):
 
 
 
-def search_results_price(request):
+def search_filter_result(request):
     sort_by = request.GET.get('sort_by')
     query = request.session.get('search_query')
     print(query)
@@ -306,6 +312,7 @@ def search_results_price(request):
     products = Product.objects.all() 
     if query:
         products = Product.objects.filter(product_name__icontains=query)
+
 
     if sort_by == 'popularity':
         pass
@@ -324,9 +331,17 @@ def search_results_price(request):
         products =  Product.objects.filter(product_name__icontains=query).order_by('product_name')
     elif sort_by == 'zZ_to_aA':
         products = Product.objects.filter(product_name__icontains=query).order_by('-product_name')
+    elif sort_by == 'Hide_out_of_stock':
+        products = Product.objects.filter(productsizecolor__Stock__gt=0,product_name__icontains=query)
+
+    if sort_by == 'Hide_out_of_stock' and not products.exists():
+        no_stock_message = "There are no products out of stock."
+    else:
+        no_stock_message = None
 
     context = {
         'products': products,
         'query': query,
+        'no_stock_message': no_stock_message,  
     }
     return render(request, 'search_result.html', context)

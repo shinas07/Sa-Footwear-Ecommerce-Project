@@ -26,12 +26,14 @@ urlpatterns = [
     path('unblock_brand/<int:brand_id>',views.unblock_brand,name='unblock_brand'),
     path('edit_brand/<int:brand_id>/',views.edit_brand,name='edit_brand'),
 
-    path('admin_oders_management/',views.admin_oders_management,name='admin_oders_management'),
+    path('admin_order_management/',views.admin_order_management,name='admin_order_management'),
 
     path('admin-add-banner/', views.admin_add_banner, name='admin_add_banner'),
     path('delete-banner/<int:banner_id>/', views.delete_banner, name='delete_banner'),
+    path('admin_products_details/<int:order_id>', views.order_products_details, name='order_products_details'),
 
-
+    # path('admin_order_details/<int:order_id>/<int:product_id>/', views.admin_order_details, name='admin_order_details'),
+    path('admin_product_status/<int:order_id>/<int:order_product_id>/', views.admin_product_status, name='admin_product_status'),
 ]
 
 

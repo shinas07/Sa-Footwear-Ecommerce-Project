@@ -42,6 +42,7 @@ class Product(models.Model):
     right_view_image = models.ImageField(upload_to='product_images/', blank=True, null=True)
     full_view_image = models.ImageField(upload_to='product_images/', blank=True, null=True)
     created_at = models.DateTimeField(default=datetime.now,null=True)
+    rating = models.DecimalField(max_digits=5, decimal_places=2, default=0.00,null=True)
 
     def __str__(self):
         return self.product_name
@@ -52,6 +53,7 @@ class ProductSizeColor(models.Model):
     Stock = models.IntegerField()
     color = models.CharField(max_length=50,null=True)
     is_unlisted = models.BooleanField(default=False)
+    
 
     def __str__(self):
         return self.product.product_name

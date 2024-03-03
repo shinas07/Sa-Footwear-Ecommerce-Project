@@ -11,34 +11,26 @@
                         {% csrf_token %}
                         <table class="table">
                             <tbody>
-                                <tr>
-                                    <td>{{ form.address.label_tag }}</td>
-                                    <td>{{ form.address }}</td>
-                                </tr>
-                                <tr>
-                                    <td>{{ form.House_no.label_tag }}</td>
-                                    <td>{{ form.House_no }}</td>
-                                </tr>
-                                <tr>
-                                    <td>{{ form.city.label_tag }}</td>
-                                    <td>{{ form.city }}</td>
-                                </tr>
-                                <tr>
-                                    <td>{{ form.state.label_tag }}</td>
-                                    <td>{{ form.state }}</td>
-                                </tr>
-                                <tr>
-                                    <td>{{ form.country.label_tag }}</td>
-                                    <td>{{ form.country }}</td>
-                                </tr>
-                                <tr>
-                                    <td>{{ form.pincode.label_tag }}</td>
-                                    <td>{{ form.pincode }}</td>
-                                </tr>
+                                <!-- Iterate over form fields and display errors -->
+                                {% for field in form %}
+                                    <tr>
+                                        <td>{{ field.label_tag }}</td>
+                                        <td>{{ field }}</td>
+                                        <td>
+                                            {% if field.errors %}
+                            
+                                                    {% for error in field.errors %}
+                                                        <p style="color: red;">{{ error }}</p>
+                                                    {% endfor %}
+                                                
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                         <button type="submit" class="btn btn-primary mt-3">Save Address</button>
-                    </form>
+                    </form>                    
                 </div>
             </div>
         </div>

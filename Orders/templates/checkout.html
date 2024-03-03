@@ -15,52 +15,27 @@
 
 
 
+
 	
-			<h1>Checkout</h1>
+			{% comment %} <h1>Checkout</h1> {% endcomment %}
 			
 			{% if error %}
 				<p>{{ error }}</p>
 			{% endif %}
-			
-			<form method="post">
-				{% csrf_token %}
-				<label for="address">Select Address:</label>
-				<select name="address" id="address">
-					{% for address in addresses %}
-						<option value="{{ address.id }}">{{ address.address }}</option>
-					{% endfor %}
-				</select>
-				<br><br>
-				<label for="payment_method">Payment Method:</label>
-				<select name="payment_method" id="payment_method">
-					<option value="COD">Cash on Delivery</option>
-					<!-- Add other payment methods if applicable -->
-				</select>
-				<br><br>
-				<button type="submit">Place Order</button>
-			</form>
 
-	{% comment %} <div class="container"> 
-		<h2 class="mb-4">Addresses</h2>
-		{% if addresses %}
-		  <div class="list-group">
-			{% for address in addresses %}
-			  <div class="list-group-item">
-				<div class="d-flex w-100 justify-content-between">
-				  <h5 class="mb-1">{{ address.address }}</h5>
-				  <small><a href="{% url 'edit_address' address.id %}">Edit</a> | <a href="{% url 'delete_address' address.id %}">Delete</a></small>
-				</div>
-				<p class="mb-1">{{ address.House_no}}</p>
-				<p class="mb-1">{{ address.city }}, {{ address.state }}, {{ address.country }}</p>
-				<small>Pincode: {{ address.pincode }}</small>
-			  </div>
-			{% endfor %}
-		  </div>
-		{% else %}
-		  <p>No addresses found.</p>
-		{% endif %}
-		<a href="{% url 'add_address' %}" class="btn btn-primary mt-3">Add New Address</a>
-	  </div> {% endcomment %}
+			  
+
+
+
+
+			
+
+			
+	
+
+			
+
+	
 
 
 
@@ -85,7 +60,7 @@
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-lg-8">
+					{% comment %} <div class="col-lg-8">
 						<form method="post" class="colorlib-form">
 							<h2>Billing Details</h2>
 		              	<div class="row">
@@ -179,69 +154,80 @@
 								</div>
 		               </div>
 		            </form>
-					</div>
+					</div> {% endcomment %}
 
-					<div class="col-lg-4">
-						<div class="row">
-							<div class="col-md-12">
-								<div class="cart-detail">
-									<h2>Cart Total</h2>
-									<ul>
-										<li>
-											<span>Subtotal</span> <span>$100.00</span>
+
+
+
+
+					<div class="container">
+						<div class="row justify-content-center">
+							<div class="col-lg-8">
+								<!-- User Addresses Section (Existing) -->
+								<h2 class="mb-4">User Addresses</h2>
+								{% if addresses %}
+								<form method="post" action="{% url 'checkout' %}">
+									{% csrf_token %}
+									<div class="list-group">
+										{% for address in addresses %}
+										<div class="list-group-item">
+											<div class="form-check">
+												<input class="form-check-input" type="radio" name="address" id="address{{ address.id }}" value="{{ address.id }}">
+												<label class="form-check-label" for="address{{ address.id }}">
+													<h5>{{ address.address }}</h5>
+													<p>{{ address.House_no}}, {{ address.city }}, {{ address.state }}, {{ address.country }} - Pincode: {{ address.pincode }}</p>
+												</label>
+											</div>
+											<div class="text-right mt-2">
+												<a href="{% url 'order_edit_address' address.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+											</div>
+										</div>
+										{% endfor %}
+										<div class="text-right">
+											<button type="button" class="btn btn-primary btn-sm mt-5" onclick="redirectToOrderAddAddress()">Add Address</button>
+										</div>
+										
+									</div>
+									<hr>
+									<h2 class="mb-4">Payment Method</h2>
+									<div class="form-group">
+										{% comment %} <label for="payment_method">Payment Method:</label> {% endcomment %}
+										<select name="payment_method" id="payment_method" class="form-control">
+											<option value="COD">Cash on Delivery</option>
+											<option value="PayPal">PayPal</option>
+											<!-- Add other payment methods if applicable -->
+										</select>
+									</div>
+									
+									<!-- Add other payment methods if applicable -->
+									<button type="submit" class="btn btn-primary mt-3">Place Order</button>
+								</form>
+								{% endif %}
+							</div>
+							<div class="col-lg-4">
+								<!-- Cart Total Section (Added to the Right Side) -->
+								<div class="row mt-5">
+									<div class="col-md-12">
+										<div class="cart-detail">
+											<h2>Cart Total</h2>
 											<ul>
-												<li><span>1 x Product Name</span> <span>$99.00</span></li>
-												<li><span>1 x Product Name</span> <span>$78.00</span></li>
+												<li>
+													<span>Subtotal</span> <span>{{ total_price }}</span>
+													<ul>
+														<li><span>1 x {{ product.product_name }}</span> <span>$99.00</span></li>
+														<li><span>1 x Product Name</span> <span>$78.00</span></li>
+													</ul>
+												</li>
+												<li><span>Shipping</span> <span>$0.00</span></li>
+												<li><span>Order Total</span> <span>{{ total_price }}</span></li>
 											</ul>
-										</li>
-										<li><span>Shipping</span> <span>$0.00</span></li>
-										<li><span>Order Total</span> <span>$180.00</span></li>
-									</ul>
-								</div>
-						   </div>
-
-						   <div class="w-100"></div>
-
-						   <div class="col-md-12">
-								<div class="cart-detail">
-									<h2>Payment Method</h2>
-									<div class="form-group">
-										<div class="col-md-12">
-											<div class="radio">
-											   <label><input type="radio" name="optradio"> Direct Bank Tranfer</label>
-											</div>
-										</div>
-									</div>
-									<div class="form-group">
-										<div class="col-md-12">
-											<div class="radio">
-											   <label><input type="radio" name="optradio">Cash On Delivery</label>
-											</div>
-										</div>
-									</div>
-									<div class="form-group">
-										<div class="col-md-12">
-											<div class="radio">
-											   <label><input type="radio" name="optradio"> Paypal</label>
-											</div>
-										</div>
-									</div>
-									<div class="form-group">
-										<div class="col-md-12">
-											<div class="checkbox">
-											   <label><input type="checkbox" value=""> I have read and accept the terms and conditions</label>
-											</div>
 										</div>
 									</div>
 								</div>
-							</div>
-						</div>
-						<div class="row">
-							<div class="col-md-12 text-center">
-								<p><a href="#" class="btn btn-primary">Place an order</a></p>
 							</div>
 						</div>
 					</div>
+					
 				</div>
 			</div>
 		</div>
@@ -315,4 +301,11 @@
 	<div class="gototop js-top">
 		<a href="#" class="js-gotop"><i class="ion-ios-arrow-up"></i></a>
 	</div>
+
+	<script>
+		function redirectToOrderAddAddress() {
+			window.location.href = "{% url 'order_add_address' %}";
+		}
+	</script>
+
     {% endblock %}

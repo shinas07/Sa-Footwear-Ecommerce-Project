@@ -1,0 +1,223 @@
+
+
+{% extends 'base.html' %}
+{% block content %}
+<title>Order Details</title>
+    <!-- Add your CSS stylesheets or links here -->
+    <style>
+        .star-rating input[type="radio"] {
+            display: none;
+        }
+        
+        .star-rating label {
+            float: right;
+            cursor: pointer;
+        }
+        
+        .star-rating label:before {
+            content: "\2605";
+            font-size: 25px;
+            color: #ddd;
+        }
+        
+        .star-rating input[type="radio"]:checked ~ label:before {
+            color: #ffcc00;
+        }
+        
+
+
+
+
+
+
+        .containerbox {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2, h3 {
+            color: #333;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        img {
+            max-width: 100px;
+            height: auto;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: #88c8bc;;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+          
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+        /* Your CSS styles here */
+    </style>
+
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <div id="reviewMessage" class="alert alert-success" style="display: none;"></div>
+
+    <div class="containerbox">
+        <h1>Order Details</h1>
+        <h2>Order ID: {{ order.id }}</h2>
+        <p>Total Amount: ${{ order.payment.amount }}</p>
+    
+        <h3>Products</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Image</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order_product in order.orderproduct_set.all %}
+                <tr>
+                    <td>{{ order_product.product.product_name }}</td>
+                    <td><img src="{{ order_product.product.full_view_image.url }}" alt="{{ order_product.product.product_name }}"></td>
+                    {% if order_product.status == "Delivered" %}
+                    <td>
+                        <!-- Button to trigger the review modal -->
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#reviewModal{{ order_product.id }}">
+                            Review Product
+                        </button>
+                        <!-- Review Modal -->
+                        <div class="modal fade" id="reviewModal{{ order_product.id }}" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="reviewModalLabel">Review Product</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Review form -->
+                                        <form id="reviewForm{{ order_product.id }}">
+                                            {% csrf_token %}
+                                            <div class="form-group">
+                                                <label for="rating{{ order_product.id }}">Rating:</label>
+                                                <select name="rating{{ order_product.id }}" id="rating{{ order_product.id }}" class="form-control">
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                    <option value="5">5</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="review{{ order_product.id }}">Review:</label>
+                                                <textarea class="form-control" id="review{{ order_product.id }}" name="review{{ order_product.id }}" rows="3"></textarea>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <!-- Submit button -->
+                                        <button type="button" class="btn btn-primary submitReview" data-order-product-id="{{ order_product.id }}">Submit</button>
+                                 
+                                        {% comment %} <button type="button" class="btn btn-primary" onclick="submitReview()" data-order-product-id="{{ order_product.id }}">Submit</button> {% endcomment %}
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    {% else %}
+                        <td>
+                            {% if order_product.status == "Cancelled" %}
+                                Product Cancelled
+                            {% else %}
+                                <!-- Form for cancelling the product -->
+                                <form method="post" action="{% url 'cancel_product' order_product_id=order_product.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">Cancel Product</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+
+    
+    <!-- JavaScript to handle modal submission -->
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Use event delegation to ensure the event handler is attached to dynamically added elements
+            $(document).on('click', '.submitReview', function() {
+                var orderProductId = $(this).data('order-product-id');
+                var rating = $('#rating' + orderProductId).val();
+                var review = $('#review' + orderProductId).val();
+    
+                // Ensure the CSRF token is correctly included in the AJAX request
+                var csrfToken = $('[name=csrfmiddlewaretoken]').val();
+    
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url 'submit_review_and_rating' %}',
+                    data: {
+                        'csrfmiddlewaretoken': csrfToken,
+                        'rating': rating,
+                        'review': review,
+                        'order_product_id': orderProductId,
+                    },
+                    success: function(response) {
+                        console.log('Review submitted successfully');
+                        $('#reviewModal' + orderProductId).modal('hide');
+                        // Display success message
+                        $('#reviewMessage').text('Review submitted successfully!').show();
+                    },
+                    error: function(xhr, errmsg, err) {
+                        console.log('Error submitting review: ' + errmsg);
+                        // Optionally, display an error message
+                        $('#reviewMessage').text('Error submitting review: ' + errmsg).show();
+                    }
+                });
+            });
+        });
+    </script>
+
+    <!-- Add a button or link to go back to the previous page -->
+    <a href="javascript:history.back()" class="btn btn-primary">Back</a>
+{% endblock %}

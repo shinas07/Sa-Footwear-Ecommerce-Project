@@ -18,6 +18,11 @@ urlpatterns = [
     path('verify-otp/', VerifyOTP.as_view(), name='verify_otp'),
     path('new-password/', VerifyOTP.as_view(), name='new_password'),
     path('password-reset/', NewPasswordView.as_view(), name='NewPasswordView'),
+
+
+
+
+
     # path('resend_otp',views.resend_otp,name='resend_otp'),
 
 ]

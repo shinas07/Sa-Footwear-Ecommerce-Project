@@ -58,6 +58,12 @@ class ProductSizeColorForm(forms.ModelForm):
         model = ProductSizeColor
         fields = ['id','product','size','Stock','color','is_unlisted']
 
+   
+    def clean_Stock(self):
+        stock = self.cleaned_data.get('Stock')
+        if stock < 0:
+            raise forms.ValidationError("Stock cannot be negative.")
+        return stock
 
 class BrandForm(forms.ModelForm):
     class Meta:

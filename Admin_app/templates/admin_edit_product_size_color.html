@@ -99,10 +99,10 @@
             </li>
              <!-- Divider -->
              <hr class="sidebar-divider">
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'admin_users' %}">
-                <i class="bi bi-arrow-return-left"></i>
-                    <span>Return Product</span></a>
+             <li class="nav-item">
+                <a class="nav-link" href="{% url 'admin_order_management' %} ">
+                    <i class="bi bi-cart-fill"></i>
+                    <span>Order Management</span></a>
             </li>
             <hr class="sidebar-divider">
             <li class="nav-item">
@@ -223,7 +223,7 @@
                         <h1 class="h3 mb-0 text-gray-800">Products</h1>
                     </div>
 
-                    {% if messages %}
+                    {% comment %} {% if messages %}
                     <div class="container">
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             {% for message in messages %}
@@ -235,7 +235,7 @@
                         </div>
                     </div>
                     {% endif %}
-             
+              {% endcomment %}
 
                 </div>
                 <!-- /.container-fluid -->
@@ -243,6 +243,17 @@
 
                 <div class="container">
                     <div class="table-responsive">
+
+                        {% if formset.errors %}
+                        <div class="alert alert-danger">
+                            <strong>Error!</strong> Please correct the following errors:
+                            <ul>
+                                {% for error in formset.errors %}
+                                <p>{{ error }}</p>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
                  
                         <!-- admin_product_size_color.html -->
                         <form method="post">

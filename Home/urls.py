@@ -12,7 +12,11 @@ urlpatterns = [
     path('address/<int:address_id>/edit/',views.edit_address,name='edit_address'),
     path('address/<int:address_id>/delete/',views.delete_address,name='delete_address'),
     path('search_results/',views.search_results,name='search_results'),
-    path('search_results_price/',views.search_results_price,name='search_results_price'),
+    path('search_filter_result/',views.search_filter_result,name='search_filter_result'),
     path('order_history/',views.order_history,name='order_history'),
+    path('cancel_product/<int:order_product_id>',views.cancel_product,name='cancel_product'),
+    path('order_details/<int:order_id>/', views.order_details, name='order_details'),
+    path('submit_review_and_rating/', views.submit_review_and_rating, name='submit_review_and_rating'),
+
 
 ]

@@ -149,21 +149,7 @@
 
     <div class="colorlib-product">
         <div class="container">
-            <div class="dropdown">
-                <button class="dropbtn">Sort by</button>
-                <div class="dropdown-content">
-                    <a href="#">Popularity</a>
-                    <a href="#">Price: Low to High</a>
-                    <a href="#">Price: High to Low</a>
-                    <a href="#">Average Ratings</a>
-                    <hr>
-                    <a href="#">Featured</a>
-                    <a href="#">New Arrivals</a>
-                    <hr>
-                    <a href="#">aA - zZ</a>
-                    <a href="#">zZ - aA</a>
-                </div>
-            </div>
+            
             <div class="row">
                 <div class="col-sm-8 offset-sm-2 text-center colorlib-heading">
                     <h2>All Product</h2>
@@ -327,6 +313,24 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 <div class="gototop js-top">
     <a href="#" class="js-gotop"><i class="ion-ios-arrow-up"></i></a>
 </div>
+
+<script>
+    const Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.onmouseenter = Swal.stopTimer;
+          toast.onmouseleave = Swal.resumeTimer;
+        }
+      });
+      Toast.fire({
+        icon: "success",
+        title: "Signed in successfully"
+      });
+</script>
 
 {% endblock %}
 

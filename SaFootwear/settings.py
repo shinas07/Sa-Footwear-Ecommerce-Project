@@ -33,7 +33,7 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = []
 
 
-SITE_ID = 2
+# SITE_ID = 1
 # Application definition
 
 INSTALLED_APPS = [
@@ -52,23 +52,23 @@ INSTALLED_APPS = [
     'Orders',
     
 
-    'django.contrib.sites',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
+    # 'django.contrib.sites',
+    # 'allauth',
+    # 'allauth.account',
+    # 'allauth.socialaccount',
+    # 'allauth.socialaccount.providers.google',
 ]
 
-SOCIALACCOUNT_PROVIDERS = {
-    'google' : {
-        "SCOPE" : [
-            "profile",
-            "email"
-        ],
-        "AUTH_PARAMS" : {'access_type' : 'online'}
-    }
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google' : {
+#         "SCOPE" : [
+#             "profile",
+#             "email"
+#         ],
+#         "AUTH_PARAMS" : {'access_type' : 'online'}
+#     }
 
-}
+# }
 
 # SOCIALACCOUNT_PROVIDERS = {
 #     'google': {
@@ -115,7 +115,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'Accounts.middleware.BlockCheckMiddleware',
     # 'django.template.context_processors.request',
-     'allauth.account.middleware.AccountMiddleware', 
+    #  'allauth.account.middleware.AccountMiddleware', 
+
+    # 'django.contrib.sites',
 
 
 ]
@@ -230,9 +232,9 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 
    
-    'allauth.account.auth_backends.AuthenticationBackend',
+    # 'allauth.account.auth_backends.AuthenticationBackend',
    
 ]
 
-LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/"
+# LOGIN_REDIRECT_URL = "/"
+# LOGOUT_REDIRECT_URL = "/"

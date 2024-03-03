@@ -1,71 +1,290 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Orders</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .status-select {
-            padding: 8px;
-            border-radius: 4px;
-        }
-        .status-submit-btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            background-color: #007bff;
-            color: #fff;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .status-submit-btn:hover {
-            background-color: #0056b3;
-        }
-        .cancel-btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            background-color: #dc3545;
-            color: #fff;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .cancel-btn:hover {
-            background-color: #bd2130;
-        }
-    </style>
-</head>
-<body>
-    <h1>Manage Orders</h1>
+
+{% extends 'admin_base.html '%}
+{% load static %}
+{% block content %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    th, td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+    .btn {
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: #4CAF50;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+    }
+    .btn:hover {
+        background-color: #45a049;
+    }
+</style>
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <i class="fas fa-laugh-wink"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3">SA ADMIN</div>
+            </a>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'admin_dashboard' %}">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Dashboard</span></a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+        
+
+            <!-- Nav Item - Pages Collapse Menu -->
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'admin_users' %}">
+                  <i class="bi bi-person"></i>
+                  <span>Customer</span>
+              </a>
+            </li>
+             <!-- Divider -->
+             <hr class="sidebar-divider">
+
+            <!-- Nav Item - Utilities Collapse Menu -->
+            
+
+                
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseManage"
+                    aria-expanded="true" aria-controls="collapseManage">
+                    <i class="bi bi-basket"></i>
+                    <span>Products and Brands</span>
+                </a>
+                <div id="collapseManage" class="collapse" aria-labelledby="headingManage" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="{% url 'admin_product' %}">Products Details</a>
+                        <a class="collapse-item" href="{% url 'admin_add_product' %}">Add Product</a>
+                        <a class="collapse-item" href="{% url 'product_size_color' %}">Add ProductSizeColor</a>
+                        <a class="collapse-item" href="{% url 'admin_add_brand' %}">Add Brand</a>
+                        <!-- Add other brand management links here -->
+                    </div>
+                </div>
+            </li>
+            
+                
+                
+                
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Nav Item - Pages Collapse Menu -->
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'admin_users' %}">
+                    <i class="bi bi-bag-check"></i>
+                    <span>Orders</span>
+                </a>
+                <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Login Screens:</h6>
+                        <a class="collapse-item" href="login.html">Login</a>
+                        <a class="collapse-item" href="register.html">Register</a>
+                        <a class="collapse-item" href="forgot-password.html">Forgot Password</a>
+                        <div class="collapse-divider"></div>
+                        <h6 class="collapse-header">Other Pages:</h6>
+                        <a class="collapse-item" href="404.html">404 Page</a>
+                        <a class="collapse-item" href="blank.html">Blank Page</a>
+                    </div>
+                </div>
+            </li>
+             <!-- Divider -->
+             <hr class="sidebar-divider">
+
+            <!-- Nav Item - Charts -->
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'admin_category' %}">
+                <i class="bi bi-grid-3x3-gap"></i>
+                    <span>Category</span></a>
+            </li>
+             <!-- Divider -->
+             <hr class="sidebar-divider">
+             <li class="nav-item">
+                <a class="nav-link" href="{% url 'admin_order_management' %} ">
+                    <i class="bi bi-cart-fill"></i>
+                    <span>Order Management</span></a>
+            </li>
+            <hr class="sidebar-divider">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'admin_users' %}">
+                <i class="bi bi-tag"></i>
+                    <span>Coupen</span></a>
+            </li>
+            <hr class="sidebar-divider">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'admin_users' %}">
+                  <i class="bi bi-tag"></i>
+                    <span>Banner</span></a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+
+   
+
+        </ul>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                    <!-- Sidebar Toggle (Topbar) -->
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+
+                    <!-- Topbar Search -->
+                    <form
+                        class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                        <div class="input-group">
+                            <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
+                                aria-label="Search" aria-describedby="basic-addon2">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="button">
+                                    <i class="fas fa-search fa-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Topbar Navbar -->
+                    <ul class="navbar-nav ml-auto">
+
+                        <!-- Nav Item - Search Dropdown (Visible Only XS) -->
+                        <li class="nav-item dropdown no-arrow d-sm-none">
+                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-search fa-fw"></i>
+                            </a>
+                            <!-- Dropdown - Messages -->
+                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
+                                aria-labelledby="searchDropdown">
+                                <form class="form-inline mr-auto w-100 navbar-search">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control bg-light border-0 small"
+                                            placeholder="Search for..." aria-label="Search"
+                                            aria-describedby="basic-addon2">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="button">
+                                                <i class="fas fa-search fa-sm"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </li>
+
+                        <div class="topbar-divider d-none d-sm-block"></div>
+
+                        <!-- Nav Item - User Information -->
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">SA</span>
+                                <img class="img-profile rounded-circle" src="{% static 'admin_static/img/undraw_profile.svg' %}">
+
+                            </a>
+                            <!-- Dropdown - User Information -->
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="#">
+                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Profile
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Logout
+                                </a>
+                            </div>
+                        </li>
+
+                    </ul>
+
+                </nav>
+                <!-- End of Topbar -->
+
+
+
+
+
+{% if messages %}
+<div class ='message'>
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="container">
+    <h1>Admin Order Management</h1>
+    
     <table>
         <thead>
             <tr>
                 <th>Order ID</th>
-                <th>Status</th>
-                <th>Total Amount</th>
+                <th>Username</th>
+                <th>Product Name</th>
+
                 <th>Action</th>
             </tr>
         </thead>
@@ -73,30 +292,109 @@
             {% for order in orders %}
             <tr>
                 <td>{{ order.id }}</td>
-                <td>{{ order.status }}</td>
-                <td>${{ order.total_amount }}</td>
+                <td>{{ order.user }}</td>
                 <td>
-                    <form method="post">
+                    {% for order_product in order.orderproduct_set.all %}
+                        {{ order_product.product.product_name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+
+                <td>
+                    <a href="{% url 'order_products_details' order_id=order.id %}" class="btn btn-info">Manage Order</a>
+                    {% comment %} <a href="{% url 'admin_order_details' order_id=order.id product_id=product.id %}">View Details</a> {% endcomment %}
+
+                </td>
+                             
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+
+{% comment %} 
+<div class="container">
+    <h1>Admin Order Management</h1>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Username</th>
+                <th>Product Name</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.user }}</td>
+                <td>
+                    {% for order_product in order.orderproduct_set.all %}
+                        {{ order_product.product.product_name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                <td>{{ order.status }}</td>
+                <td>
+                    <form method="post" action="{% url 'admin_order_management' %}">
                         {% csrf_token %}
                         <input type="hidden" name="order_id" value="{{ order.id }}">
-                        <select name="new_status" class="status-select">
-                            <option value="Pending">Pending</option>
-                            <option value="Processing">Processing</option>
-                            <option value="Shipped">Shipped</option>
-                            <option value="Delivered">Delivered</option>
-                            <option value="Cancelled">Cancelled</option>
+                        <select name="action" class="form-select">
+                            <option value="" selected disabled>Select Action</option>
+                            {% for status_key, status_display in order.ORDER_STATUS_CHOICES %}
+                                <option value="{{ status_key }}">{{ status_display }}</option>
+                            {% endfor %}
                         </select>
-                        <button type="submit" name="change_status" class="status-submit-btn">Change Status</button>
-                    </form>
-                    <form method="post" style="margin-top: 8px;">
-                        {% csrf_token %}
-                        <input type="hidden" name="order_id" value="{{ order.id }}">
-                        <button type="submit" name="cancel_order" class="cancel-btn">Cancel Order</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-</body>
-</html>
+</div> {% endcomment %}
+
+    
+
+                
+            
+
+                
+
+        </div>
+    </div>
+        <!-- End of Content Wrapper -->
+  
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-primary" href="{% url 'admin_logout' %}">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+{% endblock %}
