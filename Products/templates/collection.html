@@ -11,11 +11,65 @@
         height:  300px;
         object-fit: cover;
     }
+
+	.wishlist-icon {
+		position: absolute;
+		top: 10px;
+		right: 10px;
+		font-size: 22px; /* Increase the size of the heart icon */
+		z-index: 1;
+		color:grey;
+
+		transition: color 0.3s; /* Add transition effect for color change */
+	}
+	
+	.wishlist-icon:hover {
+		color: red; /* Change the color to red on hover */
+	}
+	
+	.product-entry {
+		position: relative;
+	}
+
+
+	/* CSS */
+.wishlist-form {
+    display: inline; /* Display the form inline */
+}
+
+.wishlist-form button {
+    background: none; /* Remove background */
+    border: none; /* Remove border */
+    padding: 0; /* Remove padding */
+    cursor: pointer; /* Change cursor to pointer */
+}
+
+.wishlist-form button:focus {
+    outline: none; /* Remove outline when button is focused */
+}
+
+
+.regular-price {
+	color: black; /* Color for the regular price */
+	text-decoration: line-through; /* Add line-through for regular price */
+}
+
+.price-section {
+	margin-top: 10px;
+}
+
+.offer-price {
+	color: green; /* Color for the offer price */
+	font-weight: bold;
+}
+
+	
 </style>
 
 
 
 	<div class="colorlib-loader"></div>
+	
 	<div id="page">
 		<div class="breadcrumbs">
 			<div class="container">
@@ -25,6 +79,13 @@
 				</div>
 			</div>
 		</div>
+
+		{% for message in messages %}
+		<div class="alert alert-{{ message.tags }}">
+			{{ message }}
+		</div>
+		{% endfor %}
+
 	 	<div class="breadcrumbs-two">
 			<div class="container">
 				<div class="row">
@@ -48,10 +109,11 @@
 					{% for brand in brands %}
 					<div class="col-sm-4 text-center">
 						<div class="featured">
+						
 							<div class="featured-img featured-img-2" style="background-image: url({{ brand.brand_image.url }});">
 								{% comment %} <h2>{{ brand.brand_name }}</h2> {% endcomment %}
 								<!-- Replace '#' with the URL to shop for this brand -->
-								
+					
 							</div>
 							<p><a href="{% url 'product:brand_wise_products' brand_id=brand.pk %}" class="btn btn-primary btn-lg">Shop now</a></p>
 						</div>
@@ -66,31 +128,48 @@
 			<div class="container">
 				<div class="row">
 					<div class="col-sm-8 offset-sm-2 text-center colorlib-heading colorlib-heading-sm">
-						<h2>View {{brand.brand_name }} Products</h2>
+						<h2>View Products</h2>
 					</div>
 				</div>
-		
 				
-                    <div class="row row-pb-md">
-                        {% for product in products %}
-                        <div class="col-md-3 col-lg-3 mb-4 text-center">
-                            <div class="product-entry border">
-                              <a href="{% url 'product:product_details' product_id=product.pk %}" class="prod-img">
-                                    <img src="{{ product.full_view_image.url }}" class="img-fluid" alt="{{ product.product_name }}">  
-									
-                                </a>
-                                <div class="desc">
-                                    <h2><a href="{% url 'product:product_details' product_id=product.pk %}">{{ product.product_name }}</a></h2>
+				
+				<div class="row row-pb-md">
+					{% for product in products %}
+					<div class="col-md-3 col-lg-3 mb-4 text-center">
+						<div class="product-entry border">
+							<a href="{% url 'product:product_details' product_id=product.pk %}" class="prod-img">
+								<img src="{{ product.full_view_image.url }}" class="img-fluid" alt="{{ product.product_name }}">  
+							</a>
+							<div class="desc">
+								<h2><a href="{% url 'product:product_details' product_id=product.pk %}">{{ product.product_name }}</a></h2>
+								
+								<div class="price-section">
+									{% if product.offer_price %}
+										<p class="offer-price"><strong>Offer Price:</strong> {{ product.offer_price }}</p>
+									<p class="regular-price"><strong>Price:</strong> {{ product.price }}</p>
+								   {% else %}
+								   <span class="price">MRP : {{ product.price }}</span>
+									{% endif %}
+								</div>
+							</div> 
+							<!-- Add wishlist form here -->
+							<form action="{% url 'product:add_to_wishlist' product_id=product.pk %}" method="post" class="wishlist-form">
+								{% csrf_token %}
+								<button type="submit" class="wishlist-icon" title="Add to wishlist">
+									<i class="fas fa-heart"></i>
+								</button>
+							</form>
+						</div>
+					</div>
+					{% endfor %}
+				</div>
+				
+				
+				
+				
+				
+				
 
-									
-									
-                                    <span class="price">MRP : ₹{{ product.price }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-						
 					<div class="w-100"></div>
 
 	
@@ -159,18 +238,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="copy">
-				<div class="row">
-					<div class="col-sm-12 text-center">
-						<p>
-							<span><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="icon-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></span> 
-							<span class="block">Demo Images: <a href="http://unsplash.co/" target="_blank">Unsplash</a> , <a href="http://pexels.com/" target="_blank">Pexels.com</a></span>
-						</p>
-					</div>
-				</div>
-			</div>
+			
 		</footer>
 	</div>
 

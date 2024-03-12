@@ -122,13 +122,13 @@
         <div class="sidebar-section">
             <ul class="list-unstyled components">
                 <li>
-                    <a href="#ordersSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Orders</a>
+                    <a href="#ordersSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Orders & Wallet</a>
                     <ul class="collapse list-unstyled" id="ordersSubmenu">
                         <li>
                             <a href="{% url 'order_history' %}">View Orders</a>
                         </li>
                         <li>
-                            <a href="#">Cancel Order</a>
+                            <a href="{% url 'wallet' %}">Wallet</a>
                         </li>
                     </ul>
                 </li>

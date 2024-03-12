@@ -5,6 +5,15 @@
 <title>Order Details</title>
     <!-- Add your CSS stylesheets or links here -->
     <style>
+
+            #goToHomePageButton {
+                position: fixed;
+                bottom: 20px; /* Adjust as needed */
+                left: 20px; /* Adjust as needed */
+                z-index: 999; /* Ensure it's above other elements */
+            }
+   
+        
         .star-rating input[type="radio"] {
             display: none;
         }
@@ -100,22 +109,36 @@
         <table>
             <thead>
                 <tr>
-                    <th>Product Name</th>
                     <th>Image</th>
+                    <th>Product Name</th>
+                    <th>Address</th>
+                    <th>Quantity</th>
                     <th>Action</th>
+                 
                 </tr>
             </thead>
             <tbody>
                 {% for order_product in order.orderproduct_set.all %}
                 <tr>
-                    <td>{{ order_product.product.product_name }}</td>
                     <td><img src="{{ order_product.product.full_view_image.url }}" alt="{{ order_product.product.product_name }}"></td>
+                    <td>{{ order_product.product.product_name }}</td>
+                    <td>{{ order.address.address }}</td>
+                    <td>{{ order_product.quantity }}
+
+                    
                     {% if order_product.status == "Delivered" %}
+                   
                     <td>
                         <!-- Button to trigger the review modal -->
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#reviewModal{{ order_product.id }}">
                             Review Product
                         </button>
+                        <!-- Return Product -->
+                        <form method="post" action="{% url 'product_return' order_product_id=order_product.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Return</button>
+                        </form>
+
                         <!-- Review Modal -->
                         <div class="modal fade" id="reviewModal{{ order_product.id }}" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel" aria-hidden="true">
                             <div class="modal-dialog" role="document">
@@ -145,11 +168,15 @@
                                                 <textarea class="form-control" id="review{{ order_product.id }}" name="review{{ order_product.id }}" rows="3"></textarea>
                                             </div>
                                         </form>
+                                    
+
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                         <!-- Submit button -->
                                         <button type="button" class="btn btn-primary submitReview" data-order-product-id="{{ order_product.id }}">Submit</button>
+
+                                    
                                  
                                         {% comment %} <button type="button" class="btn btn-primary" onclick="submitReview()" data-order-product-id="{{ order_product.id }}">Submit</button> {% endcomment %}
 
@@ -160,8 +187,10 @@
                     </td>
                     {% else %}
                         <td>
-                            {% if order_product.status == "Cancelled" %}
-                                Product Cancelled
+                            {% if order_product.status == "Returned" %}
+                                <p>Product has been returned.</p>
+                            {% elif order_product.status == "Cancelled" %}
+                                <p>Product has been cancelled.</p>
                             {% else %}
                                 <!-- Form for cancelling the product -->
                                 <form method="post" action="{% url 'cancel_product' order_product_id=order_product.id %}">
@@ -176,6 +205,8 @@
             </tbody>
         </table>
     </div>
+    
+
     
 
     
@@ -216,6 +247,22 @@
                 });
             });
         });
+
+        <button id="goToHomePageButton" class="btn btn-primary">Go Back</button>
+
+
+
+        document.getElementById("goToHomePageButton").addEventListener("click", function() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "/", true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    window.location.href = "/user-profile/";
+                }
+            };
+            xhr.send();
+        });
+
     </script>
 
     <!-- Add a button or link to go back to the previous page -->

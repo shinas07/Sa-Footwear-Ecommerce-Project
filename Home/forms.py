@@ -1,12 +1,12 @@
 from django import forms
-from Home.models import Address
+from .models import Address
 from django.core.validators import MinLengthValidator
 
 
 class AddressForm(forms.ModelForm):
     class Meta:
         model = Address
-        fields = ['address', 'House_no', 'city', 'state', 'country', 'pincode']
+        fields = ['address', 'House_no', 'city', 'state', 'country', 'pincode','is_delete']
 
     def clean_House_no(self):
         house_no = self.cleaned_data.get('House_no')

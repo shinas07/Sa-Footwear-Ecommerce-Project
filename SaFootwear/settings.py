@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'Products',
     'Cart',
     'Orders',
+    'dashboard',
     
 
     # 'django.contrib.sites',
@@ -238,3 +239,14 @@ AUTHENTICATION_BACKENDS = [
 
 # LOGIN_REDIRECT_URL = "/"
 # LOGOUT_REDIRECT_URL = "/"
+
+
+razor_pay_key_id = 'rzp_test_9mI3x0STwZvFoe'
+key_secret = 'mszifdLQHihn0RpHi2Eucnqq'
+
+
+# SECURE_CROSS_ORIGIN_OPENER_POLICY: Sets COOP header to isolate documents and allow popups, enhancing security.
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
+
+
+# APPEND_SLASH = False

@@ -1,29 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
-		
 
 
-<script>
-    .product-entry {
-        height: 400px; /* Set a fixed height for the product entry container */
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between; /* Align items vertically */
-    }
-    
-    .prod-img {
-        flex: 1; /* Make the image take up remaining space */
-    }
-    
-    .desc {
-        padding: 10px;
-        text-align: center;
-    }
-    
-    .add-to-cart-btn {
-        margin-top: 10px; /* Adjust the margin as needed */
-    }
-</script>    
 	<div class="colorlib-loader"></div>
 
 	<div id="page">
@@ -104,25 +82,41 @@
 											<h3>{{ item.product.product_name }}</h3>
 										</div>
 									</div>
-									<div class="one-eight text-center">
+									{% comment %} <div class="one-eight text-center">
 										<div class="display-tc">
 											<span class="price">{{ item.product.price }}</span>
 										</div>
-									</div>
+									</div> {% endcomment %}
 									<div class="one-eight text-center">
 										<div class="display-tc">
-											<span class="price">{{ item.quantity }}</span>
-											{% comment %} <input type="text" id="quantity" name="quantity" class="form-control input-number text-center" value="{{ item.quantity }}" min="1" max="100"> {% endcomment %}
+											{% if item.product.offer_price %}
+												<span class="price">{{ item.product.offer_price }}</span>
+							
+											{% else %}
+												<span class="price">{{ item.product.price }}</span>
+											{% endif %}
 										</div>
 									</div>
+									
+									<div class="one-eight text-center">
+										<div class="display-tc quantity-input-group">
+											<button type="button" class="quantity-left-minus btn" data-type="minus" data-field=""><i class="icon-minus2"></i></button>
+											<input type="number" id="quantity_{{ item.id }}" name="quantity" class="form-control input-number text-center quantity-input" value="{{ item.quantity }}" data-item-id="{{ item.id }}" readonly>
+											<button type="button" class="quantity-right-plus btn" data-type="plus" data-field=""><i class="icon-plus2"></i></button>
+										</div>
+										
+										
+										
+									</div>						
 									<div class="one-eight text-center">
 										<div class="display-tc">
-											<span class="price">{{ item.product.price }}</span>
+											<span class="price" id="total_{{ item.id }}">{{ item.total_price }}</span> <!-- Set the ID here -->
 										</div>
 									</div>
+									
 									<div class="one-eight text-center">
 										<div class="display-tc">
-											<a href="{% url 'Cart:remove_from_cart' item.pk %}" class="closed"></a>
+											<a href="{% url 'remove_from_cart' item.pk %}" class="closed"></a>
 										</div>
 									</div>
 								</div>
@@ -130,41 +124,62 @@
 						{% else %}
 							<div class="empty-cart-message">Your cart is empty.</div>
 						{% endif %}
-
+					
+					
 
 						<div class="row row-pb-lg">
 							<div class="col-md-12">
 								<div class="total-wrap">
 									<div class="row">
 										<div class="col-sm-8">
-											<form action="#">
+											{% if cart.coupon %}
+											<form method="post" action="{% url 'remove_coupon' %}">
+												{% csrf_token %}
 												<div class="row form-group mt-4">
 													<div class="col-sm-9">
-														<input type="text" name="quantity" class="form-control input-number" placeholder="Your Coupon Number...">
+														<button type="submit" class="btn btn-primary">Remove Coupon</button>
+													</div>
+												</div>
+											</form>
+											{% else %}
+											<form method="post" action="{% url 'coupon_apply' %}">
+												<div class="row form-group mt-4">
+													<div class="col-sm-9">
+														{% csrf_token %}
+														<input type="text" name="coupon_code" class="form-control input-number"  placeholder="Enter coupon code">
 													</div>
 													<div class="col-sm-3">
 														<input type="submit" value="Apply Coupon" class="btn btn-primary">
 													</div>
 												</div>
 											</form>
+											{% endif %}
 										</div>
+
+								
+										
 										<div class="col-sm-4 text-center mt-4">
 											<div class="total">
 												<div class="sub">
 													<p><span>Subtotal:</span> <span>{{ total_price }}</span></p>
 													<p><span>Delivery:</span> <span>0.00</span></p>
-													<p><span>Discount:</span> <span>0.00</span></p> 
+													<p><span>Discount:</span> <span>{{ coupon_discount }}</span></p>
+
 												</div>
+						
 												<div class="grand-total">
-													<p><span><strong>Total:</strong></span><span>{{ total_price }}</span></p>
+													<p><span><strong>Total:</strong></span><span>{{ discount_amount }}</span></p> <!-- Adjust total price -->
 												</div>
 											</div>
 											<div class="col-sm-3 mt-4">
 												<a href="{% url 'checkout' %}">
 													<input type="submit" value="Check Out" class="btn btn-primary">
-												</a>												
+												</a>                                                    
 											</div>
+											<!-- Coupon Remove Button -->
+											
 										</div>
+										
 									</div>
 								</div>
 							</div>
@@ -283,8 +298,73 @@ Copyright &copy; All rights reserved | This template is made with <i class="icon
 		<a href="#" class="js-gotop"><i class="ion-ios-arrow-up"></i></a>
 	</div>
 
-<script>
-		{
+	{% comment %} {% block scripts %}
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	{% endblock scripts %} {% endcomment %}
+
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
+		<script>
+			$(document).ready(function() {
+				// Event listener for the decrease button
+				$('.quantity-left-minus').click(function(e) {
+					e.preventDefault();
+					var $input = $(this).closest('.display-tc').find('.input-number');
+					var oldValue = $input.val();
+					if (oldValue > 1) {
+						var newVal = parseFloat(oldValue) - 1;
+						$input.val(newVal).trigger('change');
+					} else {
+						$input.val(1).trigger('change');
+					}
+				});
+		
+				// Event listener for the increase button
+				$('.quantity-right-plus').click(function(e) {
+					e.preventDefault();
+					var $input = $(this).closest('.display-tc').find('.input-number');
+					var oldValue = $input.val();
+					if (oldValue < 5) { // Limit increase to 5 or fewer
+						var newVal = parseFloat(oldValue) + 1;
+						$input.val(newVal).trigger('change');
+					} else {
+						alert("You can't add more than 5 quantities.");
+					}
+				});
+		
+				$('.input-number').change(function() {
+					var newQuantity = $(this).val();
+					var itemId = $(this).data('item-id');
+		
+					$.ajax({
+						url: '/cart/update-cart-item/', // Corrected URL
+						type: 'POST',
+						data: {
+							item_id: itemId,
+							quantity: newQuantity
+						},
+						success: function(response) {
+							console.log("Success:", response);
+							// Update the total price dynamically
+							var totalPriceElement = $(`#total_${itemId}`);
+							totalPriceElement.text(response.total_price);
+							window.location.href = '/cart/view-cart/';
+						},
+					
+					});
+				});
+			});
+		</script>
+
+	
+	
+
+
+
+
+		{% comment %} {
 			// In your JavaScript file (e.g., my_script.js)
 	document.getElementById('myButton').addEventListener('click', function() {
 		// This function will be executed when the button is clicked
@@ -293,6 +373,6 @@ Copyright &copy; All rights reserved | This template is made with <i class="icon
 	});
 
 		}
-	</script>
+	</script> {% endcomment %}
 {% endblock %}
 

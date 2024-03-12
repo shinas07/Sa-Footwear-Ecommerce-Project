@@ -2,6 +2,10 @@ from django.db import models
 from Category.models import Category
 from PIL import Image
 from datetime import datetime
+from Accounts.models import Customer  # Adjust the import path based on your project structure
+# from Products.models import Product  # Assuming you have a Product model
+
+
 
 # Create your models here.
 
@@ -44,6 +48,9 @@ class Product(models.Model):
     created_at = models.DateTimeField(default=datetime.now,null=True)
     rating = models.DecimalField(max_digits=5, decimal_places=2, default=0.00,null=True)
 
+    #admin offer attribut
+    offer_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+
     def __str__(self):
         return self.product_name
     
@@ -60,37 +67,13 @@ class ProductSizeColor(models.Model):
 class Meta:
     unique_together = ('product','size','color')
     
-# class ProductImage(models.Model):
-#     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name = 'images')
-#     image = models.ImageField(upload_to='product_images/')
 
 
 
+class Wishlist(models.Model):
+    customer = models.OneToOneField(Customer, on_delete=models.CASCADE)
+    products = models.ManyToManyField(Product, related_name='wishlists')
 
-    # def save(self, *args, **kwargs):
-    #     super().save(*args, **kwargs)
-
-        #   # Resize left view image
-        # if self.left_view_image:
-        #     img = Image.open(self.left_view_image.path)
-        #     img.thumbnail((300, 300), Image.BICUBIC)
-        #     img.save(self.left_view_image.path,quality=100)
-        
-        # # Resize right view image
-        # if self.right_view_image:
-        #     img = Image.open(self.right_view_image.path)
-        #     img.thumbnail((300, 300), Image.BICUBIC)
-        #     img.save(self.right_view_image.path,quality=100)
-        
-        # # Resize full view image
-        # if self.full_view_image:
-        #     img = Image.open(self.full_view_image.path)
-        #     img.thumbnail((500, 300), Image.BICUBIC)  # Adjust output size as needed
-        #     img.save(self.full_view_image.path,quality=100)
-
-
-
-
-
+    # Methods to manage the wishlist...
 
 

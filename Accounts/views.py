@@ -20,6 +20,9 @@ from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator,RegexValidator
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
 
 
 class Signup(View):
@@ -209,22 +212,20 @@ class UserLogin(View):
 class VerifyOTP(View):
     def get(self,request):
         return render(request,'email_verification.html')
-
     
     def post(self,request):
         email = request.POST.get('email')
-        # email_response = self.email_verification(request, email)
+        email_response = self.email_verification(request, email)
         otp_entered = request.POST.get('otp')
         if self.is_valid_otp(otp_entered):
         # This block should only execute if the OTP is valid
-
             if 'otp' in request.session:
                 del request.session['otp']
             if 'otp_expiry' in request.session:
                 del request.session['otp_expiry']
                 return self.new_password(request)  # Call reset_password method and return its result
             else:
-                error_message = 'Email or Password not found in session'
+                error_message = 'Email or Password not correct'
         else:
             error_message = 'Invalid OTP. Please try again'
         return render(request,'otp_verification.html',{'error':error_message})
@@ -232,7 +233,7 @@ class VerifyOTP(View):
 
     
     def email_verification(self, request, email):  # Define the email_verification method
-        if not Customer.objects.filter(email=email).exists(): 
+        if not Customer.objects.filter(email=email).exists():
             error_message_email = 'Invalid email. Please use a registered email address.'
             return render(request, 'email_verification.html', {'email_error': error_message_email})
         request.session['email'] = email
@@ -255,10 +256,12 @@ class VerifyOTP(View):
 
 class NewPasswordView(View):
     def get(self, request):
+        print('iam here you')
         return render(request, 'new_password.html')
     
     def post(self, request):
         password = request.POST.get('password')
+        print(password)
         confirm_password = request.POST.get('confirm_password')
         if password != confirm_password:
             error_message = 'Password do not match.Pleace try again.'
@@ -292,12 +295,9 @@ def calculate_expiry_time():
     expiry_time = datetime.now() + timedelta(minutes=5)
     return expiry_time.isoformat()
 
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
 def resend_otp(request):
-    print('hlwwww')
     if request.method == 'POST':
         signup_data = request.session.get('signup_data', {})
 

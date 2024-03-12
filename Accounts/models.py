@@ -14,4 +14,6 @@ class Customer(AbstractUser):
     def order_history(self):
         return Orders.objects.filter(user=self)
 
-
+    
+    def __str__(self):
+        return self.username

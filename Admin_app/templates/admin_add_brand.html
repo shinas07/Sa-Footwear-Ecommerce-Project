@@ -74,22 +74,10 @@
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'admin_users' %}">
+              <a class="nav-link" href="{% url 'discount_product_list' %}">
                     <i class="bi bi-bag-check"></i>
-                    <span>Orders</span>
+                    <span>Offers</span>
                 </a>
-                <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Login Screens:</h6>
-                        <a class="collapse-item" href="login.html">Login</a>
-                        <a class="collapse-item" href="register.html">Register</a>
-                        <a class="collapse-item" href="forgot-password.html">Forgot Password</a>
-                        <div class="collapse-divider"></div>
-                        <h6 class="collapse-header">Other Pages:</h6>
-                        <a class="collapse-item" href="404.html">404 Page</a>
-                        <a class="collapse-item" href="blank.html">Blank Page</a>
-                    </div>
-                </div>
             </li>
              <!-- Divider -->
              <hr class="sidebar-divider">
@@ -109,16 +97,24 @@
             </li>
             <hr class="sidebar-divider">
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'admin_users' %}">
-                <i class="bi bi-tag"></i>
-                    <span>Coupen</span></a>
-            </li>
+                <a class="nav-link" href="{% url 'admin_add_coupon' %}">
+                  <i class="bi bi-tag"></i>
+                      <span>Coupen</span></a>
+              </li>
             <hr class="sidebar-divider">
             <li class="nav-item">
               <a class="nav-link" href="{% url 'admin_users' %}">
                   <i class="bi bi-tag"></i>
                     <span>Banner</span></a>
             </li>
+
+            <hr class="sidebar-divider">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'admin_sales_report' %}">
+                      <i class="bi bi-tag"></i>
+                          <span>
+                            Sales report</span></a>
+                </li>
 
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">

@@ -2,7 +2,84 @@
 {% load static %}
 {% block content %}
 
+<style>
+    .custom-admin-dashboard {
+        display: flex; /* Use flexbox for horizontal alignment */
+        justify-content: space-between; /* Evenly distribute items along the main axis */
+    }
+    
+    .dashboard-item {
+        flex: 1; /* Each item takes equal space */
+        background-color: #36b9cc; /* Blue background color */
+        color: #fff; /* White text color */
+        border-radius: 5px; /* Rounded corners */
+        padding: 20px; /* Add some padding */
+        margin-right: 20px; /* Add margin between items */
+    }
+    
+    .dashboard-heading {
+        font-size: 24px; /* Larger font size for heading */
+        font-weight: bold; /* Bold font weight for heading */
+    }
+    
+    .count-box {
+        font-size: 36px; /* Larger font size for count */
+        margin-top: 10px; /* Add some space between heading and count */
+    }
+    
 
+    .sales-count-heading {
+        text-align: center;
+        color: #333333; /* Dark grey text */
+        font-size: 24px; /* Adjust font size as needed */
+        margin-bottom: 20px; /* Add some space below the heading */
+        font-weight: bold; /* Make the text bold */
+        text-transform: uppercase; /* Optional: transform text to uppercase */
+    }
+
+    .dashboard-item {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .sales-count-heading {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    
+    .count-container {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    
+    .count-box {
+        flex: 1;
+        padding: 10px;
+        text-align: center;
+    }
+    
+    .amount-label {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .amount-value {
+        font-size: 24px;
+    }
+    
+    .total-container {
+        text-align: center;
+    }
+    
+
+    
+    
+</style>
+    
     <!-- Page Wrapper -->
     <div id="wrapper">
 
@@ -38,13 +115,6 @@
                   <i class="bi bi-person"></i>
                   <span>Customer</span>
               </a>
-                {% comment %} <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Custom Components:</h6>
-                        <a class="collapse-item" href="buttons.html">Buttons</a>
-                        <a class="collapse-item" href="cards.html">Cards</a>
-                    </div>
-                </div> {% endcomment %}
             </li>
              <!-- Divider -->
              <hr class="sidebar-divider">
@@ -71,9 +141,9 @@
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'admin_users' %}">
+              <a class="nav-link" href="{% url 'discount_product_list' %}">
                     <i class="bi bi-bag-check"></i>
-                    <span>Orders</span>
+                    <span>Offers</span>
                 </a>
                 <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
@@ -106,7 +176,7 @@
             </li>
             <hr class="sidebar-divider">
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'admin_users' %}">
+              <a class="nav-link" href="{% url 'admin_add_coupon' %}">
                 <i class="bi bi-tag"></i>
                     <span>Coupen</span></a>
             </li>
@@ -116,6 +186,13 @@
                   <i class="bi bi-tag"></i>
                     <span>Banner</span></a>
             </li>
+            <hr class="sidebar-divider">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'admin_sales_report' %}">
+                      <i class="bi bi-tag"></i>
+                          <span>
+                            Sales report</span></a>
+                </li>
 
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
@@ -215,6 +292,56 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
+                    <!--Overall sales details-->  
+                    <div class="custom-admin-dashboard">
+                        <div class="dashboard-item">
+                            <h1 class="sales-count-heading">Sales Count</h1>
+                            <div class="count-container">
+                                <div class="count-box">
+                                    <div class="amount-label">COD</div>
+                                    <div class="amount-value">{{ cod_sale_count }}</div>
+                                </div>
+                                <div class="count-box">
+                                    <div class="amount-label">Online</div>
+                                    <div class="amount-value">{{ online_sales_count }}</div>
+                                </div>
+                            </div>
+                                <div class="total-container">
+                                    <div class="amount-label">Overall count:</div>
+                                    <div class="amount-value">{{ overall_sales_count }}</div>
+                                </div>
+                       
+                        </div>
+                        
+
+                        <div class="dashboard-item">
+                            <div class="sales-count-heading">Overall Order Amount</div>
+                            <div class="count-container">
+                                <div class="count-box">
+                                    <div class="amount-label">COD</div>
+                                    <div class="amount-value">{{ overall_cod_amount }}</div>
+                                </div>
+                                <div class="count-box">
+                                    <div class="amount-label">Online</div>
+                                    <div class="amount-value">{{ overall_online_amount }}</div>
+                                </div>
+                            </div>
+                            <div class="total-container">
+                                <div class="amount-label">Total</div>
+                                <div class="amount-value">{{ overall_order_amount }}</div>
+                            </div>
+                        </div>
+                        
+                        
+                        
+
+
+                        <div class="dashboard-item">
+                            <div class="sales-count-heading">Overall Discount</div>
+                            <div class="count-box">{{ overall_discount }}</div>
+                        </div>
+                    </div>
+
 
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -301,6 +428,45 @@
                             </div>
                         </div>
                     </div>
+
+
+                    <div class="col-xl-4 col-lg-5">
+                        <div class="card shadow mb-4">
+                            <!-- Card Header - Dropdown -->
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Revenue Sources</h6>
+                                <div class="dropdown no-arrow">
+                                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                                        aria-labelledby="dropdownMenuLink">
+                                        <div class="dropdown-header">Dropdown Header:</div>
+                                        <a class="dropdown-item" href="#">Action</a>
+                                        <a class="dropdown-item" href="#">Another action</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#">Something else here</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <div class="chart-pie pt-4 pb-2">
+                                    <canvas id="myPieChart"></canvas>
+                                </div>
+                                <div class="mt-4 text-center small">
+                                    <span class="mr-2">
+                                        <i class="fas fa-circle text-primary"></i> Cash on Delivery (COD): {{ cod_sales_count }}
+                                    </span>
+                                    <span class="mr-2">
+                                        <i class="fas fa-circle text-success"></i> Online Payment: {{ online_sales_count }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
 
                     <!-- Content Row -->
                     <div class="row">

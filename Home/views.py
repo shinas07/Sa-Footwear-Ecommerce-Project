@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib import messages
 from Home.forms import ChangePasswordForm,AddressForm
-from .models import Customer
+from .models import CancelOrder, Customer, Wallet
 from django.contrib.auth.forms import PasswordChangeForm
 from Products.models import Product,Category
 from Category.models import Category
@@ -24,7 +24,9 @@ from datetime import datetime,timedelta
 from Orders.models import OrderProduct,Order
 from Products.models import ProductSizeColor
 from django.db.models import F
-from django.db import transaction
+from django.db.models import Q
+from django.urls import reverse
+from decimal import Decimal
 
 
 def home(request):
@@ -43,13 +45,14 @@ def home(request):
     }
     return render(request, 'home.html',context)
 
-    
+   
+
+
+#USER PROFILE
+@login_required(login_url='Accounts:login')
 def user_profile(request):
     user = request.user
     return render(request,'user_profile.html',{'user':user})
-
-
-
 
 
 def edit_user(request):
@@ -112,12 +115,15 @@ def validate_user_data(post_data):
     except ValidationError as e:
         error_message = str(e)
 
-    if not post_data['username']:
+    if not post_data['username'].strip():
         error_message = "Please enter your Username!"
     elif len(post_data['username']) < 3:
         error_message = "Username must be at least 3 characters long."
     elif len(post_data['username']) >  15:
         error_message = "Username must be no more than  15 characters long."
+    elif Customer.objects.filter(username=post_data['username']).exists():
+        error_message = "Username already exists. Please choose a different one."
+
 
     return error_message
 
@@ -184,13 +190,16 @@ def change_password(request):
         form = ChangePasswordForm()
     return render(request, 'change_password.html', {'form': form})
 
-# <!-- address_list -->
 
+# <!-- USER ADDRESS DETAILS -->
+@login_required(login_url='Accounts:login')
 def address_list(request):
-    addresses = Address.objects.filter(user=request.user)
-    return render(request,'address.html',{'addresses':addresses})
+    user_id = request.user.id
+    addresses = Address.objects.filter(Q(user_id=user_id) & Q(is_delete=False))
+    return render(request, 'address.html', {'addresses': addresses})
 
 
+@login_required(login_url='Accounts:login')
 def add_address(request):
     if request.method == 'POST':
         form = AddressForm(request.POST)
@@ -203,6 +212,9 @@ def add_address(request):
         form = AddressForm()
     return render(request,'add_address.html',{'form':form})
 
+
+
+@login_required(login_url='Accounts:login')
 def edit_address(request,address_id):
     address = Address.objects.get(pk=address_id)
     if request.method == 'POST':
@@ -215,24 +227,22 @@ def edit_address(request,address_id):
     return render(request, 'edit_address.html',{'form':form})
 
 
+@login_required(login_url='Accounts:login')
 def delete_address(request, address_id):
     address = get_object_or_404(Address, pk=address_id)
-    address.delete()
+    address.is_delete = True
+    address.save()
     return redirect('address_list')
 
 
-
-
-@login_required
+# USER ORDER DETAILS
+@login_required(login_url='Accounts:login')
 def order_history(request):
     orders = Order.objects.filter(user=request.user)
     return render(request,'order_history.html',{'orders':orders})
 
 
-
-
-
-@login_required
+@login_required(login_url='Accounts:login')
 def order_details(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     return render(request,'order_details.html',{'order':order})
@@ -240,23 +250,90 @@ def order_details(request, order_id):
 
 
 
-
+@login_required(login_url='Accounts:login')
 def cancel_product(request, order_product_id):
     order_product = get_object_or_404(OrderProduct, id=order_product_id)
+    order = order_product.order
 
     if request.method == 'POST':
-        order_product.status = 'Cancelled'
-        order_product.save()
-        messages.success(request, 'Product successfully cancelled.')
+        if order.payment_method  == 'Paid by Razorypay' or order_product.status == 'Delivered':
+            order_product.status = 'Cancelled'
+
+            order_product.save()
+
+            refund_amount = order_product.quantity * order_product.product.price
+
+
+            wallet = Wallet.objects.get(user=request.user)
+            wallet.balance += refund_amount
+
+            wallet.save()
+     
+            messages.success(request, 'Product successfully cancelled.')
+        elif order.payment_method == 'COD':
+            order_product.status = 'Cancelled'
+            order_product.save()
+            messages.success(request, 'Product successfully cancelled.')
+        else:
+            messages.error(request, 'Cancellation is not allowed for this order.')
+            print( order.payment_method)
         return redirect('order_history') 
     return render(request, 'cancel_product.html', {'order_product': order_product})
 
 
+@login_required(login_url='Accounts:login')
+def product_return(request,order_product_id):
+    order_product = get_object_or_404(OrderProduct, id=order_product_id)
 
-# def submit_review_and_rating(requst, object_id, is_order_product=False):
-#     if is_order_product:
+    if order_product.status == 'Returned':
+        messages.warning(request, 'A return is already pending for this product.')
+        return redirect(reverse('order_details', kwargs={'order_id': order_product.order.id}))
+    
+    if request.method == 'POST':
+        order_product.status = 'Returned'
+        order_product.delivery_date = None  # Clear delivery date when returning
+        order_product.save()
+
+        messages.success(request, 'Product returned successfully.')
+        return redirect('order_history')
+    
+    return redirect("order_history")
 
 
+#WALET
+@login_required(login_url='Accounts:login')
+def wallet_balance(request):
+    wallet = Wallet.objects.get(user=request.user)
+    refund_history = CancelOrder.objects.filter(user=request.user).order_by('-created_at')
+
+    returned_products = OrderProduct.objects.filter(order__user=request.user, status='Returned')
+
+    total_refund_amount = Decimal(0)
+    for order_product in returned_products:
+        total_refund_amount += order_product.product.price * order_product.quantity
+    wallet.balance += total_refund_amount
+    wallet.save()
+
+    
+    # Pass the wallet balance, refund history, and returned products to the template
+    return render(request, 'user_wallet.html', {
+        'wallet': wallet,
+        'refund_history': refund_history,
+        'returned_products': returned_products
+    })
+    # return render(request,'user_wallet.html',{'wallet':wallet,'refund_history':refund_history})
+
+
+
+
+
+
+
+
+
+
+# PRODUCT REVIEW
+@login_required(login_url='Accounts:login')
 def submit_review_and_rating(request):
     if request.method == 'POST':
         order_product_id = request.POST.get('order_product_id')
@@ -278,15 +355,23 @@ def submit_review_and_rating(request):
     return JsonResponse({'success': False, 'error': 'Invalid request method.'})
 
 
-# Search
 
+
+
+
+
+
+
+
+
+#PRODUCT SEARCH
 def search_results(request):
 
     query = request.GET.get('query')
     
     if query:
         request.session['search_query'] = query
-        products  = Product.objects.filter(product_name__icontains=query)
+        products  = Product.objects.filter(product_name__icontains=query, is_available=True, category__is_listed=True)
     else:
         saved_query = request.session.get('search_query')
         if saved_query:
@@ -303,12 +388,9 @@ def search_results(request):
 
 
 
-
 def search_filter_result(request):
     sort_by = request.GET.get('sort_by')
     query = request.session.get('search_query')
-    print(query)
-
     products = Product.objects.all() 
     if query:
         products = Product.objects.filter(product_name__icontains=query)
@@ -317,22 +399,22 @@ def search_filter_result(request):
     if sort_by == 'popularity':
         pass
     elif sort_by == 'price_low_to_high':
-        products = Product.objects.filter(product_name__icontains=query).order_by('price')
+        products = Product.objects.filter(product_name__icontains=query,is_available=True, category__is_listed=True).order_by('price')
     elif sort_by == 'price_high_to_low':
-        products = Product.objects.filter(product_name__icontains=query).order_by('-price')
+        products = Product.objects.filter(product_name__icontains=query,is_available=True, category__is_listed=True).order_by('-price')
     elif sort_by == 'average_ratings':
         pass
     elif sort_by == 'featured':
         pass
     elif sort_by == 'new_arrivals':
         time_threshold = timezone.now() - timedelta(hours=24)
-        products = products.filter(created_at__gte=time_threshold)
+        products = products.filter(created_at__gte=time_threshold,is_available=True, category__is_listed=True)
     elif sort_by == 'aA_to_zZ':
-        products =  Product.objects.filter(product_name__icontains=query).order_by('product_name')
+        products =  Product.objects.filter(product_name__icontains=query,is_available=True, category__is_listed=True).order_by('product_name')
     elif sort_by == 'zZ_to_aA':
-        products = Product.objects.filter(product_name__icontains=query).order_by('-product_name')
+        products = Product.objects.filter(product_name__icontains=query,is_available=True, category__is_listed=True).order_by('-product_name')
     elif sort_by == 'Hide_out_of_stock':
-        products = Product.objects.filter(productsizecolor__Stock__gt=0,product_name__icontains=query)
+        products = Product.objects.filter(productsizecolor__Stock__gt=0,product_name__icontains=query,is_available=True, category__is_listed=True)
 
     if sort_by == 'Hide_out_of_stock' and not products.exists():
         no_stock_message = "There are no products out of stock."

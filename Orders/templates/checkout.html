@@ -20,10 +20,11 @@
 			{% comment %} <h1>Checkout</h1> {% endcomment %}
 			
 			{% if error %}
-				<p>{{ error }}</p>
+			<div class="alert alert-danger" role="alert">
+				{{ error }}
+			</div>
 			{% endif %}
-
-			  
+						
 
 
 
@@ -165,6 +166,9 @@
 							<div class="col-lg-8">
 								<!-- User Addresses Section (Existing) -->
 								<h2 class="mb-4">User Addresses</h2>
+								<div class="text-right">
+									<button type="button" class="btn btn-primary btn-sm mt-5" onclick="redirectToOrderAddAddress()">Add Address</button>
+								</div>
 								{% if addresses %}
 								<form method="post" action="{% url 'checkout' %}">
 									{% csrf_token %}
@@ -183,27 +187,30 @@
 											</div>
 										</div>
 										{% endfor %}
-										<div class="text-right">
-											<button type="button" class="btn btn-primary btn-sm mt-5" onclick="redirectToOrderAddAddress()">Add Address</button>
-										</div>
+										
 										
 									</div>
 									<hr>
 									<h2 class="mb-4">Payment Method</h2>
-									<div class="form-group">
-										{% comment %} <label for="payment_method">Payment Method:</label> {% endcomment %}
+									{% comment %} <div class="form-group">
+										<label for="payment_method">Payment Method:</label>
 										<select name="payment_method" id="payment_method" class="form-control">
 											<option value="COD">Cash on Delivery</option>
 											<option value="PayPal">PayPal</option>
 											<!-- Add other payment methods if applicable -->
 										</select>
-									</div>
+									</div> {% endcomment %}
 									
 									<!-- Add other payment methods if applicable -->
-									<button type="submit" class="btn btn-primary mt-3">Place Order</button>
+									
+									<button type="submit" name="payment_method" value="COD" class="btn btn-primary mt-2">Cash on Delivery</button>
+									{% comment %} <button type="submit" class="btn btn-primary mt-3">Cash on Delivery</button> {% endcomment %}
+									<button type="Button"  class="btn btn-primary payWithRazorpay  mt-2">Pay with Razorpay</button>
 								</form>
 								{% endif %}
+								
 							</div>
+							
 							<div class="col-lg-4">
 								<!-- Cart Total Section (Added to the Right Side) -->
 								<div class="row mt-5">
@@ -214,19 +221,25 @@
 												<li>
 													<span>Subtotal</span> <span>{{ total_price }}</span>
 													<ul>
-														<li><span>1 x {{ product.product_name }}</span> <span>$99.00</span></li>
-														<li><span>1 x Product Name</span> <span>$78.00</span></li>
+														{% for cart_item_detail in cart_item_details %}
+														<li><span>{{cart_item_detail.quantity }} x {{ cart_item_detail.product_name }}</span> 
+														<span>{{ cart_item_detail.total_price }} </span></li>
+														{% comment %} <li><span>1 x Product Name</span> <span>$78.00</span></li> {% endcomment %}
+														{% endfor %}
 													</ul>
 												</li>
-												<li><span>Shipping</span> <span>$0.00</span></li>
-												<li><span>Order Total</span> <span>{{ total_price }}</span></li>
+												{% comment %} <li><span>Shipping</span> <span>$0.00</span></li> {% endcomment %}
+												<li><span>Discount</span> <span>{{ coupon_discount }}</span></li>
+												<li><span>Order Total</span> <span>{{ discount_amount }}</span></li>
 											</ul>
 										</div>
+										
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
+					
 					
 				</div>
 			</div>
@@ -306,6 +319,15 @@
 		function redirectToOrderAddAddress() {
 			window.location.href = "{% url 'order_add_address' %}";
 		}
+		
 	</script>
 
     {% endblock %}
+
+
+
+	{% block scripts %}
+
+	<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+	<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+	{% endblock scripts %}

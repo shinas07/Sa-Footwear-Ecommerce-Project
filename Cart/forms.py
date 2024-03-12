@@ -19,3 +19,7 @@ class AddToCartForm(forms.Form):
         else:
             # Handle the case when there are no ProductSizeColor objects or no stock available
             self.fields['quantity'].widget.attrs['max'] = 0
+
+
+class CoupenApplyForm(forms.Form):
+    code  = forms.CharField()

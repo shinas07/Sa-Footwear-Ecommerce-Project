@@ -32,8 +32,18 @@ urlpatterns = [
     path('delete-banner/<int:banner_id>/', views.delete_banner, name='delete_banner'),
     path('admin_products_details/<int:order_id>', views.order_products_details, name='order_products_details'),
 
+
+    path('admin_add_coupon/', views.admin_add_coupon, name='admin_add_coupon'),
+
     # path('admin_order_details/<int:order_id>/<int:product_id>/', views.admin_order_details, name='admin_order_details'),
-    path('admin_product_status/<int:order_id>/<int:order_product_id>/', views.admin_product_status, name='admin_product_status'),
+    path('admin-product-status/<int:order_id>/<int:order_product_id>/', views.admin_product_status, name='admin_product_status'),
+
+    path('discount-product-list/',views.discount_product_list,name='discount_product_list'),
+    path('set-product-discount/<int:product_id>',views.set_product_discount,name='set_product_discount'),
+
+    path('admin-sales-report/',views.admin_sales_report,name='admin_sales_report'),
+    path('download-report/', views.download_report, name='download_report'),
+
 ]
 
 

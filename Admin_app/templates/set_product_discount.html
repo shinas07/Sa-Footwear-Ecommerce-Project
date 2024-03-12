@@ -1,0 +1,102 @@
+<!-- set_product_discount.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Product Discount</title>
+    <style>
+        #goToHomePageButton {
+            position: fixed;
+            bottom: 20px; /* Adjust as needed */
+            left: 20px; /* Adjust as needed */
+            z-index: 999; /* Ensure it's above other elements */
+            color: white; /* Text color */
+            background-color: #007bff; /* Background color */
+            padding: 10px 20px; /* Padding */
+            border: none; /* Remove border */
+            border-radius: 5px; /* Rounded corners */
+            font-size: 16px; /* Font size */
+            cursor: pointer; /* Change cursor on hover */
+        }
+        
+        #goToHomePageButton:hover {
+            background-color: #0056b3; /* Darker background color on hover */
+        }
+        
+        .form-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-group button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Set Product Discount</h2>
+        <p><strong>Product Name: </strong>{{product.product_name}}</p>
+        <p><strong>Product Brand: </strong>{{product.product_brand}}</p>
+        <p><strong>Product Category: </strong>{{product.category}}</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_discount">Discount (%)</label>
+                <input type="number" id="id_discount" name="discount_percentage" placeholder="Enter discount percentage" required>
+
+            </div>
+            <div class="form-group">
+                <label for="id_end_date">End Date</label>
+                <input type="date" id="id_end_date" name="end_date" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Set Discount</button>
+            </div>
+        </form>
+    </div>
+    <button id="goToHomePageButton" class="btn btn-primary">Go Back</button>
+
+
+<script>
+    document.getElementById("goToHomePageButton").addEventListener("click", function() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/", true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                window.location.href = "/discount-product-list/";
+            }
+        };
+        xhr.send();
+    });
+</script>
+</body>
+</html>

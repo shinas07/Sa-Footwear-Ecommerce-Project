@@ -37,7 +37,7 @@ def unlist_category(request,category_id):
     category.save()
     return redirect('admin_category')
 
-@login_required
+@login_required(login_url='Accounts:login')
 def edit_category(request, category_id):
     # Retrieve the category object
     category = get_object_or_404(Category, pk=category_id)

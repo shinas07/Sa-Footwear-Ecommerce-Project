@@ -1,7 +1,7 @@
 from django.db import models
 from Accounts.models import Customer
-from Home.models import Address
-from Products.models import Product,ProductSizeColor
+from  Home.models import Address
+from Products.models import Product
 
 # Create your models here.
 
@@ -11,10 +11,10 @@ from Products.models import Product,ProductSizeColor
 class Payment(models.Model):
     PAYMENT_METHOD_CHOICES = [
         ('COD', 'Cash on Delivery'),
-
+        ('Razorpay', 'Razorpay'),
     ]
     user = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    method = models.CharField(max_length=10, choices=PAYMENT_METHOD_CHOICES)
+    method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -25,10 +25,14 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     coupon_id = models.CharField(max_length=100, blank=True, null=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    payment_method = models.CharField(max_length=10, choices=[('COD', 'Cash on Delivery')], null=True, default=True)
+    payment_method = models.CharField(max_length=20, choices=[('COD', 'Cash on Delivery'), ('Razorpay', 'Razorpay')], null=True, default=True)
+
+    def __str__(self):  
+        return f"Order #{self.id}"
+
 
     def __str__(self):
-        return f"Order #{self.id}"
+        return f"Order #{self.id}"  
 
 
     def cancel_order(self):
@@ -42,9 +46,6 @@ class Order(models.Model):
 
 
 
-
-
-
 class OrderProduct(models.Model):
     ORDER_STATUS_CHOICES = [
         ('Pending', 'Pending'),
@@ -52,6 +53,7 @@ class OrderProduct(models.Model):
         ('Shipped', 'Shipped'),
         ('Delivered', 'Delivered'),
         ('Cancelled', 'Cancelled'),
+        ('Returned', 'Returned'),
     ]
 
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
@@ -61,6 +63,7 @@ class OrderProduct(models.Model):
     review = models.TextField(blank=True, null=True)  # Allow blank and null values for review
     rating = models.IntegerField(default=0, null=True)  # Default rating value can be adjusted as needed
     user = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)  # Reference to the user who submitted the review
+    delivery_date = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f" Product: {self.product.product_name} "

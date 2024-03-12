@@ -1,0 +1,114 @@
+<!-- wallet.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    #goToHomePageButton {
+        position: fixed;
+        bottom: 20px; /* Adjust as needed */
+        left: 20px; /* Adjust as needed */
+        z-index: 999; /* Ensure it's above other elements */
+    }
+
+    .wallet-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 40vh;
+        background-color: #f0f0f0;
+        
+    }
+    .wallet-box {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+    }
+    .cancellation-history {
+        margin-top: 20px;
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .cancellation-history th, .cancellation-history td {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+    .cancellation-history th {
+        background-color: #f2f2f2;
+    }
+
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+    tr:hover {
+        background-color: #f5f5f5;
+    }
+
+
+</style>
+
+<body>
+    <div class="wallet-container">
+        <div class="wallet-box">
+            <h2>Your Wallet Balance</h2>
+            <p>Current Balance: {{ wallet.balance }}</p>
+        </div>
+    </div>
+
+
+    <h2>Refund History</h2>
+<table>
+    <thead>
+        <tr>
+            <th style="text-align: center;">Product Name</th>
+            <th style="text-align: center;">Quantity</th>
+            <th style="text-align: center;">Refund Amount</th>
+            <th style="text-align: center;">Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order_product in returned_products %}
+        <tr>
+            <td style="text-align: center;">{{ order_product.product.product_name }}</td>
+            <td style="text-align: center;">{{ order_product.quantity }}</td>
+            <td style="text-align: center;">{{ order_product.order.total_amount }}</td>
+            <td style="text-align: center;">{{ order_product.delivery_date }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" style="text-align: center;">No refund history found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+    
+
+<button id="goToHomePageButton" class="btn btn-primary">Go Back</button>
+
+
+<script>
+    document.getElementById("goToHomePageButton").addEventListener("click", function() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/", true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                window.location.href = "/user-profile/";
+            }
+        };
+        xhr.send();
+    });
+</script>
+{% endblock %}

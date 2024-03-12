@@ -8,4 +8,5 @@ urlpatterns = [
        path('category/<int:category_id>/list/', views.list_category, name='list_category'),
        path('category/<int:category_id>/unlist',views.unlist_category,name='unlist_category'),
        path('category/edit/<int:category_id>', views.edit_category, name='edit_category'),
+       
 ]

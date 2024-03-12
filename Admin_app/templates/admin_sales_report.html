@@ -1,0 +1,139 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+<style>
+    /* admin_sales_report.css */
+
+.sales-report-container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.sales-report-section {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.update-report-form {
+    margin-bottom: 20px;
+}
+
+.sales-table {
+    width: 1000px;
+    border-collapse: collapse;
+}
+
+.sales-table th,
+.sales-table td {
+    padding: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.sales-table th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+    text-align: left;
+}
+
+.download-report-section {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.download-report-form {
+    margin-top: 20px;
+}
+
+.btn-update,
+.btn-download {
+    margin-top: 10px;
+}
+
+.no-data {
+    font-style: italic;
+}
+</style>
+<div class="container sales-report-container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="sales-report-section">
+                <h2>Sales Report</h2>
+                <form method="post" class="update-report-form">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary btn-update">Update Report</button>
+                </form>
+
+                
+                <table class="table sales-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Discount Deduction</th>
+                            <th>Coupon Deduction</th>
+                            <th>Total Deduction</th>
+                            <th>total_amount</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in sales_data  %}
+                        <tr>
+                            <td>{{ sale.product }}</td>
+                            <td>{{ sale.quantity }}</td>
+                            <td>{{ sale.price }}</td>
+                            <td>{{ sale.discount_deduction }}</td>
+                            <td>{{ sale.coupon_deduction }}</td>
+                            <td>{{ sale.total_deduction }}</td>
+                            <td>{{ sale.total_amount }}</td>
+                            <td>{{ sale.date }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="no-data">No sales data available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="download-report-section">
+                <h2>Download Report</h2>
+                <form method="post" action="{% url 'download_report' %}" class="download-report-form">
+                    {% csrf_token %}
+                    <label for="report_format">Format:</label>
+                    <select name="report_format" id="report_format" class="form-control">
+                        <option value="pdf">PDF</option>
+                        <option value="excel">Excel</option>
+                    </select>
+                    <button type="submit" class="btn btn-success btn-download">Download Report</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<button id="goToHomePageButton" class="btn btn-primary">Go Back</button>
+
+
+<script>
+    document.getElementById("goToHomePageButton").addEventListener("click", function() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/", true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                window.location.href = "/admin_dashboard/";
+            }
+        };
+        xhr.send();
+    });
+</script>
+{% endblock %}

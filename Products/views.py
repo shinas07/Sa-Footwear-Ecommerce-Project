@@ -1,5 +1,8 @@
-from django.shortcuts import render, get_object_or_404 
-from .models import Product,Brand,Category,ProductSizeColor
+from django.shortcuts import render, get_object_or_404 ,redirect
+from .models import Product,Brand,Category,ProductSizeColor, Wishlist
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from Cart.models import Cart,CartItem
 
 
 def product(request):
@@ -8,6 +11,7 @@ def product(request):
         'products': products,
     }
     return render(request,'home.html',context)
+
 
 
 def category_collections(request,category_name):
@@ -50,6 +54,7 @@ def product_detail(request,product_id):
     
     
 
+@login_required(login_url='Accounts:login')
 def stock_of_size(request,size_id):
     session_id = request.session.get('product_id')
     product = get_object_or_404(Product, pk=session_id, is_available=True, category__is_listed=True)
@@ -76,4 +81,97 @@ def brand_wise_products(request,brand_id):
     }
     return render(request, 'collection.html', context)
   
-  
+
+# WISHLIST
+
+@login_required(login_url='Accounts:login')
+def wishlist_view(request):
+    try:
+        wishlist = Wishlist.objects.get(customer=request.user)
+    except Wishlist.DoesNotExist:
+        wishlist = None
+    
+    
+    if wishlist:
+        products = wishlist.products.all()
+        product_stocks = ProductSizeColor.objects.filter(product__in=products)
+
+    else:
+        products = []
+        product_stocks = []
+
+    return render(request, 'add_to_wishlist.html', {'products': products, 'product_stocks': product_stocks})
+
+
+
+
+
+@login_required(login_url='Accounts:login')
+def wishlist_to_cart(request, product_id):
+    product = get_object_or_404(Product, pk=product_id)
+    cart, created = Cart.objects.get_or_create(user=request.user)
+    if created:
+        cart.save()
+
+    product_size_colors = ProductSizeColor.objects.filter(product=product)
+
+    # Check if any ProductSizeColor instance has stock greater than zero
+    has_stock = any(product_size_color.Stock > 0 for product_size_color in product_size_colors)
+
+    if not has_stock:
+        messages.error(request, 'Product is Out of Stock')
+        return redirect('product:wishlist_view')
+
+    if CartItem.objects.filter(cart=cart, product=product).exists():
+        messages.error(request, f"{product.product_name} is already in your cart.")
+        return redirect('product:wishlist_view')
+
+    # Assuming you want to add the first ProductSizeColor instance with stock to the cart
+    # Adjust this logic as needed based on your requirements
+    product_size_color = product_size_colors.filter(Stock__gt=0).first()
+    if product_size_color:
+        CartItem.objects.create(cart=cart, product=product, quantity=1)
+        messages.success(request, f"{product.product_name} added to cart successfully.")
+        return redirect('product:wishlist_view')
+    else:
+        messages.error(request, 'Product is Out of Stock')
+        return redirect('product:wishlist_view')
+
+
+@login_required
+def add_to_wishlist(request, product_id):
+    category_name = None  
+    
+    if request.method == 'POST':
+        try:
+            wishlist = Wishlist.objects.get(customer=request.user)
+        except Wishlist.DoesNotExist:
+            wishlist = Wishlist.objects.create(customer=request.user)
+            
+        product = get_object_or_404(Product, pk=product_id)
+        
+
+        if wishlist.products.filter(pk=product_id).exists():
+            messages.info(request, 'This product is already in your wishlist.')
+        else:
+            # Add the product to the wishlist
+            wishlist.products.add(product)
+            messages.success(request, 'Product added to wishlist successfully.')
+            
+    
+        return redirect('product:wishlist_view')  
+    
+    return redirect('product:wishlist_view')
+
+
+
+def remove_from_wishlist(request, product_id):
+    customer = request.user 
+    wishlist = get_object_or_404(Wishlist, customer=customer)
+    
+    product = get_object_or_404(Product, pk=product_id)
+    
+    wishlist.products.remove(product)
+    
+    messages.success(request, 'Product removed from wishlist successfully.')
+    return redirect('product:wishlist_view')

@@ -16,6 +16,10 @@
 .has-dropdown.active .dropdown {
     display: block;
 }
+.wishlist {
+    float: right;
+}
+
 
 </style>
 
@@ -67,7 +71,9 @@
                         <li ><a href="contact.html">Contact</a></li>
                         {% if user.is_authenticated %}
     <!-- Show these options only if the user is logged in -->
-                        <li class="cart"><a href="{% url 'Cart:view_cart' %}"><i class="icon-shopping-cart"></i> Cart </a></li>
+                       
+                        <li class="cart"><a href="{% url 'view_cart' %}"><i class="icon-shopping-cart"></i> Cart </a></li> <li class="wishlist"><a href="{% url 'product:wishlist_view' %}"><i class="icon-heart"></i></a></li>
+                     
                         <li class="has-dropdown ">
                             <a href="#"><i class="icon-user"></i> Accounts</a>
                             <ul class="dropdown">

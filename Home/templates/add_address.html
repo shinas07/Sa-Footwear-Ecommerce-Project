@@ -36,4 +36,19 @@
         </div>
     </div>
 </div>
+<button id="goToHomePageButton" class="btn btn-primary">Go Back</button>
+
+
+<script>
+    document.getElementById("goToHomePageButton").addEventListener("click", function() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/", true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                window.location.href = "/user-profile/";
+            }
+        };
+        xhr.send();
+    });
+</script>
 {% endblock %}

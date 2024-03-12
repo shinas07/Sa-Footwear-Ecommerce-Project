@@ -26,8 +26,9 @@ urlpatterns = [
     path('',include('Accounts.urls')),
     path('',include('Category.urls')),
     path('', include('Products.urls', namespace='product')),
-    path('',include('Cart.urls',namespace='Cart')),
+    path('cart/', include('Cart.urls')),
     path('order/',include('Orders.urls')),
+    # path('admin-dashboard/',include('dashboard.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

@@ -2,6 +2,26 @@
 {% load static %}
 {% block content %}
 
+<style>
+    #goToHomePageButton {
+        position: fixed;
+        bottom: 20px; /* Adjust as needed */
+        left: 20px; /* Adjust as needed */
+        z-index: 999; /* Ensure it's above other elements */
+        color: white; /* Text color */
+        background-color: #007bff; /* Background color */
+        padding: 10px 20px; /* Padding */
+        border: none; /* Remove border */
+        border-radius: 5px; /* Rounded corners */
+        font-size: 16px; /* Font size */
+        cursor: pointer; /* Change cursor on hover */
+    }
+    
+    #goToHomePageButton:hover {
+        background-color: #0056b3; /* Darker background color on hover */
+    }
+
+</style>
 
     <!-- Page Wrapper -->
     <div id="wrapper">
@@ -71,22 +91,10 @@
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'admin_users' %}">
-                    <i class="bi bi-bag-check"></i>
-                    <span>Orders</span>
-                </a>
-                <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Login Screens:</h6>
-                        <a class="collapse-item" href="login.html">Login</a>
-                        <a class="collapse-item" href="register.html">Register</a>
-                        <a class="collapse-item" href="forgot-password.html">Forgot Password</a>
-                        <div class="collapse-divider"></div>
-                        <h6 class="collapse-header">Other Pages:</h6>
-                        <a class="collapse-item" href="404.html">404 Page</a>
-                        <a class="collapse-item" href="blank.html">Blank Page</a>
-                    </div>
-                </div>
+                <a class="nav-link" href="{% url 'discount_product_list' %}">
+                      <i class="bi bi-bag-check"></i>
+                      <span>Offers</span>
+                  </a>
             </li>
              <!-- Divider -->
              <hr class="sidebar-divider">
@@ -106,16 +114,23 @@
             </li>
             <hr class="sidebar-divider">
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'admin_users' %}">
-                <i class="bi bi-tag"></i>
-                    <span>Coupen</span></a>
-            </li>
+                <a class="nav-link" href="{% url 'admin_add_coupon' %}">
+                  <i class="bi bi-tag"></i>
+                      <span>Coupen</span></a>
+              </li>
             <hr class="sidebar-divider">
             <li class="nav-item">
               <a class="nav-link" href="{% url 'admin_users' %}">
                   <i class="bi bi-tag"></i>
                     <span>Banner</span></a>
             </li>
+            <hr class="sidebar-divider">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'admin_sales_report' %}">
+                      <i class="bi bi-tag"></i>
+                          <span>
+                            Sales report</span></a>
+                </li>
 
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
@@ -238,7 +253,8 @@
                     <th>Product Image</th>
                     <th>Product Name</th>
                     <th>Quantity</th>
-                    <th>Status</th>
+                    <th>Payment Method</th>
+                    <th>Status</th>      
                     <th>Action</th>
                 </tr>
             </thead>
@@ -248,7 +264,9 @@
                     <td><img src="{{ order_product.product.full_view_image.url }}" alt="{{ order_product.product.product_name }}" style="max-width: 100px;"></td>
                     <td>{{ order_product.product.product_name }}</td>
                     <td>{{ order_product.quantity }}</td>
+                    <td>{{ order.payment_method }}</td>
                     <td>{{ order_product.status }}</td>
+                    
                     <td>
                         <form method="post" action="{% url 'admin_product_status' order_id=order_product.order.id order_product_id=order_product.id %}">
                             {% csrf_token %}

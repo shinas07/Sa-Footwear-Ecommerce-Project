@@ -63,6 +63,58 @@
     border-top: 1px solid #ddd;
 }
 
+
+.wishlist-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 22px; /* Increase the size of the heart icon */
+    z-index: 1;
+    color:grey;
+
+    transition: color 0.3s; /* Add transition effect for color change */
+}
+
+.wishlist-icon:hover {
+    color: red; /* Change the color to red on hover */
+}
+
+.product-entry {
+    position: relative;
+}
+
+
+/* CSS */
+.wishlist-form {
+display: inline; /* Display the form inline */
+}
+
+.wishlist-form button {
+background: none; /* Remove background */
+border: none; /* Remove border */
+padding: 0; /* Remove padding */
+cursor: pointer; /* Change cursor to pointer */
+}
+
+.wishlist-form button:focus {
+outline: none; /* Remove outline when button is focused */
+}
+
+
+.regular-price {
+	color: black; /* Color for the regular price */
+	text-decoration: line-through; /* Add line-through for regular price */
+}
+
+.price-section {
+	margin-top: 10px;
+}
+
+.offer-price {
+	color: green; /* Color for the offer price */
+	font-weight: bold;
+}
+
 </style>
     
 
@@ -123,27 +175,9 @@
                         </div>
                     </div>
                 </div>
-                {% comment %} {% endfor %} {% endcomment %}
-                {% comment %} <div class="col-sm-6 text-center">
-                    <div class="featured">
-                        <a href="#" class="featured-img" style="background-image: url({% static 'images/women.jpg' %});"></a>
-                        <div class="desc">
-                            <h2><a href="#">Shop Women's Collection</a></h2>
-                        </div>
-                    </div>
-                </div> {% endcomment %}
             </div>
         </div>
     </div>
-
-    {% comment %} <form method="GET" action="{% url 'search_results' %}">
-        <input type="text" name="query" placeholder="Search...">
-        <select name="sort_by">
-            <option value="price_low_to_high">Price: Low to High</option>
-            <!-- Add more sorting options if needed -->
-        </select>
-        <button type="submit">Search</button>
-    </form> {% endcomment %}
 
  
 
@@ -156,20 +190,8 @@
                 </div>
 
 
-               
+
                 
-{% comment %} 
-                <select name="sort_by">
-                    <option value="">Sort by:</option>
-                    <option value=" ">Popularity</option>
-                    <option value=" ">Price: Low to High</option>
-                    <option value="price_high_to_low">Price: High to Low</option>
-                    <option value="average_ratings">Average Ratings</option>
-                    <option value="featured">Featured</option>
-                    <option value="new_arrivals">New Arrivals</option>
-                    <option value="a_to_z">A - Z</option>
-                    <option value="z_to_a">Z - A</option>
-                </select> {% endcomment %}
 
 
 
@@ -188,8 +210,21 @@
                         </a> 
                         <div class="desc">
                             <h2><a href="#">{{ product.product_name }}</a></h2>
-                            <span class="price">{{ product.price }}</span>
+                            <div class="price-section">
+                                {% if product.offer_price %}
+                                    <p class="offer-price"><strong>Offer Price:</strong> {{ product.offer_price }}</p>
+                                <p class="regular-price"><strong>Price:</strong> {{ product.price }}</p>
+                               {% else %}
+                               <span class="price">MRP : {{ product.price }}</span>
+                                {% endif %}
+                            </div>
                         </div>
+                        <form action="{% url 'product:add_to_wishlist' product_id=product.pk %}" method="post" class="wishlist-form">
+                            {% csrf_token %}
+                            <button type="submit" class="wishlist-icon" title="Add to wishlist">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </form>
                     </div>
                 </div>
                 {% if forloop.counter|divisibleby:4 and not forloop.last %}
@@ -198,22 +233,17 @@
                 {% endif %}
                 {% endfor %}
             </div>
-            <div class="row">
+            {% comment %} <div class="row">
                 <div class="col-md-12 text-center">
                     <p><a href="#" class="btn btn-primary btn-lg">Shop All Products</a></p>
                 </div>
-            </div>
+            </div> {% endcomment %}
         </div>
     </div>
     
 
     <div class="colorlib-partner">
         <div class="container">
-            <div class="row">
-                <div class="col-sm-8 offset-sm-2 text-center colorlib-heading colorlib-heading-sm">
-                    <h2>New Products</h2>
-                </div>
-            </div>
             <div class="row row-pb-md">
                 {% for product in lasted_categories %}
                 <div class="col-md-3 col-lg-3 mb-4 text-center">

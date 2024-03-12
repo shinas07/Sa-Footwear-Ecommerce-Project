@@ -1,6 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
 <style>
+
+        #goToHomePageButton {
+            position: fixed;
+            bottom: 20px; /* Adjust as needed */
+            left: 20px; /* Adjust as needed */
+            z-index: 999; /* Ensure it's above other elements */
+        }
+
+    
     .sidebar {
         background-color: #88c8bc;
         padding: 20px;
@@ -102,4 +111,20 @@
 {% else %}
 <p>No results for: {{ query }}</p>
 {% endif %}
+
+<button id="goToHomePageButton" class="btn btn-primary">Go Back</button>
+
+
+<script>
+    document.getElementById("goToHomePageButton").addEventListener("click", function() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/", true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                window.location.href = "/user-profile/";
+            }
+        };
+        xhr.send();
+    });
+</script>
 {% endblock %}
