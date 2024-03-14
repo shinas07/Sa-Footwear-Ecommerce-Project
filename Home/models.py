@@ -6,6 +6,7 @@ from Accounts.models import Customer
 
 class Address(models.Model):
     user = models.ForeignKey(Customer,on_delete=models.CASCADE)
+    name = models.CharField(max_length=100,blank=True,null=True)
     address = models.CharField(max_length=100)
     House_no = models.CharField(max_length=100, blank=True, null=True)
     # address_line_2 = models.CharField(max_length=100, blank=True, null=True)
@@ -14,6 +15,7 @@ class Address(models.Model):
     country = models.CharField(max_length=50)
     pincode = models.CharField(max_length=20)
     is_delete = models.BooleanField(default=False,null=True)
+    
 
 
 def __str__(self):
@@ -49,3 +51,11 @@ class CancelOrder(models.Model):
         self.user.wallet.balance += self.amount_refunded
         self.user.wallet.save()
 
+
+
+
+# class CancelOrderRequest(models.Model):
+#     user = models.ForeignKey(Customer, on_delete=models.CASCADE)
+#     order = models.ForeignKey(Order, on_delete=models.CASCADE)
+#     reason = models.TextField()
+#     is_approved = models.BooleanField(default=False)

@@ -4,25 +4,22 @@ from django.shortcuts import render,redirect,get_object_or_404,HttpResponse
 from django.contrib.auth import authenticate,login,logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.models import User
 from Accounts.models import Customer
 from Cart.models import Coupon
 from Category.models import Category
 from Products.models import Product,Brand,ProductSizeColor
 from .forms import BannerForm, ProductForm,CouponForm, TimeFrameForm,BrandForm,ProductSizeColorForm,ProductOfferForm
-from django.http import JsonResponse
 from Home.models import Banner, Wallet
 from django.views import View
 from Orders.models import Order, OrderProduct
-from django.http import JsonResponse
-from django.db.models import Sum
+from django.db.models import Sum,Count
 from datetime import datetime, timedelta
 from .models import ProductOffer, Sale
 from reportlab.pdfgen import canvas
 from openpyxl import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
-# from openpyxl.writer.excel import save_virtual_workbook
-# from openpyxl import Workbook
 from django.db.models import F
 from django.urls import reverse
 import io
@@ -68,6 +65,10 @@ def admin_dashboard(request):
         overall_order_amount = Order.objects.filter(orderproduct__status='Delivered').aggregate(Sum('total_amount'))['total_amount__sum']
         overall_discount = ProductOffer.objects.aggregate(total_discount=Sum('discount_percentage'))['total_discount']
 
+        #best_selling_products
+        best_selling_products = OrderProduct.objects.values('product__id', 'product__product_name', 'product__category__category_name', 'product__product_brand__brand_name').annotate(total_orders=Count('product')).order_by('-total_orders')[:10]
+
+
         context = {
         'online_sales_count':online_sales_count,
         'cod_sale_count': cod_sale_count,
@@ -76,6 +77,7 @@ def admin_dashboard(request):
         'overall_online_amount':overall_online_amount,
         'overall_order_amount': overall_order_amount,
         'overall_discount': overall_discount,
+        'best_selling_products':best_selling_products,
     }
         return render(request, 'admin_index.html',context)
     else:
@@ -85,7 +87,7 @@ def admin_dashboard(request):
 @login_required(login_url='admin_login')
 def admin_users(request):
     if request.user.is_superuser:
-        users = Customer.objects.filter(is_staff=False).order_by('id')
+        users = Customer.objects.filter(is_staff=False).order_by('-id')
         return render(request,'admin_curd.html',{'users':users})
     else:
         return redirect('/')
@@ -118,25 +120,56 @@ def unblock_user(request,user_id):
 @login_required(login_url='admin_login')  
 def admin_category(request):
     if request.user.is_superuser:
-        categorys = Category.objects.all().order_by('id')
+        categorys = Category.objects.all().order_by('-id')
         return render(request, 'admin_category.html', {'categorys': categorys, 'messages': messages.get_messages(request)})
     else:
         return redirect('/')
-
+    
+@never_cache
 @login_required(login_url='admin_login')
 def admin_product(request):
     if request.user.is_superuser:
-        products = Product.objects.all()
+        products = Product.objects.all().order_by('-created_at')
         product_size_colors = ProductSizeColor.objects.filter(is_unlisted=False)
+        brands = Brand.objects.filter(is_active=True)
         context = {
             'products' : products,
-            'product_size_colors' : product_size_colors
+            'brands' : brands,
+            'product_size_colors' : product_size_colors,
+
 
             
         }
         return render(request,'admin_product.html',context)
     else:
         return redirect('/')
+    
+@never_cache
+@login_required(login_url='admin_login')
+def admin_product_filter(request):
+    # Get the selected category and brand from the query parameters
+    selected_category = request.GET.get('category_filter', '')
+    selected_brand = request.GET.get('brand_filter', '')
+    brands = Brand.objects.filter(is_active=True)
+    product_size_colors = ProductSizeColor.objects.filter(is_unlisted=False)
+
+    # Initialize an empty queryset for products
+    products = Product.objects.all()
+
+    if selected_category:
+        products = products.filter(category__category_name=selected_category)
+
+    if selected_brand:
+        products = products.filter(product_brand__brand_name=selected_brand)
+
+    # Render the template with the filtered products
+    context = {
+        'products': products,
+        'brands' : brands,
+        'product_size_colors':product_size_colors,
+        }
+    return render(request, 'admin_product.html', context)
+
 
 @login_required(login_url='admin_login')
 def admin_add_product(request):
@@ -206,7 +239,6 @@ def edit_product_size_color(request, pk):
                     messages.success(request, 'Product size and color updated successfully!')
                     return redirect('admin_product')
                 else:     
-                    print(formset.errors)  # Debugging: Print formset errors
                     messages.error(request, 'Please correct the errors below.')
     
             else:
@@ -329,7 +361,7 @@ def edit_brand(request,brand_id):
 @login_required(login_url='admin_login')
 def admin_order_management(request):
     if request.user.is_superuser:
-        orders = Order.objects.all()
+        orders = Order.objects.all().order_by('-id')
         # orders = Order.objects.filter(user=request.user)
         return render(request, 'manage_order.html', {'orders': orders})
     else:
@@ -388,7 +420,7 @@ def admin_product_status(request, order_id, order_product_id):
 
 
 # admin_coupon_adding
-    
+@never_cache
 @login_required(login_url='admin_login')
 def admin_add_coupon(request):
     if request.user.is_superuser:
@@ -402,12 +434,18 @@ def admin_add_coupon(request):
                 messages.error(request, 'Please correct the errors below.')
         else:
             form = CouponForm()
-        return render(request, 'admin_add_coupon.html', {'form': form})
+        coupons = Coupon.objects.all()
+        return render(request, 'admin_add_coupon.html', {'form': form,'coupons':coupons})
     else:
         return redirect('/')
 
 
-
+def admin_delete_coupon(request,coupon_id):
+    if request.method == 'POST':
+        coupon = get_object_or_404(Coupon,id=coupon_id)
+        coupon.delete()
+        messages.success(request,'Coupon deleted successfully!')
+        return redirect('admin_add_coupon')
 
 @login_required(login_url='admin_login')
 def admin_add_banner(request,baner_id):
@@ -428,6 +466,7 @@ def admin_add_banner(request):
             form = BannerForm(request.POST, request.FILES)
             if form.is_valid():
                 form.save()
+                messages.success(request,'Banner Added Succesful')
                 return redirect('admin_add_banner')
         banners = Banner.objects.all()
         form = BannerForm()
@@ -441,33 +480,13 @@ def delete_banner(request, banner_id):
         if request.method == 'POST':
             banner = Banner.objects.get(id=banner_id)
             banner.delete()
+            messages.success(request,'Banner Deleted')
             return redirect('admin_add_banner')
     else:
         return redirect('/')
 
 
 #product sales report
-
-
-# @login_required(login_url='admin_login')
-# def admin_sales_report(request):
-#     if request.method == 'POST':
-#         form = TimeFrameForm(request.POST)
-#         if form.is_valid():
-#             time_frame = form.cleaned_data['time_frame']
-
-#             sales = get_sales_data(form, time_frame) # Pass cleaned data
-
-#              # Serialize the QuerySet into a list of dictionaries, converting Decimal and datetime values to strings
-#             sales_data = [{'product': sale.product.product_name, 'quantity': sale.quantity, 'price': str(sale.price), 'date': sale.date.strftime('%Y-%m-%d')} for sale in sales]
-
-#             request.session['sales_data'] = sales_data
-#             request.session['sales_data'] = sales_data
-#             return render(request, 'admin_sales_report.html', {'form': form, 'sales': sales})
-#     else:
-#         form = TimeFrameForm()
-#         sales = Sale.objects.filter(date__date=timezone.now().date())
-#         return render(request, 'admin_sales_report.html', {'form': form, 'sales': sales})
 
 
 
@@ -831,6 +850,22 @@ def set_product_discount(request, product_id):
         form = ProductOfferForm()
     return render(request, 'set_product_discount.html', {'form': form, 'product': product})
 
+@login_required(login_url='admin_login')
+def best_selling(request):
+    best_selling_products = OrderProduct.objects.values('product__id', 'product__product_name', 'product__category__category_name', 'product__product_brand__brand_name').annotate(total_orders=Count('product')).order_by('-total_orders')[:10]
+
+    
+    for product in best_selling_products:
+        print("Product ID:", product['product__id'])
+        print("Product Name:", product['product__product_name'])
+        print("Total Orders:", product['total_orders'])
+    context =  {
+        'best_selling_proudcts' : best_selling_products
+    }
+
+
+    return render(request,'admin_best_selling.html',context)
+    
 
 
 

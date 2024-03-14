@@ -110,6 +110,27 @@
  
 	height: 400px; 
 }
+.color-list {
+    list-style-type: none; /* Remove default bullet points */
+    padding: 0; /* Remove default padding */
+}
+
+.color-list li {
+    padding: 8px 16px; /* Add padding inside each list item */
+    margin-bottom: 8px; /* Add space between each list item */
+    background-color: #f2f2f2; /* Light grey background for each list item */
+    border-radius: 4px; /* Rounded corners */
+    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.color-list li a {
+    color: #333; /* Dark text color */
+    text-decoration: none; /* Remove underline */
+}
+
+.color-list li:hover {
+    background-color: #ddd; /* Slightly darker grey on hover */
+}
 
 
 </style>
@@ -236,6 +257,19 @@
 													{% endfor %}
 												</ul>
 											</div>
+											<div class="block-26 mb-2">
+												<h3 class="size-heading">Color</h3>
+												<ul class="color-list">
+													{% for psc in product_size_colors %}
+														{% if psc.product_id == product.id %}
+															<li><a href="{% url 'product:stock_of_size' size_id=psc.id %}">{{ psc.color }}</a></li>
+														{% endif %}
+													{% endfor %}
+												</ul>
+											</div>
+											
+
+
 
 											{% if selected_product_size.Stock > 0 %} 
 					

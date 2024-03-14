@@ -115,6 +115,8 @@ outline: none; /* Remove outline when button is focused */
 	font-weight: bold;
 }
 
+
+
 </style>
     
 
@@ -124,6 +126,7 @@ outline: none; /* Remove outline when button is focused */
     <aside id="colorlib-hero">
         <div class="flexslider">
             <ul class="slides">
+                
 
              
 
@@ -189,19 +192,17 @@ outline: none; /* Remove outline when button is focused */
                     <h2>All Product</h2>
                 </div>
 
-
-
-                
-
-
-
-
-               
-
-
-
             </div>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#filterModal">
+                <i class="fas fa-filter"></i> Filter Products
+            </button>
+            
             <div class="row row-pb-md">
+                {% if no_results %}
+                <p>No products found.</p>
+            {% else %}
+                <!-- Display products here -->
+       
                 {% for product in products %}
                 <div class="col-lg-3 mb-4">
                     <div class="product-entry border text-center">
@@ -233,6 +234,7 @@ outline: none; /* Remove outline when button is focused */
                 {% endif %}
                 {% endfor %}
             </div>
+            {% endif %}
             {% comment %} <div class="row">
                 <div class="col-md-12 text-center">
                     <p><a href="#" class="btn btn-primary btn-lg">Shop All Products</a></p>
@@ -329,10 +331,8 @@ outline: none; /* Remove outline when button is focused */
             <div class="row">
                 <div class="col-sm-12 text-center">
                     <p>
-                        <span><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="icon-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></span> 
-                        <span class="block">Demo Images: <a href="http://unsplash.co/" target="_blank">Unsplash</a> , <a href="http://pexels.com/" target="_blank">Pexels.com</a></span>
+                        <span><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --> All rights reserved | This template is made with <i class="icon-heart" aria-hidden="true"></i> target="_blank">Colorlib</a>
+<
                     </p>
                 </div>
             </div>
@@ -340,12 +340,72 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
     </footer>
 </div>
 
+
+<!-- Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="filterModalLabel">Filter Products</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="filterForm">
+            <div class="form-group">
+              <label for="category">Category:</label>
+              <select name="category" id="category" class="form-control" multiple>
+                {% for category in categorys %}
+                    <option value="{{ category.id }}">{{ category.category_name }}</option>
+                {% endfor %}
+                <!-- Add more options as needed -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="brands">Brand:</label>
+                <select name="brands" id="brands" class="form-control" multiple>
+                    {% for brand in brands %}
+                        <option value="{{ brand.id }}">{{ brand.brand_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            
+            {% comment %} <div class="form-group">  
+              <label for="size">Size:</label>
+              <select name="size" id="size" class="form-control" multiple>
+                <option value="small">Small</option>
+                <option value="medium">Medium</option>
+                <option value="large">Large</option>
+                <!-- Add more options as needed -->
+              </select>
+            </div> {% endcomment %}
+            <div class="form-group">
+              <label for="price">Price:</label>
+              <select name="price" id="price" class="form-control" multiple>
+                <option value="0-2000">1000 - 2000</option>
+                <option value="2000-3000">2000 - 3000</option>
+                <option value="3000-4000">3000 - 4000</option>
+                <option value="5000-6000">5000 - 6000</option>
+                <!-- Add more options as needed -->
+              </select>
+            </div>
+            <!-- Add more filtering options as needed -->
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
 <div class="gototop js-top">
     <a href="#" class="js-gotop"><i class="ion-ios-arrow-up"></i></a>
 </div>
 
-<script>
-    const Toast = Swal.mixin({
+
+    {% comment %} const Toast = Swal.mixin({
         toast: true,
         position: "top-end",
         showConfirmButton: false,
@@ -359,8 +419,69 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
       Toast.fire({
         icon: "success",
         title: "Signed in successfully"
-      });
+      }); {% endcomment %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!-- Include SweetAlert library from CDN -->
+{% comment %} <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+// After the sign-in process is successful
+const Toast = Swal.mixin({
+  toast: true,
+  position: "top-end",
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.onmouseenter = Swal.stopTimer;
+    toast.onmouseleave = Swal.resumeTimer;
+  }
+});
+
+// Trigger the Toast notification
+Toast.fire({
+  icon: "success",
+  title: "Signed in successfully"
+}); {% endcomment %}
+
+<script>
+
+   
+
+
+
+
+    $(document).ready(function() {
+        $('#filterForm').submit(function(event) {
+        event.preventDefault();
+        
+        console.log('Form submitted'); // Add this line for debugging
+        
+        // Get selected options
+        var selectedCategories = $('#category').val();
+        var selectedPrices = $('#price').val();
+        var brandValues = $('#brands').val();
+        
+        // Construct the URL with selected filters as query parameters
+        var url = '/home-filter/?';
+        if (selectedCategories && selectedCategories.length > 0) {
+            url += 'category=' + selectedCategories.join(',') + '&';
+        }
+        if (selectedPrices && selectedPrices.length > 0) {
+            url += 'price=' + selectedPrices.join(',');
+        }
+        if (brandValues && brandValues.length > 0) {
+            url += 'brands=' + brandValues.join(',') + '&';
+        }
+        
+    
+        // Redirect to the filtered home page
+        console.log('Redirecting to URL:', url); // Add this line for debugging
+        window.location.href = url;
+        });
+    });
+
+      
 </script>
+      
 
 {% endblock %}
 

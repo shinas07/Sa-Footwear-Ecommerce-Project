@@ -4,6 +4,7 @@ from Accounts.models import Customer
 from Products.models import Product
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from datetime import date
 
 
 
@@ -30,11 +31,20 @@ class Cart(models.Model):
         cart_items = self.cartitem_set.all()
 
         for cart_item in cart_items:
-            total_amount += cart_item.product.price * cart_item.quantity
+            product = cart_item.product
+            if product.productoffer_set.exists():  # Check if any related ProductOffer exists
+                offer = product.productoffer_set.first()  # Assuming there's only one offer per product
+                if offer.start_date <= timezone.now().date() <= offer.end_date:
+                    total_amount += product.price - (product.price * (offer.discount_percentage / 100)) * cart_item.quantity
+                else:
+                    total_amount += product.price * cart_item.quantity
+            else:
+                total_amount += product.price * cart_item.quantity
+
 
         return total_amount
-    
 
+    
     def apply_coupon(self, coupon_code):
         try:
             coupon = Coupon.objects.get(code=coupon_code, active=True)

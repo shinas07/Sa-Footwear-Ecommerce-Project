@@ -11,5 +11,11 @@ urlpatterns = [
     path('proceed-to-pay',views.razorpaycheck, name='proceed-to-pay'),
     path('place-order', views.place_order, name='place_order'),
     path('order_complete', views.order_complete, name='order_complete'),
-# 
+    path('generate-invoice/<str:order_id>/', views.generate_invoice, name='generate_invoice'),
+    # path('download-invoice/', views.download_invoice_, name='download_invoice'),
+
+    # path('generate-invoice/<str:product1_name>/<int:product1_quantity>/<str:product2_name>/<int:product2_quantity>/<str:product3_name>/<int:product3_quantity>/', views.generate_invoice, name='generate_invoice'),
+
+
+
 ]

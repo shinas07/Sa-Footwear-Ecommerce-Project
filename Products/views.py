@@ -138,7 +138,7 @@ def wishlist_to_cart(request, product_id):
         return redirect('product:wishlist_view')
 
 
-@login_required
+@login_required(login_url='Accounts:login')
 def add_to_wishlist(request, product_id):
     category_name = None  
     

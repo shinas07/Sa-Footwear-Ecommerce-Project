@@ -74,7 +74,7 @@
 <div class="heading-wrapper">
     <h3>Order Details</h3>
 </div>
-<div class ='container'>
+<div class='container'>
     <div class="table-wrapper">
         <table>
             <thead>
@@ -89,36 +89,43 @@
                 </tr>
             </thead>
             <tbody>
-            {% for order in orders %}
-                {% for order_product in order.orderproduct_set.all %}
-                    <tr>
-                        {% if forloop.first %}
-                            <td rowspan="{{ order.orderproduct_set.count }}">{{ order.id }}</td>
-                        {% endif %}
-                        <td>{{ order_product.product.product_name }}</td>
-                        <td><img src="{{ order_product.product.full_view_image.url }}" alt="Full View"></td>
-                        <!-- Apply conditional styling based on order status -->
-                        <td>
-                            <span class="{% if order.status == 'Cancelled' %}status-cancelled{% elif order.status == 'Processing' %}status-processing{% elif order.status == 'Pending' %}status-pending{% elif order.status == 'Delivered' %}status-delivered{% endif %}">
-                                {{ order_product.status }}
-                            </span>
-                        </td>
-
-                        <td>{{ order.payment_method }}</td>
-                        <td>{{ order.payment.amount }}</td>
-
-                        {% if forloop.first %}
-                            <td rowspan="{{ order.orderproduct_set.count }}">
-                                <a href="{% url 'order_details' order_id=order.id %}" class="btn btn-info">Order Details</a>
+                {% for order in orders %}
+                    {% for order_product in order.orderproduct_set.all %}
+                        <tr>
+                            {% if forloop.first %}
+                                <td rowspan="{{ order.orderproduct_set.count }}">{{ order.id }}</td>
+                            {% endif %}
+                            <td>{{ order_product.product.product_name }}</td>
+                            <td><img src="{{ order_product.product.full_view_image.url }}" alt="Full View"></td>
+                            <!-- Apply conditional styling based on order status -->
+                            <td>
+                                {% if order_product.cancellation_requested %}
+                                    <span class="{% if order_product.cancellation_request.status == 'Pending' %}status-pending{% elif order_product.cancellation_request.status == 'Approved' %}status-approved{% elif order_product.cancellation_request.status == 'Rejected' %}status-rejected{% endif %}">
+                                        {{ order_product.cancellation_request.status }}
+                                    </span>
+                                {% else %}
+                                    <span class="{% if order.status == 'Cancelled' %}status-cancelled{% elif order.status == 'Processing' %}status-processing{% elif order.status == 'Pending' %}status-pending{% elif order.status == 'Delivered' %}status-delivered{% endif %}">
+                                        {{ order_product.status }}
+                                    </span>
+                                {% endif %}
                             </td>
-                        {% endif %}
-                    </tr>
+                            <td>{{ order.payment_method }}</td>
+                            <td>{{ order.payment.amount }}</td>
+                            {% if forloop.first %}
+                                <td rowspan="{{ order.orderproduct_set.count }}">
+                                    <a href="{% url 'order_details' order_id=order.id %}" class="btn btn-info">Order Details</a>
+                                    <a href="{% url 'generate_invoice' order_id=order.id %}" class="btn btn-primary">Download Invoice</a>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
                 {% endfor %}
-            {% endfor %}
-        </tbody>
+            </tbody>
         </table>
     </div>
 </div>
+
+
 <button id="goToHomePageButton" class="btn btn-primary">Go Back</button>
 
 

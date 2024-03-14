@@ -4,7 +4,10 @@ from .models import Category
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 # Create your views here.
+from django.db.models import Q
+from django.views.decorators.cache import never_cache
 
+@never_cache
 @login_required
 def add_category(request):
     if request.method == 'POST':
@@ -46,7 +49,7 @@ def edit_category(request, category_id):
 
         new_category_name = request.POST.get('edit_category_name')
 
-        if Category.objects.filter(category_name=new_category_name).exclude(pk=category_id).exists():
+        if Category.objects.filter(Q(category_name__iexact=new_category_name) & ~Q(pk=category_id)).exists():
             messages.error(request, 'Category already exists. Please choose a different name.')
             return redirect('admin_category')
         category.category_name = request.POST.get('edit_category_name')

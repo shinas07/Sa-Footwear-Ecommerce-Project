@@ -24,7 +24,7 @@ $(document).ready(function() {
                     "currency": "INR",
                     "name": "Sa Footwear",
                     "description": "Thank you for buying from us",
-                    "image": "https://example.com/your_logo",
+                    // "image": "https://example.com/your_logo",
                     // "order_id": "order_IluGWxBm9U8zJ8", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
                     "handler": function (responseb){
                         alert(responseb.razorpay_payment_id);
@@ -49,21 +49,7 @@ $(document).ready(function() {
                             }
                         });
                         
-                        // $.ajax({
-                        //     method: "POST",
-                        //     url: "/order/place-order",
-                        //     // Replace with the correct URL
-                        //     data: data,
-                        //     success: function (responsec) {
-                        //         console.log('sucess',responsec);
-                        //         swal("Congratulations!", "responsec.status",'success').then((value) => {
-                        //             window.location.href = '/order/order_confimation/'
-
-                        //           });
-                  
-                                
-                        //     }
-                        // });
+                     
 
                     },
                     "prefill": {

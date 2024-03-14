@@ -23,6 +23,13 @@ class ProductOffer(models.Model):
     discount_percentage = models.DecimalField(max_digits=5, decimal_places=2)
     start_date = models.DateField(default=timezone.now)
     end_date = models.DateField()
+
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.end_date < timezone.now().date():
+            self.delete()  # Delete the offer if end date has passed
     
     def __str__(self):
         return f"{self.product.product_name} - {self.discount_percentage}% Offer"
+    

@@ -11,7 +11,7 @@ from Products.models import Product
 class Payment(models.Model):
     PAYMENT_METHOD_CHOICES = [
         ('COD', 'Cash on Delivery'),
-        ('Razorpay', 'Razorpay'),
+        ('Razorpay', 'Razorpay'),   
     ]
     user = models.ForeignKey(Customer, on_delete=models.CASCADE)
     method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
@@ -64,7 +64,15 @@ class OrderProduct(models.Model):
     rating = models.IntegerField(default=0, null=True)  # Default rating value can be adjusted as needed
     user = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)  # Reference to the user who submitted the review
     delivery_date = models.DateTimeField(null=True, blank=True)
+    # cancellation_requested = models.BooleanField(default=False,null=True)
 
     def __str__(self):
         return f" Product: {self.product.product_name} "
 
+
+
+
+# class CancellationRequest(models.Model):
+#     order_product = models.ForeignKey(OrderProduct, on_delete=models.CASCADE)
+#     user = models.ForeignKey(Customer, on_delete=models.CASCADE)
+#     status = models.CharField(max_length=20, choices=[('Pending', 'Pending'), ('Approved', 'Approved'), ('Rejected', 'Rejected')], default='Pending')

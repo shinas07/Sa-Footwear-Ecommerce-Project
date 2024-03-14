@@ -1,10 +1,11 @@
 from django.http import JsonResponse
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib import messages
+from Admin_app.models import ProductOffer
 from Home.forms import ChangePasswordForm,AddressForm
 from .models import CancelOrder, Customer, Wallet
 from django.contrib.auth.forms import PasswordChangeForm
-from Products.models import Product,Category
+from Products.models import Product,Category,Brand
 from Category.models import Category
 from Home.models import Banner,Address
 from django.db.models import Q
@@ -21,32 +22,69 @@ from django.contrib.auth.hashers import check_password
 from Accounts.models import Customer
 from django.utils import timezone
 from datetime import datetime,timedelta
-from Orders.models import OrderProduct,Order
-from Products.models import ProductSizeColor
+from Orders.models import  OrderProduct,Order
+# from Products.models import ProductSizeColor
 from django.db.models import F
 from django.db.models import Q
 from django.urls import reverse
 from decimal import Decimal
+from django.views.decorators.cache import never_cache
 
 
 def home(request):
     active_category = 'home'
+
+    # Delete expired product offers
+    expired_offers = ProductOffer.objects.filter(end_date__lt=timezone.now().date())
+    expired_offers.delete()
+
     products = Product.objects.filter(Q(category__category_name="Men") | Q(category__category_name='Women'),
         category__is_listed=True,is_available=True)
     lasted_categories = Product.objects.exclude(Q(category__category_name='Men') | Q(category__category_name='Women'))
     banners = Banner.objects.all()
-    categorys = Category.objects.all()
+    categorys = Category.objects.filter(is_listed=True)
+    brands = Brand.objects.filter(is_active=True)
     context = {
         'products':products,
         'lasted_categories' :lasted_categories,
         'banners' : banners,
         'categorys':categorys,
         'active_category' : active_category,
+        'brands' : brands,
     }
     return render(request, 'home.html',context)
 
-   
 
+
+def home_filter(request):
+    categories = request.GET.getlist('category')
+    prices = request.GET.getlist('price')
+    brand_ids = request.GET.getlist('brands')
+    products = Product.objects.all()
+    banners = Banner.objects.all()
+    categorys = Category.objects.filter(is_listed=True)
+    brands = Brand.objects.filter(is_active=True)
+    print(brand_ids)
+    print(prices)
+    if categories and all(categories):
+        products = products.filter(category__in=categories)
+    if prices:
+        for price_range in prices:
+            min_price, max_price = map(int, price_range.split('-'))
+            products = products.filter(price__range=(min_price, max_price))
+    if brand_ids: 
+        products = products.filter(product_brand__id__in=brand_ids) 
+    
+    no_results = not products.exists()
+    context = {
+        'products':products,
+        'banners':banners,
+        'categorys':categorys,
+        'brands' : brands,
+        'no_results':no_results,
+        
+    }
+    return render(request, 'home.html', context)
 
 #USER PROFILE
 @login_required(login_url='Accounts:login')
@@ -55,6 +93,7 @@ def user_profile(request):
     return render(request,'user_profile.html',{'user':user})
 
 
+@login_required(login_url='Accounts:login')
 def edit_user(request):
     user = request.user
     if request.method == 'POST':
@@ -121,7 +160,7 @@ def validate_user_data(post_data):
         error_message = "Username must be at least 3 characters long."
     elif len(post_data['username']) >  15:
         error_message = "Username must be no more than  15 characters long."
-    elif Customer.objects.filter(username=post_data['username']).exists():
+    elif Customer.objects.exclude(username=post_data['username']).filter(username=post_data['username']).exists():
         error_message = "Username already exists. Please choose a different one."
 
 
@@ -213,7 +252,7 @@ def add_address(request):
     return render(request,'add_address.html',{'form':form})
 
 
-
+@never_cache
 @login_required(login_url='Accounts:login')
 def edit_address(request,address_id):
     address = Address.objects.get(pk=address_id)
@@ -224,9 +263,9 @@ def edit_address(request,address_id):
             return redirect('address_list')
     else:
         form = AddressForm(instance=address)
-    return render(request, 'edit_address.html',{'form':form})
+    return render(request, 'edit_address.html',{'form':fadmin_products_detailorm})
 
-
+@never_cache
 @login_required(login_url='Accounts:login')
 def delete_address(request, address_id):
     address = get_object_or_404(Address, pk=address_id)
@@ -238,8 +277,9 @@ def delete_address(request, address_id):
 # USER ORDER DETAILS
 @login_required(login_url='Accounts:login')
 def order_history(request):
-    orders = Order.objects.filter(user=request.user)
+    orders = Order.objects.filter(user=request.user).order_by('-id')
     return render(request,'order_history.html',{'orders':orders})
+
 
 
 @login_required(login_url='Accounts:login')
@@ -258,7 +298,6 @@ def cancel_product(request, order_product_id):
     if request.method == 'POST':
         if order.payment_method  == 'Paid by Razorypay' or order_product.status == 'Delivered':
             order_product.status = 'Cancelled'
-
             order_product.save()
 
             refund_amount = order_product.quantity * order_product.product.price
@@ -269,16 +308,42 @@ def cancel_product(request, order_product_id):
 
             wallet.save()
      
-            messages.success(request, 'Product successfully cancelled.')
+            messages.success(request, 'Product Cancellation Success')
         elif order.payment_method == 'COD':
             order_product.status = 'Cancelled'
             order_product.save()
-            messages.success(request, 'Product successfully cancelled.')
+            messages.success(request, 'Product Cancellation Success')
         else:
             messages.error(request, 'Cancellation is not allowed for this order.')
-            print( order.payment_method)
         return redirect('order_history') 
     return render(request, 'cancel_product.html', {'order_product': order_product})
+
+
+
+
+# @login_required(login_url='Accounts:login')
+# def cancel_product(request, order_product_id):
+#     order_product = get_object_or_404(OrderProduct, id=order_product_id)
+#     order = order_product.order
+#     cancellation_request = None  # Initialize cancellation_request to None
+
+#     if request.method == 'POST':
+#         if order.payment_method == 'Paid by Razorypay' or order_product.status == 'Delivered':
+#             # Create a new cancellation request
+#             cancellation_request = CancellationRequest.objects.create(order_product=order_product, user=request.user)
+#             messages.success(request, 'Cancellation request sent. Waiting for the approval.')
+#             return redirect('order_history') 
+#         elif order.payment_method == 'COD':
+#             # Create a new cancellation request
+#             cancellation_request = CancellationRequest.objects.create(order_product=order_product, user=request.user)
+#             messages.success(request, 'Cancellation request sent. Waiting for the approval.')
+#             return redirect('order_history') 
+#         else:
+#             messages.error(request, 'Cancellation is not allowed for this order.')
+#             return redirect('order_history') 
+
+#     return render(request, 'cancel_product.html', {'order_product': order_product, 'cancellation_request': cancellation_request})
+
 
 
 @login_required(login_url='Accounts:login')
@@ -303,7 +368,7 @@ def product_return(request,order_product_id):
 #WALET
 @login_required(login_url='Accounts:login')
 def wallet_balance(request):
-    wallet = Wallet.objects.get(user=request.user)
+    wallet, created = Wallet.objects.get_or_create(user=request.user)
     refund_history = CancelOrder.objects.filter(user=request.user).order_by('-created_at')
 
     returned_products = OrderProduct.objects.filter(order__user=request.user, status='Returned')
@@ -325,20 +390,12 @@ def wallet_balance(request):
 
 
 
-
-
-
-
-
-
-
 # PRODUCT REVIEW
 @login_required(login_url='Accounts:login')
 def submit_review_and_rating(request):
     if request.method == 'POST':
         order_product_id = request.POST.get('order_product_id')
         rating = request.POST.get('rating')
-        print('haai')
         review = request.POST.get('review')
 
         order_product = get_object_or_404(OrderProduct, id=order_product_id)

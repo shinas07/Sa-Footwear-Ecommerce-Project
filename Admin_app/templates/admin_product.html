@@ -2,7 +2,40 @@
 {% load static %}
 {% block content %}
 
-
+<style>
+    .filter-form {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .filter-group {
+        margin-right: 20px;
+    }
+    
+    label {
+        margin-right: 5px;
+    }
+    
+    select {
+        padding: 5px;
+        border-radius: 5px;
+    }
+    
+    .btnf {
+        padding: 8px 15px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    
+    .btn:hover {
+        background-color: #0056b3;
+    }
+</style>    
     <!-- Page Wrapper -->
     <div id="wrapper">
 
@@ -242,12 +275,38 @@
                         </div>
                     </div>
                     {% endif %}
-             
+                    <form method="GET" action="{% url 'admin_product_filter' %}" class="filter-form">
+                        <div class="filter-group">
+                            <label for="category-filter">Select Category:</label>
+                            <select name="category_filter" id="category-filter">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                <option value="{{ category.category_name }}">{{ category.category_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="brand-filter">Select Brand:</label>
+                            <select name="brand_filter" id="brand-filter">
+                                <option value="">All Brands</option>
+                                {% for brand in brands %}
+                                <option value="{{ brand.brand_name }}">{{ brand.brand_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btnf btn-primary">Apply Filter</button>
+                    </form>
+                    
+                    
+                    
+                    
+                    
+                    
 
                 </div>
                 <!-- /.container-fluid -->
-            
 
+      
                 <div class="container">
                     <div class="table-responsive">
                         <table class="table table-bordered" id="productsDataTable" width="100%" cellspacing="0">

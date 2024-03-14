@@ -211,19 +211,57 @@
                     </div>
                 </div>
             </div>
-        {% endif %}
-        <!--Table-->
-        <!-- Begin Page Content -->
+            {% endif %}
+
                 <!-- Table -->
 
                 <div class="container">
-                    <h2>Add Coupon</h2>
-                    <form method="post">
-                        {% csrf_token %}
-                        {{ form.as_p }}
-                        <button type="submit" class="btn btn-primary">Add Coupon</button>
-                    </form>
+                    {% if coupons %}
+                    <h2>Existing Coupons</h2>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Discount</th>
+                                <th>Valid From</th>
+                                <th>Valid To</th>
+                                <th>Active</th>
+                                <th>Actions</th> <!-- New column for actions -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for coupon in coupons %}
+                            <tr>
+                                <td>{{ coupon.code }}</td>
+                                <td>{{ coupon.discount }}</td>
+                                <td>{{ coupon.valid_from }}</td>
+                                <td>{{ coupon.valid_to }}</td>
+                                <td>{{ coupon.active }}</td>
+                                <td>
+                                    <form method="post" action="{% url 'admin_delete_coupon' coupon_id=coupon.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p>No Coupons</p>
+                    {% endif %}
                 </div>
+                
+            
+            <div class="container">
+                <h2>Add Coupon</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary">Add Coupon</button>
+                </form>
+            </div>
+                
                 
                                                      
         </div>

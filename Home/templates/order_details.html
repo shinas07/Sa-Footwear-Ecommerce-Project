@@ -99,8 +99,10 @@
     {% endif %}
 
     <div id="reviewMessage" class="alert alert-success" style="display: none;"></div>
+    
 
     <div class="containerbox">
+        
         <h1>Order Details</h1>
         <h2>Order ID: {{ order.id }}</h2>
         <p>Total Amount: ${{ order.payment.amount }}</p>
@@ -203,7 +205,10 @@
                 </tr>
                 {% endfor %}
             </tbody>
+        
+           
         </table>
+
     </div>
     
 
@@ -211,48 +216,44 @@
 
     
     <!-- JavaScript to handle modal submission -->
+<!-- JavaScript to handle modal submission -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Use event delegation to ensure the event handler is attached to dynamically added elements
+        $(document).on('click', '.submitReview', function() {
+            var orderProductId = $(this).data('order-product-id');
+            var rating = $('#rating' + orderProductId).val();
+            var review = $('#review' + orderProductId).val();
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Use event delegation to ensure the event handler is attached to dynamically added elements
-            $(document).on('click', '.submitReview', function() {
-                var orderProductId = $(this).data('order-product-id');
-                var rating = $('#rating' + orderProductId).val();
-                var review = $('#review' + orderProductId).val();
-    
-                // Ensure the CSRF token is correctly included in the AJAX request
-                var csrfToken = $('[name=csrfmiddlewaretoken]').val();
-    
-                $.ajax({
-                    type: 'POST',
-                    url: '{% url 'submit_review_and_rating' %}',
-                    data: {
-                        'csrfmiddlewaretoken': csrfToken,
-                        'rating': rating,
-                        'review': review,
-                        'order_product_id': orderProductId,
-                    },
-                    success: function(response) {
-                        console.log('Review submitted successfully');
-                        $('#reviewModal' + orderProductId).modal('hide');
-                        // Display success message
-                        $('#reviewMessage').text('Review submitted successfully!').show();
-                    },
-                    error: function(xhr, errmsg, err) {
-                        console.log('Error submitting review: ' + errmsg);
-                        // Optionally, display an error message
-                        $('#reviewMessage').text('Error submitting review: ' + errmsg).show();
-                    }
-                });
+            // Ensure the CSRF token is correctly included in the AJAX request
+            var csrfToken = $('[name=csrfmiddlewaretoken]').val();
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url 'submit_review_and_rating' %}',
+                data: {
+                    'csrfmiddlewaretoken': csrfToken,
+                    'rating': rating,
+                    'review': review,
+                    'order_product_id': orderProductId,
+                },
+                success: function(response) {
+                    console.log('Review submitted successfully');
+                    $('#reviewModal' + orderProductId).modal('hide');
+                    // Display success message
+                    $('#reviewMessage').text('Review submitted successfully!').show();
+                },
+                error: function(xhr, errmsg, err) {
+                    console.log('Error submitting review: ' + errmsg);
+                    // Optionally, display an error message
+                    $('#reviewMessage').text('Error submitting review: ' + errmsg).show();
+                }
             });
         });
 
-        <button id="goToHomePageButton" class="btn btn-primary">Go Back</button>
-
-
-
-        document.getElementById("goToHomePageButton").addEventListener("click", function() {
+        // Add event listener for the "Go Back" button
+        $('#goToHomePageButton').on('click', function() {
             var xhr = new XMLHttpRequest();
             xhr.open("GET", "/", true);
             xhr.onreadystatechange = function() {
@@ -262,9 +263,12 @@
             };
             xhr.send();
         });
+    });
+</script>
 
-    </script>
 
-    <!-- Add a button or link to go back to the previous page -->
-    <a href="javascript:history.back()" class="btn btn-primary">Back</a>
+
+<!-- Add a button or link to go back to the previous page -->
+<a href="javascript:history.back()" class="btn btn-primary">Back</a>
+
 {% endblock %}

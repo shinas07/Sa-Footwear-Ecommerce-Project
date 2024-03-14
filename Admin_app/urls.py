@@ -13,6 +13,7 @@ urlpatterns = [
     path('admin_catrgory/',views.admin_category,name='admin_category'),
 
     path('admin_product/',views.admin_product,name='admin_product'),
+    path('admin-product-filter/',views.admin_product_filter,name='admin_product_filter'),
     path('admin_add_product/',views.admin_add_product,name='admin_add_product'),
     path('product_size_color/', views.product_size_color, name='product_size_color'),
     path('edit_product_size_color/<int:pk>/',views.edit_product_size_color,name='edit_product_size_color'),
@@ -33,7 +34,8 @@ urlpatterns = [
     path('admin_products_details/<int:order_id>', views.order_products_details, name='order_products_details'),
 
 
-    path('admin_add_coupon/', views.admin_add_coupon, name='admin_add_coupon'),
+    path('admin-add-coupon/', views.admin_add_coupon, name='admin_add_coupon'),
+    path('admin-delete-coupon/<int:coupon_id>/',views.admin_delete_coupon, name='admin_delete_coupon'),
 
     # path('admin_order_details/<int:order_id>/<int:product_id>/', views.admin_order_details, name='admin_order_details'),
     path('admin-product-status/<int:order_id>/<int:order_product_id>/', views.admin_product_status, name='admin_product_status'),
@@ -43,6 +45,7 @@ urlpatterns = [
 
     path('admin-sales-report/',views.admin_sales_report,name='admin_sales_report'),
     path('download-report/', views.download_report, name='download_report'),
+    path('best-selling/', views.best_selling, name='best_selling'),
 
 ]
 
