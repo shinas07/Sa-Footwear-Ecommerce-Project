@@ -60,6 +60,9 @@
 							<div class="one-forth text-left px-4">
 								<span>Product Details</span>
 							</div>
+							<div class='one-eight text-center'>
+								<span>Size</span>
+							</div>
 							<div class="one-eight text-center">
 								<span>Price</span>
 							</div>
@@ -75,25 +78,27 @@
 						</div>
 						{% if cart_items %}
 							{% for item in cart_items %}
-								<div class="product-cart d-flex">
+							<div class="product-cart d-flex" data-product-stock-id="{{ item.product_size_color.id }}">
 									<div class="one-forth">
 										<img src="{{ item.product.full_view_image.url }}" class="img-fluid" alt="{{ item.product.product_name }}" style="max-width:  100px; height: auto;">
 										<div class="display-tc">
 											<h3>{{ item.product.product_name }}</h3>
 										</div>
 									</div>
-									{% comment %} <div class="one-eight text-center">
+									<div class="one-eight text-center">
 										<div class="display-tc">
-											<span class="price">{{ item.product.price }}</span>
+											<span class="price">{{ item.product_size_color.size }}</span>
 										</div>
-									</div> {% endcomment %}
+									</div>
+									<input type="hidden" id='checkStock' name="{{ item.product_size_color.id }}" value="{{ item.product_size_color.Stock }}">
+
 									<div class="one-eight text-center">
 										<div class="display-tc">
 											{% if item.product.offer_price %}
-												<span class="price">{{ item.product.offer_price }}</span>
+												<span class="price" id='ogPrice{{item.id}}' >{{ item.product.offer_price }}</span>
 							
 											{% else %}
-												<span class="price">{{ item.product.price }}</span>
+												<span class="price" id='ogPrice{{item.id}}' >{{ item.product.price }}</span>
 											{% endif %}
 										</div>
 									</div>
@@ -101,16 +106,18 @@
 									<div class="one-eight text-center">
 										<div class="display-tc quantity-input-group">
 											<button type="button" class="quantity-left-minus btn" data-type="minus" data-field=""><i class="icon-minus2"></i></button>
-											<input type="number" id="quantity_{{ item.id }}" name="quantity" class="form-control input-number text-center quantity-input" value="{{ item.quantity }}" data-item-id="{{ item.id }}" readonly>
+											<input type="number" id="quantity_{{ item.id }}" name="quantity" class="form-control input-number text-center quantity-input" value="{{ item.quantity }}" data-item-id="{{ item.id }}" max='3' readonly>
+
+
+											<input type="hidden" id="stock_{{ item.id }}" value="{{ item.product_size_color.Stock }}"> <!-- Hidden input for stock -->
+
+
 											<button type="button" class="quantity-right-plus btn" data-type="plus" data-field=""><i class="icon-plus2"></i></button>
 										</div>
-										
-										
-										
 									</div>						
 									<div class="one-eight text-center">
 										<div class="display-tc">
-											<span class="price" id="total_{{ item.id }}">{{ item.total_price }}</span> <!-- Set the ID here -->
+											<span class="price" id="price{{ item.id }}">{{ item.total_price }}</span> <!-- Set the ID here -->
 										</div>
 									</div>
 									
@@ -161,14 +168,14 @@
 										<div class="col-sm-4 text-center mt-4">
 											<div class="total">
 												<div class="sub">
-													<p><span>Subtotal:</span> <span>{{ total_price }}</span></p>
+													<p><span>Subtotal:</span> <span id='subtotal'>{{ total_price }}</span></p>
 													<p><span>Delivery:</span> <span>0.00</span></p>
 													<p><span>Discount:</span> <span>{{ coupon_discount }}</span></p>
 
 												</div>
 						
 												<div class="grand-total">
-													<p><span><strong>Total:</strong></span><span>{{ discount_amount }}</span></p> <!-- Adjust total price -->
+													<p><span><strong>Total:</strong></span><span id='discount_amount'>{{ discount_amount }}</span></p> <!-- Adjust total price -->
 												</div>
 											</div>
 											<div class="col-sm-3 mt-4">
@@ -309,6 +316,8 @@ Copyright &copy; All rights reserved | This template is made with <i class="icon
 
 
 		<script>
+			let stock = document.getElementById("checkStock").value
+			console.log(stock)
 			$(document).ready(function() {
 				// Event listener for the decrease button
 				$('.quantity-left-minus').click(function(e) {
@@ -328,31 +337,48 @@ Copyright &copy; All rights reserved | This template is made with <i class="icon
 					e.preventDefault();
 					var $input = $(this).closest('.display-tc').find('.input-number');
 					var oldValue = $input.val();
-					if (oldValue < 5) { // Limit increase to 5 or fewer
+					var stock = $('#stock_' + $input.data('item-id')).val(); // 
+
+					
+			
+					if (oldValue < Math.min(stock, 5) ) { // Limit increase to 5 or fewer
 						var newVal = parseFloat(oldValue) + 1;
 						$input.val(newVal).trigger('change');
 					} else {
-						alert("You can't add more than 5 quantities.");
+		
+						Swal.fire({
+							icon: 'warning',
+							title: 'Oops...',
+							text: "Maximum quantity reached.",
+						});
 					}
 				});
 		
 				$('.input-number').change(function() {
 					var newQuantity = $(this).val();
 					var itemId = $(this).data('item-id');
-		
+	
 					$.ajax({
 						url: '/cart/update-cart-item/', // Corrected URL
 						type: 'POST',
 						data: {
 							item_id: itemId,
-							quantity: newQuantity
+							quantity: newQuantity,
+			
+	
 						},
 						success: function(response) {
 							console.log("Success:", response);
 							// Update the total price dynamically
 							var totalPriceElement = $(`#total_${itemId}`);
 							totalPriceElement.text(response.total_price);
-							window.location.href = '/cart/view-cart/';
+							const productPrice=document.getElementById(`price${itemId}`);
+							const ogPrice=document.getElementById(`ogPrice${itemId}`);
+							console.log(ogPrice,productPrice)
+							productPrice.textContent=newQuantity*ogPrice.textContent+'.00'
+							document.getElementById('subtotal').textContent = response.totalPrice
+							document.getElementById('discount_amount').textContent = response.discountAmount
+					
 						},
 					
 					});

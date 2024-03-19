@@ -1,6 +1,6 @@
 from datetime import timezone
 from django.shortcuts import render,get_object_or_404,redirect
-from Products.models import Product
+from Products.models import Product, ProductSizeColor
 from django.db.models import Q
 from django.http import JsonResponse
 from .models import Cart,CartItem
@@ -16,6 +16,7 @@ from django.db.models import F
 
 
 
+
 @login_required(login_url='Accounts:login')
 def add_to_cart(request, product_id):
     if request.method == 'POST':
@@ -25,8 +26,9 @@ def add_to_cart(request, product_id):
             cart = Cart.objects.create(user=request.user)
             
         product = get_object_or_404(Product, pk=product_id)
-        product_size_color = product.productsizecolor_set.first()
-
+        
+        size_id = request.POST.get('size_id')
+        product_size_color = get_object_or_404(ProductSizeColor, pk=size_id)
         
         if product_size_color.Stock > 0:  # Check if product is in stock
             form = AddToCartForm(request.POST, product=product)
@@ -37,7 +39,7 @@ def add_to_cart(request, product_id):
                 if quantity <= max_quantity_per_person:
                     if quantity <= product_size_color.Stock:
                         # Check if the item already exists in the cart
-                        cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+                        cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product, product_size_color=product_size_color)
                         if not created:
                             # If the item exists, add the new quantity to the existing quantity
                             total_quantity = cart_item.quantity + quantity
@@ -65,7 +67,7 @@ def add_to_cart(request, product_id):
             messages.error(request, 'Product is out of stock.')
             return redirect('product:product_details', product_id=product_id)
     
-    return redirect('Cart:view_cart')
+    return redirect('view_cart')
 
 
 
@@ -73,7 +75,6 @@ def add_to_cart(request, product_id):
 
 @login_required(login_url='Accounts:login')
 def view_cart(request):
-    # Retrieve the cart for the current user, if it exists
     cart, created = Cart.objects.get_or_create(user=request.user)
     if created:
         cart_items = [] 
@@ -87,6 +88,13 @@ def view_cart(request):
         else:
             item.total_price = item.quantity * item.product.price
 
+        if item.product_size_color:
+            size = item.product_size_color.size
+
+        # else:
+        #     item.product_size = "Size not available"
+
+
 
     total_price = sum(item.total_price for item in cart_items)
 
@@ -99,7 +107,6 @@ def view_cart(request):
 
     cart.total_amount = discount_amount  # Update the total amount of the cart
     cart.save()
-    print(cart.total_amount)
 
 
     # Subtract the discount amount from the total price
@@ -115,56 +122,6 @@ def view_cart(request):
 
 
 
-# @csrf_exempt
-# @login_required(login_url='/accounts/login/')
-# def update_cart_item(request):
-#     if request.method == 'POST':
-#         item_id = request.POST.get('item_id')
-#         new_quantity = int(request.POST.get('quantity'))
-#         print(item_id)
-#         print(new_quantity)
-
-#         # Get the current user's cart
-#         cart = request.user.cart
-
-#         # Find the CartItem instance for the given product
-#         try:
-#             cart_item = CartItem.objects.get(cart=cart, product_id=item_id)
-#             cart_item.quantity = new_quantity
-#             cart_item.save()
-#             return JsonResponse({"status": "success", "message": "Cart updated successfully"})
-#         except CartItem.DoesNotExist:
-#             return JsonResponse({"status": "error", "message": "Item not found in cart"})
-#     else:
-#         return JsonResponse({"status": "error", "message": "Invalid request method"}, status=400)
-
-
-# @csrf_exempt
-# @login_required(login_url='/accounts/login/')
-# def update_cart_item(request):
-#     if request.method == 'POST':
-#         item_id = request.POST.get('item_id')
-#         new_quantity = int(request.POST.get('quantity'))
-#         print(f"Item ID: {item_id}, New Quantity: {new_quantity}")
-
-#         # Get the current user's cart
-#         try:
-#             cart = Cart.objects.get(user=request.user)
-#         except ObjectDoesNotExist:
-#             return JsonResponse({"status": "error", "message": "User cart not found"}, status=404)
-
-#         # Find the CartItem instance for the given product
-#         try:
-#             cart_item = CartItem.objects.get(cart=cart, product__id=item_id)
-#             cart_item.quantity = new_quantity
-#             print(cart_item.quantity)
-#             cart_item.save()
-#             return JsonResponse({"status": "success", "message": "Cart updated successfully"})
-#         except CartItem.DoesNotExist:
-#             return JsonResponse({"status": "error", "message": "Item not found in cart"})
-#     else:
-#         return JsonResponse({"status": "error", "message": "Invalid request method"}, status=400)
-
 
 
 @csrf_exempt
@@ -173,8 +130,6 @@ def update_cart_item(request):
     if request.method == 'POST':
         item_id = request.POST.get('item_id')
         new_quantity = int(request.POST.get('quantity'))
-        
-        # Ensure that both item_id and new_quantity are provided
         if not item_id or not new_quantity:
             return JsonResponse({"status": "error", "message": "Item ID or quantity is missing"}, status=400)
 
@@ -187,16 +142,74 @@ def update_cart_item(request):
         # Find the CartItem instance for the given product
         try:
             cart_item = CartItem.objects.get(cart=cart, id=item_id)
+            product_stock = ProductSizeColor.objects.filter(product=cart_item.product)
+            # for stock in product_stock:
+            #     print(f'this is the stock {stock.Stock}')
+
+            if not product_stock.exists():
+                return JsonResponse({"status": "error", "message": "Product have no stock"})
+            total_stock = sum(stock.Stock for stock in product_stock)
+    
+            if new_quantity > total_stock:
+                return JsonResponse({"status": "error", "message": "Requested quantity exceeds available stock"})
+            
+
             cart_item.quantity = new_quantity
             cart_item.save()
-            return JsonResponse({"status": "success", "message": "Cart updated successfully"})
+
+             # Update the stock of the product
+            remaining_stock = total_stock - new_quantity
+            for p_stock in product_stock:
+                p_stock.Stock = remaining_stock
+                # product_stock.save()
+            
+            cart_items = CartItem.objects.all()
+            for item in cart_items:
+                if item.product.offer_price:
+                    item.total_price = item.quantity * item.product.offer_price
+                else:
+                    item.total_price = item.quantity * item.product.price
+
+            total_price = sum(item.total_price for item in cart_items)
+
+
+            cart, created = Cart.objects.get_or_create(user=request.user)
+            if created:
+                cart_items = [] 
+            else:
+                cart_items = CartItem.objects.all()
+
+            
+            for item in cart_items:
+                if item.product.offer_price:
+                    item.total_price = item.quantity * item.product.offer_price
+                else:
+                    item.total_price = item.quantity * item.product.price
+
+
+
+
+            total_price = sum(item.total_price for item in cart_items)
+
+
+            coupon_discount = 0.00
+            discount_amount = total_price
+            if cart.coupon:
+                coupon_discount = cart.coupon.discount
+                discount_amount = total_price - coupon_discount # Calculate the actual discount amount
+
+
+            cart.total_amount = discount_amount  # Update the total amount of the cart
+            cart.save()
+
+            return JsonResponse({"status": "success", "message": "Cart updated successfully","totalPrice":total_price,"discountAmount":discount_amount})
         except CartItem.DoesNotExist:
-            # If the item is not found in the cart, you might want to handle it differently.
-            # For example, you could create a new cart item with the specified quantity.
-            # Here, I'm returning an error message, but you can adjust this as per your requirement.
             return JsonResponse({"status": "error", "message": "Item not found in cart"})
+        except ProductSizeColor.DoesNotExist:
+            return JsonResponse({"status": "error", "message": "Product stock not found"})
     else:
         return JsonResponse({"status": "error", "message": "Invalid request method"}, status=400)
+
 
 @login_required(login_url='Accounts:login')
 def remove_from_cart(request,cart_item_id):

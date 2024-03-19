@@ -57,24 +57,10 @@ class ProductSizeColorForm(forms.ModelForm):
     class Meta:
         model = ProductSizeColor
         fields = ['id','product','size','Stock','color','is_unlisted']
-# from django import forms
-# from .models import ProductSizeColor
 
-# class ProductSizeColorForm(forms.ModelForm):
-#     size = forms.ModelMultipleChoiceField(
-#         queryset=ProductSizeColor.objects.values_list('size', flat=True).distinct(),
-#         widget=forms.CheckboxSelectMultiple,
-#         required=False
-#     )
-#     color = forms.ModelMultipleChoiceField(
-#         queryset=ProductSizeColor.objects.exclude(color__isnull=True).values_list('color', flat=True).distinct(),
-#         widget=forms.CheckboxSelectMultiple,
-#         required=False
-#     )
-
-    class Meta:
-        model = ProductSizeColor
-        fields = ['product', 'size', 'Stock', 'color', 'is_unlisted']
+    # class Meta:
+    #     model = ProductSizeColor
+    #     fields = ['product', 'size', 'Stock', 'color', 'is_unlisted']
 
    
     def clean_Stock(self):

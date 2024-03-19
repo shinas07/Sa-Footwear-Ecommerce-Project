@@ -1,7 +1,7 @@
 # from datetime import timezone
 from django.db import models
 from Accounts.models import Customer
-from Products.models import Product
+from Products.models import Product, ProductSizeColor
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import date
@@ -34,7 +34,7 @@ class Cart(models.Model):
 
     def calculate_total_amount(self):
         total_amount = 0
-        cart_items = self.cartitem_set.all()
+        cart_items = self.cartitem_set.all()    
 
         for cart_item in cart_items:
             product = cart_item.product
@@ -75,5 +75,6 @@ class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveBigIntegerField(default=1)
+    product_size_color = models.ForeignKey(ProductSizeColor, on_delete=models.CASCADE, null=True)
 
 

@@ -262,8 +262,12 @@ def edit_product(request, pk):
         return render(request, 'admin_edit_product.html', {'product_form': product_form,})
     else:
         return redirect('/')
+    
 
 
+
+
+from django.forms.models import modelformset_factory
 
 @login_required(login_url='admin_login')
 def edit_product_size_color(request, pk):
@@ -271,7 +275,10 @@ def edit_product_size_color(request, pk):
         if pk:
             product = get_object_or_404(Product, id=pk)
             queryset = ProductSizeColor.objects.filter(product=product)
-            ProductSizeColorFormSet = forms.modelformset_factory(ProductSizeColor, form=ProductSizeColorForm, extra=0)
+
+            # Create the formset using modelformset_factory
+            ProductSizeColorFormSet = modelformset_factory(ProductSizeColor, form=ProductSizeColorForm, extra=0)
+
             if request.method == 'POST':
                 formset = ProductSizeColorFormSet(request.POST, queryset=queryset)
                 if formset.is_valid():
@@ -289,7 +296,6 @@ def edit_product_size_color(request, pk):
             return redirect('admin_product')
     else:
         return redirect('/')
-
 
 
 
