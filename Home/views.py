@@ -29,7 +29,7 @@ from django.db.models import Q
 from django.urls import reverse
 from decimal import Decimal
 from django.views.decorators.cache import never_cache
-
+from django.db import IntegrityError
 
 def home(request):
     active_category = 'home'
@@ -130,9 +130,18 @@ def edit_user(request):
             otp_verification(request)
             return redirect('otp_verification')
         else:
-            user.save()
-            messages.success(request, 'User details updated successfully!')
-            return redirect('user_profile')
+            try:
+                user.save()
+                messages.success(request, 'User details updated successfully!')
+                return redirect('user_profile')
+            except IntegrityError as e:
+                if 'duplicate key value violates unique constraint' in str(e):
+                    error_message = 'Username already exists. Please choose a different username.'
+                    return render(request, 'edit_profile.html', {'error': error_message, 'user': user})
+                else:
+                    error_message = 'An error occurred while updating user details. Please try again.'
+                    return render(request, 'edit_profile.html', {'error': error_message, 'user': user})
+                
     return render(request, 'edit_profile.html', {'user': user})
 
 
@@ -263,7 +272,7 @@ def edit_address(request,address_id):
             return redirect('address_list')
     else:
         form = AddressForm(instance=address)
-    return render(request, 'edit_address.html',{'form':fadmin_products_detailorm})
+    return render(request, 'edit_address.html',{'form':form})
 
 @never_cache
 @login_required(login_url='Accounts:login')
@@ -321,30 +330,6 @@ def cancel_product(request, order_product_id):
 
 
 
-# @login_required(login_url='Accounts:login')
-# def cancel_product(request, order_product_id):
-#     order_product = get_object_or_404(OrderProduct, id=order_product_id)
-#     order = order_product.order
-#     cancellation_request = None  # Initialize cancellation_request to None
-
-#     if request.method == 'POST':
-#         if order.payment_method == 'Paid by Razorypay' or order_product.status == 'Delivered':
-#             # Create a new cancellation request
-#             cancellation_request = CancellationRequest.objects.create(order_product=order_product, user=request.user)
-#             messages.success(request, 'Cancellation request sent. Waiting for the approval.')
-#             return redirect('order_history') 
-#         elif order.payment_method == 'COD':
-#             # Create a new cancellation request
-#             cancellation_request = CancellationRequest.objects.create(order_product=order_product, user=request.user)
-#             messages.success(request, 'Cancellation request sent. Waiting for the approval.')
-#             return redirect('order_history') 
-#         else:
-#             messages.error(request, 'Cancellation is not allowed for this order.')
-#             return redirect('order_history') 
-
-#     return render(request, 'cancel_product.html', {'order_product': order_product, 'cancellation_request': cancellation_request})
-
-
 
 @login_required(login_url='Accounts:login')
 def product_return(request,order_product_id):
@@ -375,18 +360,26 @@ def wallet_balance(request):
 
     total_refund_amount = Decimal(0)
     for order_product in returned_products:
-        total_refund_amount += order_product.product.price * order_product.quantity
+        # Check if the product has already been processed for refund
+        if not order_product.processed_for_refund:
+            total_refund_amount += order_product.product.price * order_product.quantity
+            order_product.processed_for_refund = True
+            order_product.save()
+
+    # Add the total refund amount to the wallet balance
     wallet.balance += total_refund_amount
     wallet.save()
 
-    
     # Pass the wallet balance, refund history, and returned products to the template
     return render(request, 'user_wallet.html', {
         'wallet': wallet,
         'refund_history': refund_history,
         'returned_products': returned_products
     })
-    # return render(request,'user_wallet.html',{'wallet':wallet,'refund_history':refund_history})
+
+
+
+
 
 
 

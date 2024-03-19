@@ -1,3 +1,4 @@
+
 $(document).ready(function() {
 
     $('.payWithRazorpay').click(function (e) { 
@@ -24,7 +25,7 @@ $(document).ready(function() {
                     "currency": "INR",
                     "name": "Sa Footwear",
                     "description": "Thank you for buying from us",
-                    // "image": "https://example.com/your_logo",
+                    "image": "https://example.com/your_logo",
                     // "order_id": "order_IluGWxBm9U8zJ8", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
                     "handler": function (responseb){
                         alert(responseb.razorpay_payment_id);
@@ -46,11 +47,12 @@ $(document).ready(function() {
                                 swal("Order Placed!", responsec.status, 'success').then((value) => {
                                     window.location.href = '/order/order_complete';
                                 });
+                            },
+                            error: function(xhr, status, error) {
+                                console.error(xhr.responseText);
                             }
                         });
                         
-                     
-
                     },
                     "prefill": {
                         "name": '{{ user_info.name }}',
@@ -64,24 +66,14 @@ $(document).ready(function() {
                 };
                 var rzp1 = new Razorpay(options);
                 rzp1.open();
-
-
-
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
                 }
             });
           
     
         }
-
-
-
-
-
-
-
-
-
-
        
 
     });

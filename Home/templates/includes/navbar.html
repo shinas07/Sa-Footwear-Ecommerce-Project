@@ -78,7 +78,7 @@
                             <a href="#"><i class="icon-user"></i> Accounts</a>
                             <ul class="dropdown">
                                 <li><a href="{% url 'user_profile' %}">Account Details</a></li>
-                                <li><a href="{% url 'Accounts:logout' %}">Logout</a></li>
+                                <li><a href="{% url 'Accounts:user_logout' %}">Logout</a></li>
                             </ul>
                         </li>
                     {% else %}
@@ -88,6 +88,7 @@
                             <ul class="dropdown">
                                 <li><a href="{% url 'Accounts:signup' %}">Sign Up</a></li>
                                 <li><a href="{% url 'Accounts:login' %}">Login</a></li>
+                                
                             </ul>
                         </li>
                     {% endif %}
@@ -127,3 +128,4 @@
         </div>
     </div> 
 </nav>
+    

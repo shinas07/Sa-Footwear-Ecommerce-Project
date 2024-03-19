@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'Products',
     'Cart',
     'Orders',
-    'dashboard',
+
+    'rest_framework',
     
 
     # 'django.contrib.sites',
@@ -117,6 +118,8 @@ MIDDLEWARE = [
     'Accounts.middleware.BlockCheckMiddleware',
     # 'django.template.context_processors.request',
     #  'allauth.account.middleware.AccountMiddleware', 
+
+ 
 
     # 'django.contrib.sites',
 

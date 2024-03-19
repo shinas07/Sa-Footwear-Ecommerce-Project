@@ -18,21 +18,52 @@ class Payment(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
 
+
+# class OrderAddress(models.Model):
+#     order = models.ForeignKey('Order', on_delete=models.CASCADE)
+#     name = models.CharField(max_length=100, blank=True, null=True)
+#     address = models.CharField(max_length=100)
+#     House_no = models.CharField(max_length=100, blank=True, null=True)
+#     city = models.CharField(max_length=50)
+#     state = models.CharField(max_length=50)
+#     country = models.CharField(max_length=50)
+#     pincode = models.CharField(max_length=20)
+
+#     def __str__(self):
+#         return self.name
+
+# class Order(models.Model):
+#     user = models.ForeignKey(Customer, on_delete=models.CASCADE)
+#     payment = models.ForeignKey('Payment', on_delete=models.CASCADE)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     coupon_id = models.CharField(max_length=100, blank=True, null=True)
+#     total_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+#     payment_method = models.CharField(max_length=20, choices=[('COD', 'Cash on Delivery'), ('Razorpay', 'Razorpay')], null=True, default=True)
+    # addresses = models.ManyToManyField(OrderAddress, related_name='orders')  # Add related_name
+    # order_address = models.ForeignKey(OrderAddress,on_delete=models.CASCADE)
+
+
 class Order(models.Model):
     user = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    address = models.ForeignKey(Address, on_delete=models.CASCADE)
     payment = models.ForeignKey('Payment', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     coupon_id = models.CharField(max_length=100, blank=True, null=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     payment_method = models.CharField(max_length=20, choices=[('COD', 'Cash on Delivery'), ('Razorpay', 'Razorpay')], null=True, default=True)
-
-    def __str__(self):  
-        return f"Order #{self.id}"
-
+    
+    # Address fields with null=True
+    name = models.CharField(max_length=100, blank=True, null=True)
+    address = models.CharField(max_length=100, blank=True, null=True)
+    House_no = models.CharField(max_length=100, blank=True, null=True)
+    city = models.CharField(max_length=50, blank=True, null=True)
+    state = models.CharField(max_length=50, blank=True, null=True)
+    country = models.CharField(max_length=50, blank=True, null=True)
+    pincode = models.CharField(max_length=20, blank=True, null=True)
 
     def __str__(self):
-        return f"Order #{self.id}"  
+        return f"Order #{self.name}"
+
+
 
 
     def cancel_order(self):

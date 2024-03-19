@@ -18,12 +18,18 @@ class Coupon(models.Model):
     def __str__(self):
         return self.code
     
+class CustomerCoupon(models.Model):
+    user = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    coupon = models.ForeignKey(Coupon, on_delete=models.CASCADE)
+    applied_at = models.DateTimeField(auto_now_add=True)
+    
 
 class Cart(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
     products = models.ManyToManyField(Product, through='CartItem')
     coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, blank=True, null=True)
     coupon_applied = models.BooleanField(default=False,null=True,blank=True)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0,null=True)
 
 
     def calculate_total_amount(self):

@@ -3,6 +3,7 @@ from .models import Address
 
 class CheckoutForm(forms.Form):
     address = forms.ModelChoiceField(queryset=None, label='Select Address')
+    print(address)
     payment_method = forms.ChoiceField(choices=[('Razorpay', 'Razorpay'), ('COD', 'Cash on Delivery')], label='Payment Method')
     coupon_id = forms.CharField(max_length=100, required=False)
 

@@ -15,13 +15,14 @@ urlpatterns = [
     path('address/<int:address_id>/delete/',views.delete_address,name='delete_address'),
     path('search_results/',views.search_results,name='search_results'),
     path('search_filter_result/',views.search_filter_result,name='search_filter_result'),
+
     path('order_history/',views.order_history,name='order_history'),
+    path('order_details/<int:order_id>/', views.order_details, name='order_details'),
 
     path('cancel_product/<int:order_product_id>',views.cancel_product,name='cancel_product'),
     path('product_return/<int:order_product_id>',views.product_return,name='product_return'),
-
-    path('order_details/<int:order_id>/', views.order_details, name='order_details'),
-
     path('submit_review_and_rating/', views.submit_review_and_rating, name='submit_review_and_rating'),
+
     path('user/wallet/',views.wallet_balance,name='wallet'),
+  
 ]

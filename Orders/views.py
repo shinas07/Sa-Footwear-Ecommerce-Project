@@ -1,6 +1,9 @@
 
+from decimal import Decimal
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render,redirect
+from django.http import JsonResponse
+from Home.models import Wallet
 from .models import Address
 from Accounts.models import Customer
 from Products.models import Product, ProductSizeColor
@@ -21,7 +24,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Spacer, Par
 from reportlab.lib.styles import getSampleStyleSheet
 from django.http import HttpResponse
 from datetime import datetime
-
+from django.views.decorators.csrf import csrf_exempt
 
 
 
@@ -35,10 +38,12 @@ def order(request):
 @never_cache
 @login_required(login_url='Accounts:login')
 def check_out(request):
-    addresses = Address.objects.filter(user=request.user)
+    addresses = Address.objects.filter(user=request.user,is_delete=False)
     form = CheckoutForm(user=request.user)
     cart,create = Cart.objects.get_or_create(user=request.user)
     cart_items = CartItem.objects.all()
+    use_wallet = request.POST.get('use_wallet')
+
     if not cart.cartitem_set.exists():  # Check if the cart has any associated cart items
         messages.error(request, 'There is no products in your cart.')
         return redirect('view_cart')
@@ -52,12 +57,17 @@ def check_out(request):
             item.total_price = item.quantity * item.product.price
         total_price += item.total_price
 
+
+
+
+
     coupon_discount = 0.00
     discount_amount = total_price
     if cart.coupon:
         coupon_discount = cart.coupon.discount
         discount_amount = total_price - coupon_discount
 
+   
     cart_item_details = []
     for item in cart_items:
         cart_item_details.append({
@@ -65,6 +75,11 @@ def check_out(request):
             'quantity': item.quantity,
             'total_price': item.total_price,
         })
+
+    wallet_deduction = Decimal(request.session.get('wallet_amount', '0')) 
+    discount_amount -= wallet_deduction
+    wallet,wallet_user = Wallet.objects.get_or_create(user=request.user)
+    wallet_balance = wallet.balance
 
 
     context = {
@@ -75,13 +90,14 @@ def check_out(request):
         'coupon_discount': coupon_discount,
         'discount_amount': discount_amount,
         'cart_item_details': cart_item_details,
+        'wallet_deduction' : wallet_deduction,
+        'wallet_balance' : wallet_balance,
         'user_info': {
             'name': request.user.username,
             'email': request.user.email,
             'contact': request.user.phone,
         }
     }
-
     if request.method == 'POST':
         form = CheckoutForm(request.POST, user=request.user)
         if form.is_valid():
@@ -89,13 +105,14 @@ def check_out(request):
             payment_method = form.cleaned_data['payment_method']
             # coupon_id = form.cleaned_data['coupon_id']
 
-            total_amount = cart.calculate_total_amount()
+            # total_amount = cart.calculate_total_amount()
 
-            if discount_amount  > 1000 and payment_method == 'COD':
-                print(total_amount)
-                print(total_price)
-                messages.error(request,'Orders above Rs 1000 are not allowed for Cash on Delivery. Please choose Razorpay.')
-                return redirect('checkout')
+            # if discount_amount  > 1000 and payment_method == 'COD':
+            #     messages.error(request,'Orders above Rs 1000 are not allowed for Cash on Delivery. Please choose Razorpay.')
+            #     return redirect('checkout')
+            
+            
+            
 
             if address_id:
                 cart, created = Cart.objects.get_or_create(user=request.user)
@@ -104,19 +121,66 @@ def check_out(request):
                         with transaction.atomic():
                             # Calculate total order amount
                             total_amount = cart.calculate_total_amount()
-
                             # Create payment instance
                             coupon_discount = 0.00
                             if cart.coupon:
                                 coupon_discount = cart.coupon.discount
                                 total_amount = total_price - coupon_discount
 
+                            if use_wallet == 'wallet':
+                                wallet = Wallet.objects.get(user=request.user)
+                                wallet_balance = wallet.balance
+                  
+
+                                if wallet_balance <= 0:
+                                    messages.error(request, 'Wallet is empty')
+                                    return redirect('checkout')
+
+                                max_wallet_deduction = 500
+
+                                amount_to_deduct = min(total_amount, max_wallet_deduction, wallet_balance)
+                                balance = wallet.balance
+                                if amount_to_deduct > 0:
+                                    wallet.balance -= amount_to_deduct
+                                    wallet.save()
+
+                                    total_amount -= amount_to_deduct
+
+                                    # Inform the user about the wallet amount applied
+                                    wallet_applied_message = f'Wallet amount of {amount_to_deduct} rupees applied.'
+                                    messages.success(request, wallet_applied_message)
+
+                                else:
+                                    messages.error(request, 'Insufficient wallet balance.')
+                                    return redirect('checkout')
+
                  
                             payment = Payment.objects.create(user=request.user, method=payment_method, amount=total_amount)
-                    
 
                             # Create order instance
-                            order = Order.objects.create(user=request.user, address_id=address_id, payment=payment, total_amount=total_amount,payment_method=payment_method)
+                            # order = Order.objects.create(user=request.user, payment=payment, total_amount=total_amount,payment_method=payment_method,name=address_id)
+                            
+                
+                            selected_address = Address.objects.get(id=address_id)
+        
+                        # Create an Order instance with the selected address details
+                            order = Order.objects.create(
+                                user=request.user,
+                                payment=payment,
+                                total_amount=total_amount,
+                                payment_method=payment_method,
+                                coupon_id=cart.coupon.discount if cart.coupon else None,
+                                name=selected_address.name,
+                                address=selected_address.address,
+                                House_no=selected_address.House_no,
+                                city=selected_address.city,
+                                state=selected_address.state,
+                                country=selected_address.country,
+                                pincode=selected_address.pincode
+
+                            )
+                                    
+                            
 
                             if cart.coupon:
                                 order.coupon_id=cart.coupon.discount
@@ -151,16 +215,13 @@ def check_out(request):
                     except Exception as e:
                         return render(request, 'checkout.html', {'addresses': addresses, 'error': str(e), 'form': form})
                 else:
-           
                     return render(request, 'checkout.html', {'addresses': addresses, 'error': 'Cart is empty.', 'form': form})
               
             else:
-
                 return render(request, 'checkout.html', {'addresses': addresses, 'error': 'Please select an address.', 'form': form})
         else:
-
-            messages.error(request, "Form is not valid. Please check your input.")
-            return render(request, 'checkout.html',  {'addresses': addresses, 'error': 'Please select an address.', 'form': form})
+            messages.error(request,'Please select an address.')
+            return redirect('checkout')
         
     return render(request, 'checkout.html', context)
 
@@ -193,30 +254,9 @@ def order_edit_address(request,address_id):
     return render(request, 'order_edit_address.html',{'form':form})
 
 
-# @login_required(login_url='Accounts:login')
-# def razorpaycheck(request):
-#     cart_items = CartItem.objects.filter(cart__user=request.user)
-#     total_price = sum(item.product.price * item.quantity for item in cart_items)
-#     cart = Cart.objects.get(user=request.user)
-#     coupon_discount = 0.00
-#     if cart.coupon:
-#         coupon_discount = cart.coupon.discount
-#         total_price -= coupon_discount
-
-#     for item in cart_items:
-#         if item.product.offer_price:
-#             item.total_price = item.quantity * item.product.offer_price
-#             print('haai')
-#         else:
-#             item.total_price = item.quantity * item.product.price
-#         total_price += item.total_price    
-
-#     return JsonResponse({
-#         'total_price':total_price,
-#     })
 
 
-from django.http import JsonResponse
+
 
 @login_required(login_url='Accounts:login')
 def razorpaycheck(request):
@@ -235,6 +275,10 @@ def razorpaycheck(request):
         coupon_discount = cart.coupon.discount
         total_price -= coupon_discount
 
+    
+    wallet_deduction = Decimal(request.session.get('wallet_amount', '0')) 
+    total_price -= wallet_deduction
+
     return JsonResponse({
         'total_price': total_price,
     })
@@ -242,10 +286,12 @@ def razorpaycheck(request):
 
 
 # razorpay
+@never_cache
 @login_required(login_url='Accounts:login')
 def place_order(request):
     if request.method == 'POST':
-        selected_address = request.POST.get('selectedAddress')
+        address_id  = request.POST.get('selectedAddress')
+        selected_address =Address.objects.get(id=address_id)
         payment_mode = request.POST.get('payment_mode')
         payment_id = request.POST.get('payment_id')
         # coupon_id = request.POST.get('coupon_id')
@@ -274,15 +320,36 @@ def place_order(request):
             method=payment_mode, 
             amount=total_amount
         )
+
         # Create the order instance
         order = Order.objects.create(
             user=request.user, 
-            address_id=selected_address, 
+            # address_id=selected_address, 
             payment=payment,
-            total_amount=total_amount,
+            total_amount=total_amount, 
             payment_method=payment_mode,
-            coupon_id=cart.coupon.discount if cart.coupon else None  # Save the coupon ID with the order if exists# Save the coupon ID with the order
-        ) 
+            coupon_id=cart.coupon.discount if cart.coupon else None  # Save the coupon ID with the order
+
+
+        )
+
+        # selected_address = Address.objects.get(id=address_id) 
+
+        order = Order.objects.create(
+                    user=request.user,
+                    payment=payment,
+                    total_amount=total_amount,
+                    payment_method=payment_mode,
+                    coupon_id=cart.coupon.discount if cart.coupon else None,
+                    name=selected_address.name,
+                    address=selected_address.address,
+                    House_no=selected_address.House_no,
+                    city=selected_address.city,
+                    state=selected_address.state,
+                    country=selected_address.country,
+                    pincode=selected_address.pincode
+
+                )
 
         # Retrieve the user's cart
         cart = Cart.objects.get(user=request.user)
@@ -313,6 +380,48 @@ def place_order(request):
         # If the request method is not POST, return an error response
         return JsonResponse({'error': 'Method Not Allowed'}, status=405)
     
+
+
+@csrf_exempt
+@login_required(login_url="Accounts:login")
+def apply_wallet(request):
+    if request.method == 'POST':
+        wallet_amount = Decimal(request.POST.get('wallet_amount', 0))
+        user = request.user
+
+        if wallet_amount > 1000:
+            return JsonResponse({'error': 'Maximum wallet amount per order is 1000'})
+        
+        print(wallet_amount)
+        
+        wallet = Wallet.objects.get(user=user)
+        wallet_balance = wallet.balance
+
+        if wallet_balance < wallet_amount:
+            return JsonResponse({'error': 'Insufficient wallet balance.'})
+        
+        cart = Cart.objects.get(user=user)
+
+        total_amount_after_wallet_deduction = cart.total_amount - wallet_amount
+        if total_amount_after_wallet_deduction < 0:
+            return JsonResponse({'error': 'Wallet amount exceeds total order amount.'})
+        
+        cart.total_amount = total_amount_after_wallet_deduction
+        cart.save()
+        print(f'cart updated total amount: {cart.total_amount}')
+        
+
+        wallet.balance -= wallet_amount
+        wallet.save()
+
+        request.session['wallet_amount'] = str(wallet_amount)
+        amount = request.session.get('wallet_amount')
+
+        return JsonResponse({'success': 'Wallet amount applied successfully.'})
+    else:
+        return JsonResponse({'error': 'Invalid request method.'})
+
+    
 @never_cache
 @login_required(login_url='Accounts:login')
 def cancel_order(request, order_id):
@@ -325,11 +434,12 @@ def cancel_order(request, order_id):
 @never_cache
 @login_required(login_url='Accounts:login')
 def order_complete(request):
+    if 'wallet_amount' in request.session:
+        del request.session['wallet_amount']
     return render(request, 'order_complete.html')
 
 
 #Proudct Bill Using ReportLab library
-
 # def generate_invoice(request, order_id):
 #     # Retrieve the order and its related products from the database
 #     order = get_object_or_404(Order, id=order_id)
@@ -421,7 +531,6 @@ def generate_invoice(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     order_products = order.orderproduct_set.all()
 
-    # Calculate the total price
     total_price = sum(product.product.price * product.quantity for product in order_products)
 
     # Company details
@@ -434,8 +543,8 @@ def generate_invoice(request, order_id):
     current_date = order.created_at.strftime("%Y-%m-%d")
 
     # Buyer details
-    buyer_name = order.user.username
-    buyer_address = order.address.address
+    buyer_name = order.name
+    buyer_address = order.address
     buyer_phone = order.user.phone
 
     # Create a PDF document

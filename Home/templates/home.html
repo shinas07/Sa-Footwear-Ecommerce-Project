@@ -118,7 +118,23 @@ outline: none; /* Remove outline when button is focused */
 
 
 </style>
-    
+<div class="container position-fixed" style="top: 10px; right: 10px; max-width: 300px;">
+    <div class="row">
+        <div class="col">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <strong>Success!</strong> {{ message }}
+                        <button type="button" class="close" data-dismiss="alert">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
 
 <div class="colorlib-loader"></div>
 <div id="page">
@@ -126,9 +142,12 @@ outline: none; /* Remove outline when button is focused */
     <aside id="colorlib-hero">
         <div class="flexslider">
             <ul class="slides">
+
+          
+
+
                 
 
-             
 
                 {% for banner in banners %}
             <li style="background-image: url('{{ banner.banner_image.url }}');">

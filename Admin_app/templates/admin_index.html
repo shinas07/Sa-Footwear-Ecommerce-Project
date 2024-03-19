@@ -87,7 +87,9 @@
         background-color: #f2f2f2  !important;
     }
     
-
+    .margin-top{
+        margin-top: 50px;
+    }
     
     
 </style>
@@ -205,19 +207,8 @@
                           <span>
                             Sales report</span></a>
                 </li>
-                <hr class="sidebar-divider">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'best_selling' %} ">
-                        <i class="bi bi-graph-up"></i>
-                          <span>Best Selling</span></a>
-                  </li>
-                {% comment %} <li class="nav-item">
-                    <a class="nav-link" href="#" data-toggle="collapse" data-target="#bestSellingDropdown" aria-expanded="true" aria-controls="bestSellingDropdown">
-                        <i class="bi bi-graph-up"></i>
-                        <span>Best Selling</span>
-                    </a>
-                </li> {% endcomment %}
-                
+     
+
 
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
@@ -369,16 +360,55 @@
 
 
                     <!-- Page Heading -->
-                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    {% comment %} <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
                         <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
                                 class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
+                    </div> {% endcomment %}
+
+                    <div class='margin-top'>
+                        <div class="row">
+                          <div class="col-md-12">
+                            <h1>Chart</h1>
+                            <div>
+                              <label>Select Year:</label>
+                              <select id="yearSelect">
+                                <option value="">All Years</option>
+                                <option value="2022">2022</option>
+                                <option value="2023">2023</option>
+                                <option value="2024">2024</option>
+                                <!-- Add more years as needed -->
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                          <div class="col-md-6">
+                            <canvas id="myChartline"></canvas>
+                          </div>
+                          <div class="col-md-6">
+                            <canvas id="myChartBar"></canvas>
+                          </div>
+                        </div>
                     </div>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
                     <!-- Content Row -->
 
-                    <div class="row">
+                    {% comment %} <div class="row">
 
                         <!-- Area Chart -->
                         <div class="col-xl-8 col-lg-7">
@@ -452,10 +482,12 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> {% endcomment %}
 
-                    <body>
-                        <h2>Best Selling Products</h2>
+
+
+                    <div class='margin-top'>
+                        <h2><strong>Best Selling Products</strong></h2>
                         <table>
                             <thead>
                                 <tr>
@@ -479,20 +511,32 @@
                                 {% endfor %}
                             </tbody>                            
                         </table>
-
+                    </div>
 
 
               
                     
 
-                    <!-- Content Row -->
-                    <div class="row">
+                <div class='container mt-5'>
+                    <table>
+                        <h2><strong>Top Selling Brands</strong><h2>
+                        <thead>
+                            <tr>
+                            <th>Brand Name</th>
+                            <th>Total Orders</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for brand_sale in brand_sales %}
+                            <tr>
+                            <td>{{ brand_sale.product_brand__brand_name }}</td>
+                            <td>{{ brand_sale.total_orders }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        </table>
+                    </div>
 
-                        <!-- Content Column -->
-                        <div class="col-lg-6 mb-4">
-
-                            
-                  
 
                 </div>
                 <!-- /.container-fluid -->
@@ -541,4 +585,118 @@
         </div>
     </div>  <!-- Include chart library and additional scripts -->
 
+
+
+
+
+<!-- Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script>
+  $(document).ready(function() {
+    // Function to fetch data based on selected year
+    function fetchData(year) {
+      var endpoint = '/api?year=' + year;
+
+      $.ajax({
+        method: "GET",
+        url: endpoint,
+        success: function(data) {
+          drawLineGraph(data, 'myChartline');
+          drawBarGraph(data, 'myChartBar');
+          console.log("drawing");
+        },
+        error: function(error_data) {
+          console.log(error_data);
+        }
+      });
+    }
+
+    // Initial fetch with no filter
+    fetchData('');
+
+    // Event listener for year select change
+    $('#yearSelect').change(function() {
+      var selectedYear = $(this).val();
+      fetchData(selectedYear);
+    });
+  });
+
+  function drawLineGraph(data, id) {
+    var labels = data.labels;
+    var chartLabel = data.chartLabel;
+    var chartdata = data.chartdata;
+    var ctx = document.getElementById(id).getContext('2d');
+    var chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: chartLabel,
+          backgroundColor: 'rgb(255, 100, 200)',
+          borderColor: 'rgb(55, 99, 132)',
+          data: chartdata,
+        }]
+      },
+      options: {
+        scales: {
+          xAxes: [{
+            display: true
+          }],
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        }
+      }
+    });
+  }
+
+  function drawBarGraph(data, id) {
+    var labels = data.labels;
+    var chartLabel = data.chartLabel;
+    var chartdata = data.chartdata;
+    var ctx = document.getElementById(id).getContext('2d');
+    var myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: chartLabel,
+          data: chartdata,
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(153, 102, 255, 0.2)',
+            'rgba(255, 159, 64, 0.2)'
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        }
+      }
+    });
+  }
+</script>
 {% endblock %}

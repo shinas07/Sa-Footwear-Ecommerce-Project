@@ -75,8 +75,8 @@
                             <th>Quantity</th>
                             <th>Price</th>
                             <th>Discount Deduction</th>
-                            <th>Coupon Deduction</th>
-                            <th>Total Deduction</th>
+                            {% comment %} <th>Coupon Deduction</th> {% endcomment %}
+                            {% comment %} <th>Total Deduction</th> {% endcomment %}
                             <th>total_amount</th>
                             <th>Date</th>
                         </tr>
@@ -88,8 +88,8 @@
                             <td>{{ sale.quantity }}</td>
                             <td>{{ sale.price }}</td>
                             <td>{{ sale.discount_deduction }}</td>
-                            <td>{{ sale.coupon_deduction }}</td>
-                            <td>{{ sale.total_deduction }}</td>
+                            {% comment %} <td>{{ sale.coupon_deduction }}</td> {% endcomment %}
+                            {% comment %} <td>{{ sale.total_deduction }}</td> {% endcomment %}
                             <td>{{ sale.total_amount }}</td>
                             <td>{{ sale.date }}</td>
                         </tr>

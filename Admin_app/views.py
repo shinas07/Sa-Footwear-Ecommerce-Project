@@ -1,11 +1,10 @@
-from datetime import date
+from calendar import month_name
 from django import forms
 from django.shortcuts import render,redirect,get_object_or_404,HttpResponse
 from django.contrib.auth import authenticate,login,logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
-from django.contrib.auth.models import User
 from Accounts.models import Customer
 from Cart.models import Coupon
 from Category.models import Category
@@ -25,16 +24,25 @@ from django.urls import reverse
 import io
 from Admin_app import forms
 from django.utils import timezone
-from openpyxl.worksheet.table import Table, TableStyleInfo
+from openpyxl.worksheet.table import Table
 from openpyxl import Workbook
-from openpyxl.styles import Font, Alignment, Border, Side
+# from openpyxl.styles import Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle,Paragraph
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
+from django.db.models import Count, Q
+from django.db.models.functions import ExtractMonth
+from django.shortcuts import render
+from django.views import View
+from django.http import JsonResponse
+from django.db.models.functions import ExtractMonth 
+from collections import Counter
 # from .forms import ChangeOrderStatusForm
 # Create your views here.
+
+
 
 def admin_login(request):
     if request.method == 'POST':
@@ -68,6 +76,10 @@ def admin_dashboard(request):
         #best_selling_products
         best_selling_products = OrderProduct.objects.values('product__id', 'product__product_name', 'product__category__category_name', 'product__product_brand__brand_name').annotate(total_orders=Count('product')).order_by('-total_orders')[:10]
 
+        #best_selling_Brand
+        brand_sales = Product.objects.values('product_brand__brand_name').annotate(total_orders=Count('id')).order_by('-total_orders')[:5]
+
+
 
         context = {
         'online_sales_count':online_sales_count,
@@ -78,11 +90,39 @@ def admin_dashboard(request):
         'overall_order_amount': overall_order_amount,
         'overall_discount': overall_discount,
         'best_selling_products':best_selling_products,
+        'brand_sales' :brand_sales,
     }
         return render(request, 'admin_index.html',context)
     else:
         return redirect('/')
 
+
+class ChartData(View):
+    def get(self, request):
+        year = request.GET.get('year')  # Get the year from the query parameters
+        # Retrieve the count of orders for each month
+        if year:
+            order_data = Order.objects.filter(created_at__year=year).annotate(month=ExtractMonth('created_at')).values('month').annotate(total_orders=Count('id'))
+        else:
+            order_data = Order.objects.annotate(month=ExtractMonth('created_at')).values('month').annotate(total_orders=Count('id'))
+
+        month_data = {month: 0 for month in range(1, 13)}
+
+        # Populate the dictionary with data from the queryset
+        for entry in order_data:
+            month_data[entry['month']] = entry['total_orders']
+
+        # Extracting labels (months) and chart data (total orders)
+        labels = [month_name[i] for i in range(1, 13)]
+        chart_data = [month_data[i] for i in range(1, 13)]
+
+
+        data = {
+            "labels": labels,
+            "chartLabel": "Order Count per Month",
+            "chartdata": chart_data,
+        }
+        return JsonResponse(data)
 
 @login_required(login_url='admin_login')
 def admin_users(request):
@@ -362,7 +402,13 @@ def edit_brand(request,brand_id):
 def admin_order_management(request):
     if request.user.is_superuser:
         orders = Order.objects.all().order_by('-id')
-        # orders = Order.objects.filter(user=request.user)
+
+        filter_value = request.GET.get('filter')
+        if filter_value:
+            orders = orders.filter(payment_method=filter_value)
+            print(orders)
+            return render(request, 'manage_order.html', {'orders': orders})
+        
         return render(request, 'manage_order.html', {'orders': orders})
     else:
         return redirect('/')
@@ -523,15 +569,14 @@ def admin_sales_report(request):
                 if order_products.exists():
                     # Get the first order product to check if a coupon was applied to its order
                     order_product = order_products.first()
-                    if order_product.order.coupon_id:
-                        print("Coupon ID:", order_product.order.coupon_id)
-                        coupon = Coupon.objects.get(discount=order_product.order.coupon_id)
-                        print("Coupon:", coupon)
-                        coupon_deduction = coupon.discount if coupon else 0
 
-                        # Retrieve coupon details and calculate deduction
-                        coupon = Coupon.objects.get(discount=order_product.order.coupon_id)
-                        coupon_deduction = coupon.discount if coupon else 0
+                    # if order_product.order.coupon_id:
+                    #     coupon = Coupon.objects.get(discount=order_product.order.coupon_id)
+                    #     coupon_deduction = coupon.discount if coupon else 0
+
+                        # # Retrieve coupon details and calculate deduction
+                        # coupon = Coupon.objects.get(discount=order_product.order.coupon_id)
+                        # coupon_deduction = coupon.discount if coupon else 0
 
                 # Calculate total deduction
                 total_deduction = discount_deduction + coupon_deduction
@@ -547,8 +592,8 @@ def admin_sales_report(request):
                     'price': str(price),
                     'date': date,
                     'discount_deduction': str(discount_deduction),
-                    'coupon_deduction': str(coupon_deduction),
-                    'total_deduction': str(total_deduction),
+                    # 'coupon_deduction': str(coupon_deduction),
+                    # 'total_deduction': str(total_deduction),
                     'total_amount'  :  str(total_amount)
                 })
                 
@@ -660,8 +705,8 @@ def download_report(request):
             elements.append(heading)
 
             # Prepare the data for the table
-            data = [['Product', 'Quantity', 'Price', 'Discount', 'Coupon','total_amount']] + [
-            [sale['product'], sale['quantity'], sale['price'], sale['discount_deduction'], sale['coupon_deduction'], sale['total_amount']] for sale in sales_data
+            data = [['Product', 'Quantity', 'Price', 'Discount','total_amount']] + [
+            [sale['product'], sale['quantity'], sale['price'], sale['discount_deduction'], sale['total_amount']] for sale in sales_data
         ]
 
             # Create a table with the data
@@ -697,9 +742,9 @@ def download_report(request):
         elif report_format == 'excel':
             wb = Workbook()
             ws = wb.active
-            ws.append(['Product Name', 'Quantity', 'Price','Discount','Coupon','total_amount'])
+            ws.append(['Product Name', 'Quantity', 'Price','Discount','total_amount'])
             for sale in sales_data:
-                ws.append([sale['product'], sale['quantity'], sale['price'], sale['discount_deduction'], sale['coupon_deduction'],sale['total_amount'] ])
+                ws.append([sale['product'], sale['quantity'], sale['price'], sale['discount_deduction'],sale['total_amount'] ])
             excel_file = io.BytesIO()
             wb.save(excel_file)
             wb.close()
@@ -807,21 +852,7 @@ def download_report(request):
 
 
 
-# @login_required(login_url='admin_login')
-# def set_product_discount(request,):
-#     if request.method == 'POST':
-#         product_id = request.POST.get('product_id')
-#         product = get_object_or_404(Product,pk=product_id)
-#         form = ProductOfferForm(request.POST)
-#         if form.is_valid():
-#             offer = form.save(commit=False)
-#             offer.proudct = product
-#             offer.save()
-#             messages.success(request,'Discount set successfully')
-#             return redirect('product_detail',product_id=product_id)
-#     else:
-#         form = ProductOfferForm()
-#     return render(request, 'admin_product_discount.html', {'form': form})
+
 
 
 @login_required(login_url='admin_login')
@@ -850,22 +881,6 @@ def set_product_discount(request, product_id):
         form = ProductOfferForm()
     return render(request, 'set_product_discount.html', {'form': form, 'product': product})
 
-@login_required(login_url='admin_login')
-def best_selling(request):
-    best_selling_products = OrderProduct.objects.values('product__id', 'product__product_name', 'product__category__category_name', 'product__product_brand__brand_name').annotate(total_orders=Count('product')).order_by('-total_orders')[:10]
-
-    
-    for product in best_selling_products:
-        print("Product ID:", product['product__id'])
-        print("Product Name:", product['product__product_name'])
-        print("Total Orders:", product['total_orders'])
-    context =  {
-        'best_selling_proudcts' : best_selling_products
-    }
-
-
-    return render(request,'admin_best_selling.html',context)
-    
 
 
 
@@ -873,3 +888,88 @@ def best_selling(request):
 def admin_logout(request):
     logout(request)
     return redirect('admin_login')
+
+
+
+
+
+## using rest_framework classes 
+   
+# class ChartData(APIView): 
+#     authentication_classes = [] 
+#     permission_classes = [] 
+   
+#     def get(self, request, format = None): 
+#         labels = [ 
+#             'January', 
+#             'February',  
+#             'March',  
+#             'April',  
+#             'May',  
+#             'June',  
+#             'July'
+#             ] 
+#         chartLabel = "my data"
+#         chartdata = [0, 10, 5, 2, 20, 30, 45] 
+#         data ={ 
+#                      "labels":labels, 
+#                      "chartLabel":chartLabel, 
+#                      "chartdata":chartdata, 
+#              } 
+#         return Response(data) 
+
+
+# class ChartData(APIView):
+#     authentication_classes = []
+#     permission_classes = []
+   
+#     def get(self, request, format=None):
+#         # Retrieve the count of orders for each month
+#         order_data = Order.objects.annotate(month=ExtractMonth('created_at')).values('month').annotate(total_orders=Count('id'))
+
+#         # Extracting labels (months) and chart data (total orders)
+#         labels = [month_name[entry['month']] for entry in order_data]
+#         chart_data = [entry['total_orders'] for entry in order_data]
+
+#         data = {
+#             "labels": labels,
+#             "chartLabel": "Order Count per Month",
+#             "chartdata": chart_data,
+#         }
+#         return Response(data)
+    
+
+
+
+
+
+
+# class HomeView(View):
+#     def get(self, request, *args, **kwargs):
+#         return render(request, 'index.html')
+
+# class ChartData(APIView):
+#     authentication_classes = []
+#     permission_classes = []
+   
+#     def get(self, request, format=None):
+#         # Retrieve the count of orders for each month
+#         order_data = Order.objects.annotate(month=ExtractMonth('created_at')).values('month').annotate(total_orders=Count('id'))
+#         print(order_data)
+
+#         # Extracting labels (months) and chart data (total orders)
+#         labels = [month_name[entry['month']] for entry in order_data]
+#         chart_data = [entry['total_orders'] for entry in order_data]
+
+#         data = {
+#             "labels": labels,
+#             "chartLabel": "Order Count per Month",
+#             "chartdata": chart_data,
+#         }
+#         return Response(data)
+
+
+
+
+
+

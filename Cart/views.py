@@ -8,8 +8,9 @@ from .forms import AddToCartForm, CoupenApplyForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
-from .models import Coupon
-
+from .models import CustomerCoupon,Coupon
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import F
 # Create your views here.
 
 
@@ -51,6 +52,7 @@ def add_to_cart(request, product_id):
                             cart_item.quantity = quantity
                             cart_item.save()
                             messages.success(request, 'Item added to cart successfully.')
+
                         return redirect('view_cart')
                     else:
                         messages.error(request, 'Exceeded available stock quantity.')
@@ -95,6 +97,11 @@ def view_cart(request):
         discount_amount = total_price - coupon_discount # Calculate the actual discount amount
 
 
+    cart.total_amount = discount_amount  # Update the total amount of the cart
+    cart.save()
+    print(cart.total_amount)
+
+
     # Subtract the discount amount from the total price
     
     context = {
@@ -131,7 +138,7 @@ def view_cart(request):
 #     else:
 #         return JsonResponse({"status": "error", "message": "Invalid request method"}, status=400)
 
-from django.core.exceptions import ObjectDoesNotExist
+
 # @csrf_exempt
 # @login_required(login_url='/accounts/login/')
 # def update_cart_item(request):
@@ -197,23 +204,36 @@ def remove_from_cart(request,cart_item_id):
     cart_item.delete()
     return redirect('view_cart')
 
-
 #coupon
 @login_required(login_url='Accounts:login')
 def coupon_apply(request):
     if request.method == 'POST':
         coupon_code = request.POST.get('coupon_code')
         cart, created = Cart.objects.get_or_create(user=request.user)
-        success, message = cart.apply_coupon(coupon_code)
+        user = request.user
+        
+        try:
+            coupon = Coupon.objects.get(code=coupon_code)
+        except Coupon.DoesNotExist:
+            messages.error(request, 'Invalid coupon code')
+            return redirect('view_cart')
 
+        if CustomerCoupon.objects.filter(user=user, coupon=coupon).exists():
+            messages.error(request, 'You have already applied this coupon')
+            return redirect('view_cart')
+
+        CustomerCoupon.objects.create(user=user, coupon=coupon)
+        
+        success, message = cart.apply_coupon(coupon_code)
+        
         if success:
-            messages.success(request, message)
+            messages.success(request, 'Coupon applied successfully')
         else:
-            messages.success(request, message)
+            messages.error(request, message)
+        
         return redirect('view_cart')
     else:
         return redirect('view_cart')
-    
 
 @login_required(login_url='Accounts:login')
 def remove_coupen(request):
@@ -221,8 +241,16 @@ def remove_coupen(request):
         cart = get_object_or_404(Cart,user=request.user)
 
         if cart.coupon:
+            # Get the corresponding CustomerCoupon object
+            customer_coupon = CustomerCoupon.objects.filter(user=request.user, coupon=cart.coupon).first()
+            if customer_coupon:
+                # Delete the CustomerCoupon object from the database
+                customer_coupon.delete()
+
+            # Remove the coupon from the cart
             cart.coupon = None
             cart.save()
+
             messages.success(request, "Coupon removed successfully")
         else:
             messages.info(request, "There is no coupon applied to remove")
@@ -230,3 +258,4 @@ def remove_coupen(request):
         return redirect('view_cart')
     else:
         return redirect('view_cart')
+    

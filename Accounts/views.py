@@ -40,6 +40,7 @@ class Signup(View):
         email = postData.get('email')
         password = postData.get('password')
         confirm_password = postData.get('confirm_password') 
+        print(username)
         # entered_otp = postData.get('otp') 
         
 
@@ -108,6 +109,8 @@ class Signup(View):
 
         if not data['username']:
             error_message = "Please enter your Username!"
+        elif ' ' in data['username']:
+            error_message = "Username cannot contain spaces."
         elif len(data['username']) < 3:
             error_message = "Username must be at least 3 characters long."
         elif len(data['username']) >  15:
@@ -203,6 +206,7 @@ class UserLogin(View):
             else:
                 # messages.success(request, f"Welcome back, {user.username}!")
                 login(request, user)
+                messages.success(request, 'Login successful!')
                 return redirect('home')
         else:
             error_message = 'Invalid Username or password. Please try again.'
@@ -316,19 +320,6 @@ def resend_otp(request):
         return JsonResponse({'status': 'success'})
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

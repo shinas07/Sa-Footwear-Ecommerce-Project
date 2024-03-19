@@ -113,6 +113,7 @@
                 <tr>
                     <th>Image</th>
                     <th>Product Name</th>
+                    <th>Name</th>
                     <th>Address</th>
                     <th>Quantity</th>
                     <th>Action</th>
@@ -124,7 +125,8 @@
                 <tr>
                     <td><img src="{{ order_product.product.full_view_image.url }}" alt="{{ order_product.product.product_name }}"></td>
                     <td>{{ order_product.product.product_name }}</td>
-                    <td>{{ order.address.address }}</td>
+                    <td>{{ order.name }}</td>
+                    <td>{{ order.address }}</td>
                     <td>{{ order_product.quantity }}
 
                     

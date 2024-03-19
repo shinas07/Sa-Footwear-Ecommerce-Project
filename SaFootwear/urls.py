@@ -19,6 +19,8 @@ from django.urls import path,include
 from django.conf.urls.static import static
 from django.conf import settings
 
+from Admin_app import views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('Admin_app.urls')),
@@ -28,6 +30,7 @@ urlpatterns = [
     path('', include('Products.urls', namespace='product')),
     path('cart/', include('Cart.urls')),
     path('order/',include('Orders.urls')),
+    # path('testapi', views.ChartData.as_view()), 
     # path('admin-dashboard/',include('dashboard.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

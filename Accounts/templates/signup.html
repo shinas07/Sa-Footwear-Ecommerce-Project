@@ -55,54 +55,48 @@
                                         {% csrf_token %}
                                         <div class="u-s-m-b-30">
                                             <label class="gl-label" for="username">Username *</label>
-                                            <input class="input-text input-text--primary-style" type="text" id="username" name="username" placeholder="Enter Username" pattern="[a-zA-Z][a-zA-Z0-9]{2,}" required>
-                                            <div class="invalid-feedback">
-                                                Please enter a valid username (at least  3 characters, no special characters).
-                                            </div>
+                                            <input class="input-text input-text--primary-style" type="text" id="username" name="username" placeholder="Enter Username"  required>
+                    
                                         </div>
                                                                               
-                                        <div class="u-s-m-b-30">
-                                            <label class="gl-label" for="first_name">First Name *</label>
-                                            <input class="input-text input-text--primary-style" type="text" id="first_name" name="first_name" placeholder="Enter First Name" required>
-                                        </div>
-                                        <div class="u-s-m-b-30">
-                                            <label class="gl-label" for="last_name">Last Name *</label>
-                                            <input class="input-text input-text--primary-style" type="text" id="last_name" name="last_name" placeholder="Enter Last Name" required>
-                                        </div>
-                                        <div class="u-s-m-b-30">
-                                            <label class="gl-label" for="email">E-MAIL *</label>
-                                            <input class="input-text input-text--primary-style" type="email" id="email" name="email" placeholder="Enter E-mail" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
-                                        </div>
-                                        <div class="u-s-m-b-30">
-                                            <label class="gl-label" for="phone">Phone *</label>
-                                            <input class="input-text input-text--primary-style" type="tel" id="phone" name="phone" placeholder="Enter Phone" pattern="[1-9][0-9]{9}" required>
-                                            <small>Please enter a valid phone number</
-                                        </div>
-                                        <div class="u-s-m-b-30">
-                                            <label class="gl-label" for="password">PASSWORD *</label>
-                                            <input class="input-text input-text--primary-style" type="password" id="password" name="password" placeholder="Enter Password" required>
-                                            <small>Password must be at least 5 characters long.</small>
-                                            <div id="passwordStrength" class="strength-meter"></div>
-                                        </div>
-                                        <div class="u-s-m-b-30">
-                                            <label class="gl-label" for="confirm_password">CONFIRM PASSWORD *</label>
-                                            <input class="input-text input-text--primary-style" type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
-                                        </div>
+                                            <div class="u-s-m-b-30">
+                                                <label class="gl-label" for="first_name">First Name *</label>
+                                                <input class="input-text input-text--primary-style" type="text" id="first_name" name="first_name" placeholder="Enter First Name" required>
+                                            </div>
+                                            <div class="u-s-m-b-30">
+                                                <label class="gl-label" for="last_name">Last Name *</label>
+                                                <input class="input-text input-text--primary-style" type="text" id="last_name" name="last_name" placeholder="Enter Last Name" required>
+                                            </div>
+                                            <div class="u-s-m-b-30">
+                                                <label class="gl-label" for="email">E-MAIL *</label>
+                                                <input class="input-text input-text--primary-style" type="email" id="email" name="email" placeholder="Enter E-mail" required>
+                                            </div>
+                                            <div class="u-s-m-b-30">
+                                                <label class="gl-label" for="phone">Phone *</label>
+                                                <input class="input-text input-text--primary-style" type="tel" id="phone" name="phone" placeholder="Enter Phone" required>
+                                                <small>Please enter a valid phone number</
+                                            </div>
+                                            <div class="u-s-m-b-30">
+                                                <label class="gl-label" for="password">PASSWORD *</label>
+                                                <input class="input-text input-text--primary-style" type="password" id="password" name="password" placeholder="Enter Password" required>
+                                                <small>Password must be at least 5 characters long.</small>
+                                                <div id="passwordStrength" class="strength-meter"></div>
+                                            </div>
+                                            <div class="u-s-m-b-30">
+                                                <label class="gl-label" for="confirm_password">CONFIRM PASSWORD *</label>
+                                                <input class="input-text input-text--primary-style" type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
+                                            </div>
+                                            <div class="gl-inline">
+                                                <div class="u-s-m-b-30">
+                                                    <button class="btn btn--e-transparent-brand-b-2" type="submit">REGISTER</button>
+                                                </div>
+                                            </div>
+                                        </form>
                                         <div class="gl-inline">
                                             <div class="u-s-m-b-30">
-                                                <button class="btn btn--e-transparent-brand-b-2" type="submit">REGISTER</button>
+                                                <p>Already have an account? <a href="{% url 'Accounts:login' %}" class="login-link">Login</a></p>
                                             </div>
                                         </div>
-                                    </form>
-                                            <!--====== Check Box ======-->
-                                            {% comment %} <div class="check-box">
-
-                                                <input type="checkbox" id="remember-me">
-                                                <div class="check-box__state check-box__state--primary">
-
-                                                    <label class="check-box__label" for="remember-me">Remember Me</label></div>
-                                            </div> {% endcomment %}
-                                            <!--====== End - Check Box ======-->
                                         </div>
                                     </form>
                                 </div>

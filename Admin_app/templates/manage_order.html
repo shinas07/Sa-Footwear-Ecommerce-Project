@@ -3,6 +3,31 @@
 {% load static %}
 {% block content %}
 <style>
+    
+    .filter {
+        margin-bottom: 20px;
+    }
+    
+    .filter label {
+        font-weight: bold;
+    }
+    
+    .filter select {
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    
+    .filter button {
+        margin-left: 10px;
+        padding: 8px 15px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    
     body {
         font-family: Arial, sans-serif;
         background-color: #f4f4f4;
@@ -35,18 +60,9 @@
         background-color: #f2f2f2;
         font-weight: bold;
     }
-    .btn {
-        display: inline-block;
-        padding: 8px 16px;
-        background-color: #4CAF50;
-        color: white;
-        text-align: center;
-        text-decoration: none;
-        border-radius: 4px;
-        transition: background-color 0.3s;
-    }
+
     .btn:hover {
-        background-color: #45a049;
+        background-color: #007bff;
     }
 </style>
     <!-- Page Wrapper -->
@@ -273,6 +289,18 @@
 
 <div class="container">
     <h1>Admin Order Management</h1>
+
+    <div class="filter">
+        {% comment %} <label for="filter_select">Filter by Category or Brand:</label> {% endcomment %}
+        <label for="filter_select">Filter by Payment Methods:</label>
+        <select id="filter_select">
+            <option value="">All</option>
+            <option value="COD">Cash on Delivery</option>
+            <option value="Paid by Razorypay">Razorpay</option>
+        </select>
+        <button onclick="applyFilter()">Apply Filter</button>
+        <button onclick="clearFilter()">Clear Filter</button>
+    </div>
     
     <table>
         <thead>
@@ -280,7 +308,7 @@
                 <th>Order ID</th>
                 <th>Username</th>
                 <th>Product Name</th>
-
+                <th>Payment Method</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -289,6 +317,7 @@
             <tr>
                 <td>{{ order.id }}</td>
                 <td>{{ order.user }}</td>
+                <td>{{ order.payment_method }}</td>
                 <td>
                     {% for order_product in order.orderproduct_set.all %}
                         {{ order_product.product.product_name }}{% if not forloop.last %}, {% endif %}
@@ -391,6 +420,18 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function applyFilter() {
+            var filterValue = document.getElementById("filter_select").value;
+            // Redirect to the same page with filter parameter
+            window.location.href = "{% url 'admin_order_management' %}?filter=" + filterValue;
+        }
     
+        function clearFilter() {
+            // Redirect to the same page without filter parameter
+            window.location.href = "{% url 'admin_order_management' %}";
+        }
+    </script>
 
 {% endblock %}
