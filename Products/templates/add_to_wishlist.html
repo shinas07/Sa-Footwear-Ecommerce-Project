@@ -94,29 +94,29 @@
                                             <span class="price">{{ product.price }}</span>
                                         </div>
                                     </div>
-                                
-                               
-                                 
+
                                     <div class="one-eight text-center">
                                         <div class="display-tc">
-                                            {% if product.productsizecolor_set.all %}
-                                            {% for product_size_color in product.productsizecolor_set.all %}
-                                                {% if product_size_color.Stock > 0 %}
+                                        {% if product.productsizecolor_set.all %}
+                                            {% with product.productsizecolor_set.all|first as first_product_size_color %}
+                                                {% if first_product_size_color.Stock > 0 %}
                                                     <span style="color: green;">In Stock</span>
                                                 {% else %}
                                                     <span style="color: red;">Out of Stock</span>
                                                 {% endif %}
-                                            {% endfor %}
-                                            {% else %}
+                                            {% endwith %}
+                                        {% else %}
                                             <span style="color: gray;">Stock status not available</span>
-                                            {% endif %}
+                                        {% endif %}
                                         </div>
                                     </div>
+                            
+
                                      
                                      
                                     
                                     
-                              
+{% comment %}                               
                                     <div class="one-eight text-center">
                                         <div class="display-tc">
                                             <form action="{% url 'product:wishlist_to_cart' product_id=product.id %}" method="post">
@@ -124,7 +124,17 @@
                                                 <button type="submit" class="btn btn-primary">Add to Cart</button>
                                             </form>
                                         </div>
+                                    </div> {% endcomment %}
+                                    
+                                    <div class="one-eight text-center">
+                                        <div class="display-tc">
+                                            <form action="{% url 'product:product_details' product_id=product.id %}" method="post">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-primary">Product Details</button>
+                                            </form>
+                                        </div>
                                     </div>
+
                                     <div class="one-eight text-center">
                                         <div class="display-tc">
                                             <a href="{% url 'product:remove_from_wishlist' product_id=product.id %}" class="closed"></a>

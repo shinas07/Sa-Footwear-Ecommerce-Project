@@ -1,4 +1,5 @@
 from datetime import timezone
+from decimal import Decimal
 from django.shortcuts import render,get_object_or_404,redirect
 from Products.models import Product, ProductSizeColor
 from django.db.models import Q
@@ -26,11 +27,16 @@ def add_to_cart(request, product_id):
             cart = Cart.objects.create(user=request.user)
             
         product = get_object_or_404(Product, pk=product_id)
+
         
         size_id = request.POST.get('size_id')
         product_size_color = get_object_or_404(ProductSizeColor, pk=size_id)
         
         if product_size_color.Stock > 0:  # Check if product is in stock
+            existing_cart_item = CartItem.objects.filter(cart=cart, product=product)
+            if  existing_cart_item:
+                messages.warning(request,'Item already in the cart')
+                return redirect('view_cart')
             form = AddToCartForm(request.POST, product=product)
             if form.is_valid():
                 quantity = form.cleaned_data['quantity']
@@ -72,14 +78,18 @@ def add_to_cart(request, product_id):
 
 
 
-
 @login_required(login_url='Accounts:login')
 def view_cart(request):
     cart, created = Cart.objects.get_or_create(user=request.user)
     if created:
-        cart_items = [] 
+        cart_items = []
+        return render(request, 'cart.html',)
     else:
-        cart_items = CartItem.objects.all()
+        cart_items = CartItem.objects.filter(product__is_available=True,product_size_color__is_unlisted=False,cart__user=request.user)
+        # print(cart_items)
+        # cart_items =CartItem.objects.filter(product__productsizecolor__is_unlisted=False)
+
+ 
 
     
     for item in cart_items:

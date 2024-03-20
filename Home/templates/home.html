@@ -463,41 +463,31 @@ Toast.fire({
 
 <script>
 
-   
-
-
-
-
     $(document).ready(function() {
         $('#filterForm').submit(function(event) {
-        event.preventDefault();
+            event.preventDefault();
+            
+            // Get selected options
+            var selectedCategories = $('#category').val();
+            var selectedPrices = $('#price').val();
+            var brandValues = $('#brands').val();
+            
+            // Construct the URL with selected filters as query parameters
+            var url = '/home-filter/?';
+            if (selectedCategories && selectedCategories.length > 0) {
+                url += 'category=' + selectedCategories.join(',') + '&';
+            }
+            if (selectedPrices && selectedPrices.length > 0) {
+                url += 'price=' + selectedPrices.join(',') + '&';
+            }
+            if (brandValues && brandValues.length > 0) {
+                url += 'brands=' + brandValues.join(',') + '&';
+            }
         
-        console.log('Form submitted'); // Add this line for debugging
-        
-        // Get selected options
-        var selectedCategories = $('#category').val();
-        var selectedPrices = $('#price').val();
-        var brandValues = $('#brands').val();
-        
-        // Construct the URL with selected filters as query parameters
-        var url = '/home-filter/?';
-        if (selectedCategories && selectedCategories.length > 0) {
-            url += 'category=' + selectedCategories.join(',') + '&';
-        }
-        if (selectedPrices && selectedPrices.length > 0) {
-            url += 'price=' + selectedPrices.join(',');
-        }
-        if (brandValues && brandValues.length > 0) {
-            url += 'brands=' + brandValues.join(',') + '&';
-        }
-        
-    
-        // Redirect to the filtered home page
-        console.log('Redirecting to URL:', url); // Add this line for debugging
-        window.location.href = url;
+            // Redirect to the filtered home page
+            window.location.href = url;
         });
     });
-
       
 </script>
       

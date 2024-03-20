@@ -114,7 +114,9 @@
                             {% if forloop.first %}
                                 <td rowspan="{{ order.orderproduct_set.count }}">
                                     <a href="{% url 'order_details' order_id=order.id %}" class="btn btn-info">Order Details</a>
+                                    {% if order_product.status == 'Delivered' %}
                                     <a href="{% url 'generate_invoice' order_id=order.id %}" class="btn btn-primary">Download Invoice</a>
+                                    {% endif %}
                                 </td>
                             {% endif %}
                         </tr>

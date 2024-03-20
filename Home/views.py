@@ -30,6 +30,7 @@ from django.urls import reverse
 from decimal import Decimal
 from django.views.decorators.cache import never_cache
 from django.db import IntegrityError
+from django.http import JsonResponse
 
 def home(request):
     active_category = 'home'
@@ -53,9 +54,8 @@ def home(request):
         'brands' : brands,
     }
     return render(request, 'home.html',context)
-
-
-
+from django.http import HttpResponseBadRequest
+@never_cache
 def home_filter(request):
     categories = request.GET.getlist('category')
     prices = request.GET.getlist('price')
@@ -64,27 +64,70 @@ def home_filter(request):
     banners = Banner.objects.all()
     categorys = Category.objects.filter(is_listed=True)
     brands = Brand.objects.filter(is_active=True)
-    print(brand_ids)
-    print(prices)
+    
     if categories and all(categories):
         products = products.filter(category__in=categories)
+    
     if prices:
         for price_range in prices:
-            min_price, max_price = map(int, price_range.split('-'))
-            products = products.filter(price__range=(min_price, max_price))
+            # Check if price range is valid
+            price_parts = price_range.split('-')
+            if len(price_parts) == 2:
+                min_price, max_price = price_parts
+                try:
+                    min_price = int(min_price)
+                    max_price = int(max_price)
+                    products = products.filter(price__range=(min_price, max_price))
+                except ValueError:
+                    # Invalid price format
+                    return HttpResponseBadRequest("Invalid price format")
+            else:
+                # Invalid price range format
+                return HttpResponseBadRequest("Invalid price range format")
+    
     if brand_ids: 
         products = products.filter(product_brand__id__in=brand_ids) 
     
     no_results = not products.exists()
     context = {
-        'products':products,
-        'banners':banners,
-        'categorys':categorys,
-        'brands' : brands,
-        'no_results':no_results,
-        
+        'products': products,
+        'banners': banners,
+        'categorys': categorys,
+        'brands': brands,
+        'no_results': no_results,
     }
+    
     return render(request, 'home.html', context)
+
+
+# @never_cache
+# def home_filter(request):
+#     categories = request.GET.getlist('category')
+#     prices = request.GET.getlist('price')
+#     brand_ids = request.GET.getlist('brands')
+#     products = Product.objects.all()
+#     banners = Banner.objects.all()
+#     categorys = Category.objects.filter(is_listed=True)
+#     brands = Brand.objects.filter(is_active=True)
+#     if categories and all(categories):
+#         products = products.filter(category__in=categories)
+#     if prices:
+#         for price_range in prices:
+#             min_price, max_price = map(int, price_range.split('-'))
+#             products = products.filter(price__range=(min_price, max_price))
+#     if brand_ids: 
+#         products = products.filter(product_brand__id__in=brand_ids) 
+    
+#     no_results = not products.exists()
+#     context = {
+#         'products':products,
+#         'banners':banners,
+#         'categorys':categorys,
+#         'brands' : brands,
+#         'no_results':no_results,
+        
+#     }
+#     return render(request, 'home.html', context)
 
 #USER PROFILE
 @login_required(login_url='Accounts:login')
@@ -269,6 +312,7 @@ def edit_address(request,address_id):
         form = AddressForm(request.POST,instance=address)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Address has been successfully edited.')
             return redirect('address_list')
     else:
         form = AddressForm(instance=address)
@@ -287,7 +331,16 @@ def delete_address(request, address_id):
 @login_required(login_url='Accounts:login')
 def order_history(request):
     orders = Order.objects.filter(user=request.user).order_by('-id')
-    return render(request,'order_history.html',{'orders':orders})
+    order_status_list = []
+    for order in orders:
+        # For each order, get the corresponding OrderProduct and pick up its status
+        order_status = OrderProduct.objects.filter(order=order).order_by('-id').first()
+        order_status_list.append(order_status)
+    context = {
+        'orders':orders,
+        'order_status_list':order_status_list,
+    }
+    return render(request,'order_history.html',context)
 
 
 
@@ -299,34 +352,39 @@ def order_details(request, order_id):
 
 
 
+
+
 @login_required(login_url='Accounts:login')
 def cancel_product(request, order_product_id):
+    response_data = {}
     order_product = get_object_or_404(OrderProduct, id=order_product_id)
     order = order_product.order
 
     if request.method == 'POST':
-        if order.payment_method  == 'Paid by Razorypay' or order_product.status == 'Delivered':
+        if order.payment_method == 'Paid by Razorypay' or order_product.status == 'Delivered':
             order_product.status = 'Cancelled'
             order_product.save()
 
             refund_amount = order_product.quantity * order_product.product.price
 
-
             wallet = Wallet.objects.get(user=request.user)
             wallet.balance += refund_amount
-
             wallet.save()
-     
+
             messages.success(request, 'Product Cancellation Success')
+            response_data['status'] = 'success'
         elif order.payment_method == 'COD':
             order_product.status = 'Cancelled'
             order_product.save()
             messages.success(request, 'Product Cancellation Success')
+            response_data['status'] = 'success'
         else:
             messages.error(request, 'Cancellation is not allowed for this order.')
-        return redirect('order_history') 
-    return render(request, 'cancel_product.html', {'order_product': order_product})
+            response_data['status'] = 'error'
 
+        return JsonResponse(response_data)  # Return JSON response
+
+    return render(request, 'cancel_product.html', {'order_product': order_product})
 
 
 

@@ -2,6 +2,14 @@
 {% block content %}
 <div class="container">
   <h2 class="mb-4">User Addresses</h2>
+  {% if messages %}
+  {% for message in messages %}
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+          {{ message }}
+      </div>
+  {% endfor %}
+{% endif %}
+
   {% if addresses %}
     <div class="list-group">
       {% for address in addresses %}

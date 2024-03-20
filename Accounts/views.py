@@ -40,7 +40,6 @@ class Signup(View):
         email = postData.get('email')
         password = postData.get('password')
         confirm_password = postData.get('confirm_password') 
-        print(username)
         # entered_otp = postData.get('otp') 
         
 

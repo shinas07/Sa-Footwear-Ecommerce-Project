@@ -197,10 +197,15 @@
                                 <p>Product has been cancelled.</p>
                             {% else %}
                                 <!-- Form for cancelling the product -->
-                                <form method="post" action="{% url 'cancel_product' order_product_id=order_product.id %}">
+                                {% comment %} <form method="post" action="{% url 'cancel_product' order_product_id=order_product.id %}">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-danger">Cancel Product</button>
+                                </form> {% endcomment %}
+                                <form id="cancel-product-form-{{ order_product.id }}" method="post" action="{% url 'cancel_product' order_product_id=order_product.id %}">
+                                    {% csrf_token %}
+                                    <button type="button" class="btn btn-danger" onclick="showConfirmation('{{ order_product.id }}')">Cancel Product</button>
                                 </form>
+                                
                             {% endif %}
                         </td>
                     {% endif %}
@@ -266,6 +271,52 @@
             xhr.send();
         });
     });
+
+        function showConfirmation(orderProductId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to cancel this product?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, cancel it!',
+            cancelButtonText: 'No, keep it'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // If user clicks "Yes", execute the cancelProduct function with the orderProductId
+                cancelProduct(orderProductId);
+            }
+        });
+    }
+
+    function cancelProduct(orderProductId) {
+        // Send an Ajax request to cancel the product
+        $.ajax({
+            url: '{% url 'cancel_product' order_product_id=0 %}'.replace('0', orderProductId),
+            type: 'POST',
+            data: $('#cancel-product-form-' + orderProductId).serialize(),
+            success: function(response) {
+                // Handle success response
+                Swal.fire({
+                    title: 'Success',
+                    text: 'Product has been cancelled.',
+                    icon: 'success'
+                }).then(() => {
+                    // Redirect to order_history page
+                    window.location.href = '{% url 'order_history' %}';
+                });
+                // Optionally, update the UI as needed
+            },
+            error: function(xhr, status, error) {
+                // Handle error response
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'An error occurred while cancelling the product. Please try again later.',
+                    icon: 'error'
+                });
+            }
+        });
+    }
 </script>
 
 

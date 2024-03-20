@@ -27,8 +27,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-izeu(1=w+g)6g(+4g(da0%4+ma1afpwij@^+wr6*cbz4mjetg@')
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+SECRET_KEY = os.environ.get('SECRET_KEY')
+DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -54,58 +54,10 @@ INSTALLED_APPS = [
     'rest_framework',
     
 
-    # 'django.contrib.sites',
-    # 'allauth',
-    # 'allauth.account',
-    # 'allauth.socialaccount',
-    # 'allauth.socialaccount.providers.google',
+
 ]
 
-# SOCIALACCOUNT_PROVIDERS = {
-#     'google' : {
-#         "SCOPE" : [
-#             "profile",
-#             "email"
-#         ],
-#         "AUTH_PARAMS" : {'access_type' : 'online'}
-#     }
 
-# }
-
-# SOCIALACCOUNT_PROVIDERS = {
-#     'google': {
-#         'APP': {
-#             'client_id': '553207437882-g0kl6ck7urfdag7p0b2j7aet8urm78d3.apps.googleusercontent.com',
-#             'secret': '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',
-#             'key': ''
-#         },
-#         'SCOPE': [
-#             'profile',
-#             'email',
-#         ],
-#         'AUTH_PARAMS': {
-#             'access_type': 'online',
-#         }
-#     }
-# }
-
-
-# SOCIALACCOUNT_PROVIDERS = {
-#     'google': {
-#         'APP': {
-#             'client_id': 'YOUR_CLIENT_ID',
-#             'secret': 'YOUR_CLIENT_SECRET',
-#             'key': ''
-#         },
-#         'SCOPE': [
-#             'profile',
-#             'email',
-#         ],
-#         'AUTH_PARAMS': {
-#             'access_type': 'online',
-#         }
-#     }
-# }
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -116,13 +68,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'Accounts.middleware.BlockCheckMiddleware',
-    # 'django.template.context_processors.request',
-    #  'allauth.account.middleware.AccountMiddleware', 
-
- 
-
-    # 'django.contrib.sites',
-
 
 ]
 
@@ -162,13 +107,14 @@ WSGI_APPLICATION = 'SaFootwear.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DATABASE_NAME', 'sadatabase'),
-        'USER': os.environ.get('DATABASE_USER', 'postgres'),
-        'PASSWORD': os.environ.get('DATABASE_PASSWORD','SA9207'),
-        'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
-        'PORT': os.environ.get('DATABASE_PORT', '5432'),
+        'NAME': os.environ.get('DATABASE_NAME'),
+        'USER': os.environ.get('DATABASE_USER'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
+        'HOST': os.environ.get('DATABASE_HOST'),
+        'PORT': os.environ.get('DATABASE_PORT'),
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -202,13 +148,19 @@ USE_TZ = True
 
 # Email configuration
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
-EMAIL_PORT = os.environ.get('EMAIL_PORT',  587)
-EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'shinasaman07@gmail.com')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'lewf bpko abdi wpch')
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+# EMAIL_PORT = os.environ.get('EMAIL_PORT',  587)
+# EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)
+# EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'shinasaman07@gmail.com')
+# EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'lewf bpko abdi wpch')
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.environ.get('EMAIL_HOST')
+EMAIL_PORT = os.environ.get('EMAIL_PORT')
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 
 # Static files (CSS, JavaScript, Images)
@@ -244,12 +196,15 @@ AUTHENTICATION_BACKENDS = [
 # LOGOUT_REDIRECT_URL = "/"
 
 
-razor_pay_key_id = 'rzp_test_9mI3x0STwZvFoe'
-key_secret = 'mszifdLQHihn0RpHi2Eucnqq'
+# razor_pay_key_id = 'rzp_test_9mI3x0STwZvFoe'
+# key_secret = 'mszifdLQHihn0RpHi2Eucnqq'
+
+#Razorpay API credentials
+RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID')
+RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET')
+
 
 
 # SECURE_CROSS_ORIGIN_OPENER_POLICY: Sets COOP header to isolate documents and allow popups, enhancing security.
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 
-
-# APPEND_SLASH = False

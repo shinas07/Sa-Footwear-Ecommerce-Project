@@ -194,31 +194,6 @@
 					</div>
 				</div>
 
-				
-				{% comment %} <div class="row">
-					<div class="col-sm-8 offset-sm-2 text-center colorlib-heading colorlib-heading-sm">
-						<h2>Related Products</h2>
-					</div>
-				</div> {% endcomment %}
-				{% comment %} <div class="row">
-					{% for related_product in related_products %}
-						<div class="col-md-3 col-lg-3 mb-4 text-center">
-							<div class="product-entry border">
-								<a href="#" class="prod-img">
-									<img src="{{ related_product.full_view_image.url }}" class="img-fluid" alt="{{ related_product.product_name }}">
-								</a>
-								<div class="desc">
-									<h2><a href="#">{{ related_product.product_name }}</a></h2>
-									<span class="price">{{ related_product.price }}</span>
-									<p>Brand: {{ related_product.product_brand.brand_name }}</p>
-									<div class="add-to-cart-btn">
-										<button onclick="related_add_to_cart({{ related_product.id }})" class="btn btn-primary"><i class="icon-shopping-cart"></i> Add to Cart</button>
-									</div>
-								</div>
-							</div>
-						</div>
-					{% endfor %}
-				</div> {% endcomment %}
 			</div>
 		</div>
 		
@@ -374,8 +349,7 @@ Copyright &copy; All rights reserved | This template is made with <i class="icon
 							totalPriceElement.text(response.total_price);
 							const productPrice=document.getElementById(`price${itemId}`);
 							const ogPrice=document.getElementById(`ogPrice${itemId}`);
-							console.log(ogPrice,productPrice)
-							productPrice.textContent=newQuantity*ogPrice.textContent+'.00'
+							productPrice.textContent=newQuantity*ogPrice.textContent
 							document.getElementById('subtotal').textContent = response.totalPrice
 							document.getElementById('discount_amount').textContent = response.discountAmount
 					
