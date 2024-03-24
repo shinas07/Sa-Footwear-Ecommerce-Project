@@ -103,14 +103,6 @@ def check_out(request):
         if form.is_valid():
             address_id = form.cleaned_data['address'].id
             payment_method = form.cleaned_data['payment_method']
-            # coupon_id = form.cleaned_data['coupon_id']
-
-            # total_amount = cart.calculate_total_amount()
-
-            # if discount_amount  > 1000 and payment_method == 'COD':
-            #     messages.error(request,'Orders above Rs 1000 are not allowed for Cash on Delivery. Please choose Razorpay.')
-            #     return redirect('checkout')
-            
             
             
 
@@ -334,13 +326,14 @@ def place_order(request):
         )
 
         # selected_address = Address.objects.get(id=address_id) 
-
+        user = request.user
         order = Order.objects.create(
                     user=request.user,
                     payment=payment,
                     total_amount=total_amount,
                     payment_method=payment_mode,
                     coupon_id=cart.coupon.discount if cart.coupon else None,
+                    
                     name=selected_address.name,
                     address=selected_address.address,
                     House_no=selected_address.House_no,
@@ -389,10 +382,9 @@ def apply_wallet(request):
         wallet_amount = Decimal(request.POST.get('wallet_amount', 0))
         user = request.user
 
-        if wallet_amount > 1000:
-            return JsonResponse({'error': 'Maximum wallet amount per order is 1000'})
+        if wallet_amount > 500:
+            return JsonResponse({'error': 'Maximum wallet amount per order is 500'})
         
-        print(wallet_amount)
         
         wallet = Wallet.objects.get(user=user)
         wallet_balance = wallet.balance
@@ -420,6 +412,25 @@ def apply_wallet(request):
         return JsonResponse({'success': 'Wallet amount applied successfully.'})
     else:
         return JsonResponse({'error': 'Invalid request method.'})
+
+
+@login_required(login_url='Accounts:login')
+def cancel_wallet_deduction(request):
+    if request.method == 'POST':
+        try:
+            wallet_amount_deduted = Decimal(request.session.get('wallet_amount', 0))
+            request.session['wallet_amount'] = 0  # Reset wallet deduction amount to 0
+
+            user_wallet  = Wallet.objects.get(user=request.user)
+            user_wallet.balance += wallet_amount_deduted
+            user_wallet.save()
+
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
 
     
 @never_cache
@@ -538,3 +549,5 @@ def generate_invoice(request, order_id):
         response = HttpResponse(f.read(), content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="invoice.pdf"'
         return response
+    
+

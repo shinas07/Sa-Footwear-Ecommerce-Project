@@ -26,7 +26,6 @@ from Admin_app import forms
 from django.utils import timezone
 from openpyxl.worksheet.table import Table
 from openpyxl import Workbook
-# from openpyxl.styles import Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle,Paragraph
@@ -39,8 +38,7 @@ from django.views import View
 from django.http import JsonResponse
 from django.db.models.functions import ExtractMonth 
 from collections import Counter
-# from .forms import ChangeOrderStatusForm
-# Create your views here.
+
 
 
 
@@ -412,7 +410,6 @@ def admin_order_management(request):
         filter_value = request.GET.get('filter')
         if filter_value:
             orders = orders.filter(payment_method=filter_value)
-            print(orders)
             return render(request, 'manage_order.html', {'orders': orders})
         
         return render(request, 'manage_order.html', {'orders': orders})
@@ -429,46 +426,49 @@ def order_products_details(request,order_id):
         return redirect('/')
 
 
+
 @login_required(login_url='admin_login')
 def admin_product_status(request, order_id, order_product_id):
     if request.user.is_superuser:
         order_product = get_object_or_404(OrderProduct, id=order_product_id)
+        # result = OrderProduct.objects.get(order = order_product_id)
         if request.method == 'POST':
             new_status = request.POST.get('new_status')
             if new_status:
                 order_product.status = new_status
-                order_product.save()
-                
+                if new_status == 'Returned' and order_product.order.payment_method == 'Paid by Razorypay' :
+                    user_wallet = Wallet.objects.get(user=order_product.order.user)
 
-                if new_status == 'Return':
-                    # Get the user associated with the order product
-                    user = order_product.user
-                    # Get the product price
                     product_price = order_product.product.price
-                    # Create or update the wallet for the user
-                    wallet, created = Wallet.objects.get_or_create(user=user)
-                    # Increment the balance in the wallet by the product price
-                    wallet.balance = F('balance') + product_price
-                    wallet.save()
+
+                    print(product_price)
+                    user_wallet.balance += product_price
+                    user_wallet.save()
+ 
                 elif new_status == 'Delivered':
                     order_product.delivery_date = timezone.now()
-         
 
+                    # Create a Sale record for the delivered product
                     Sale.objects.create(
-                    product=order_product.product,
-                    quantity=order_product.quantity,
-                    price=order_product.product.price,
+                        product=order_product.product,
+                        quantity=order_product.quantity,
+                        price=order_product.product.price,
                     )
+
                 else:
                     order_product.delivery_date = None
-                    print(order_product.delivery_date)
-                messages.success(request,'Proudct Deliverd')
+
+                order_product.save()
+                messages.success(request, 'Product status updated successfully')
                 return redirect(reverse('order_products_details', kwargs={'order_id': order_id}))
+
+            else:
+                messages.error(request, 'Invalid status provided')
 
         return redirect("admin_order_management") 
     else:
         return redirect('/')
-
+    
 
 
 # admin_coupon_adding
@@ -551,7 +551,7 @@ def admin_sales_report(request):
 
             sales = get_sales_data(form, time_frame)  # Assuming get_sales_data retrieves relevant sales data
 
-            # List to store sales data with discount and coupon information
+       
             sales_data = []
 
             for sale in sales:
@@ -576,14 +576,7 @@ def admin_sales_report(request):
                     # Get the first order product to check if a coupon was applied to its order
                     order_product = order_products.first()
 
-                    # if order_product.order.coupon_id:
-                    #     coupon = Coupon.objects.get(discount=order_product.order.coupon_id)
-                    #     coupon_deduction = coupon.discount if coupon else 0
-
-                        # # Retrieve coupon details and calculate deduction
-                        # coupon = Coupon.objects.get(discount=order_product.order.coupon_id)
-                        # coupon_deduction = coupon.discount if coupon else 0
-
+ 
                 # Calculate total deduction
                 total_deduction = discount_deduction + coupon_deduction
 
@@ -632,59 +625,6 @@ def get_sales_data(form, time_frame):
         return Sale.objects.filter(date__date__range=(start_date, end_date))
 
 
-
-# Generating Pdf and Excel report
-
-# @login_required(login_url='admin_login')
-# def download_report(request):
-#     if request.method == 'POST':
-#         report_format = request.POST.get('report_format')
-#         sales_data = request.session.get('sales_data', []) # Retrieve sales data from session
-#         if report_format == 'pdf':
-#             buffer = io.BytesIO() # Create a bytes buffer
-#             p = canvas.Canvas(buffer) # Create a canvas object for PDF generation
-#             # sales = Sale.objects.all()
-#             for i, sale in enumerate(sales_data, 1):
-
-#                 product_name = sale['product']
-#                 quantity = sale['quantity']
-#                 price = sale['price']
-#                 # Use the values in the drawString method
-#                 p.drawString(100, 800 - (i * 20), f"{product_name} - {quantity} - {price}")
-#             p.save()
-#             buffer.seek(0) #Reset the buffer position to the beginning
-#             return HttpResponse(buffer, content_type='application/pdf')
-#         elif report_format == 'excel':
-#             wb = Workbook() # Create a new workbook and select the active worksheet
-#             ws = wb.active
-            
-#             # sales = Sale.objects.all()
-#             ws.append(['Product', 'Quantity', 'Price'])
-            
-#             # Add sales data to the worksheet
-#             for sale in sales_data:
-#                 ws.append([sale.product.product_name, sale.quantity, sale.price])
-            
-#             # Create a BytesIO object to store the Excel file
-#             excel_file = io.BytesIO()
-            
-#             # Save the workbook to the BytesIO object
-#             wb.save(excel_file)
-            
-#             # Close the workbook
-#             wb.close()
-            
-#             # Set the pointer to the beginning of the BytesIO object
-#             excel_file.seek(0)
-            
-#             # Create a response object with Excel content type
-#             response = HttpResponse(excel_file, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-            
-#             # Set the content-disposition header to prompt the user to download the file
-#             response['Content-Disposition'] = 'attachment; filename="sales_report.xlsx"'
-            
-#             return response
-#     return redirect('admin_sales_report')
 
 
 
@@ -761,101 +701,9 @@ def download_report(request):
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
             return response
     
-        # elif report_format == 'excel':
-        #     wb = Workbook()
-        #     ws = wb.active
-        #     ws.append(['Product', 'Quantity', 'Price'])
-        #     for sale in sales_data:
-        #         ws.append([sale['product'], sale['quantity'], sale['price']])
-
-        #     # Adjust column widths
-        #     for i in range(1, 4):
-        #         ws.column_dimensions[get_column_letter(i)].width = 15
-
-        #     # Apply header formatting
-        #     for cell in ws["1:1"]:
-        #         cell.font = Font(bold=True)
-        #         cell.alignment = Alignment(horizontal="center", vertical="center")
-        #         cell.border = Border(bottom=Side(border_style="thin", color="000000"))
-
-        #     # Define the range for the table
-        #     table_range = "A1:C{}".format(len(sales_data) + 1)
-
-        #     # Create and add the table to the worksheet
-        #     # tab = Table()
-        #     style = TableStyleInfo(name="TableStyleMedium9", showFirstColumn=False,
-        #                         showLastColumn=False, showRowStripes=True, showColumnStripes=True)
-        #     tab.tableStyleInfo = style
-        #     ws.add_table(tab)
-
-        #     excel_file = io.BytesIO()
-        #     wb.save(excel_file)
-        #     wb.close()
-        #     excel_file.seek(0)
-
-        #     filename = f"{time_frame.capitalize()} Report.xlsx"
-        #     response = HttpResponse(excel_file, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        #     response['Content-Disposition'] = f'attachment; filename="{filename}"'
-        #     return response
-
-
-
+   
         
         
-        
-
-
-# from django.http import HttpResponse
-# import io
-
-# @login_required(login_url='admin_login')
-# def download_report(request):
-#     if request.method == 'POST':
-#         report_format = request.POST.get('report_format')
-#         sales_data = request.session.get('sales_data', [])
-#         time_frame = request.session.get('time_frame', 'custom')
-
-#         if report_format == 'pdf':
-#             # PDF generation code remains unchanged
-#             pass
-
-#         elif report_format == 'excel':
-#             wb = Workbook()
-#             ws = wb.active
-#             ws.append(['Product', 'Quantity', 'Price'])
-#             for sale in sales_data:
-#                 ws.append([sale['product'], sale['quantity'], sale['price']])
-
-#             # Apply table formatting
-#             tab = Table(displayName="Table1", ref="A1:C{}".format(len(sales_data) + 1))
-#             style = TableStyleInfo(name="TableStyleMedium9", showFirstColumn=False,
-#                                    showLastColumn=False, showRowStripes=True, showColumnStripes=True)
-#             tab.tableStyleInfo = style
-#             ws.add_table(tab)
-
-#             # Adjust column widths
-#             for i in range(1, 4):
-#                 ws.column_dimensions[get_column_letter(i)].width = 15
-
-#             # Apply header formatting
-#             for cell in ws["1:1"]:
-#                 cell.font = Font(bold=True)
-#                 cell.alignment = Alignment(horizontal="center", vertical="center")
-#                 cell.border = Border(bottom=Side(border_style="thin", color="000000"))
-
-#             excel_file = io.BytesIO()
-#             wb.save(excel_file)
-#             wb.close()
-#             excel_file.seek(0)
-
-#             filename = f"{time_frame.capitalize()} Report.xlsx"
-#             response = HttpResponse(excel_file, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-#             response['Content-Disposition'] = f'attachment; filename="{filename}"'
-#             return response
-
-#     return redirect('admin_sales_report')
-
-
 
 
 
@@ -894,88 +742,5 @@ def set_product_discount(request, product_id):
 def admin_logout(request):
     logout(request)
     return redirect('admin_login')
-
-
-
-
-
-## using rest_framework classes 
-   
-# class ChartData(APIView): 
-#     authentication_classes = [] 
-#     permission_classes = [] 
-   
-#     def get(self, request, format = None): 
-#         labels = [ 
-#             'January', 
-#             'February',  
-#             'March',  
-#             'April',  
-#             'May',  
-#             'June',  
-#             'July'
-#             ] 
-#         chartLabel = "my data"
-#         chartdata = [0, 10, 5, 2, 20, 30, 45] 
-#         data ={ 
-#                      "labels":labels, 
-#                      "chartLabel":chartLabel, 
-#                      "chartdata":chartdata, 
-#              } 
-#         return Response(data) 
-
-
-# class ChartData(APIView):
-#     authentication_classes = []
-#     permission_classes = []
-   
-#     def get(self, request, format=None):
-#         # Retrieve the count of orders for each month
-#         order_data = Order.objects.annotate(month=ExtractMonth('created_at')).values('month').annotate(total_orders=Count('id'))
-
-#         # Extracting labels (months) and chart data (total orders)
-#         labels = [month_name[entry['month']] for entry in order_data]
-#         chart_data = [entry['total_orders'] for entry in order_data]
-
-#         data = {
-#             "labels": labels,
-#             "chartLabel": "Order Count per Month",
-#             "chartdata": chart_data,
-#         }
-#         return Response(data)
-    
-
-
-
-
-
-
-# class HomeView(View):
-#     def get(self, request, *args, **kwargs):
-#         return render(request, 'index.html')
-
-# class ChartData(APIView):
-#     authentication_classes = []
-#     permission_classes = []
-   
-#     def get(self, request, format=None):
-#         # Retrieve the count of orders for each month
-#         order_data = Order.objects.annotate(month=ExtractMonth('created_at')).values('month').annotate(total_orders=Count('id'))
-#         print(order_data)
-
-#         # Extracting labels (months) and chart data (total orders)
-#         labels = [month_name[entry['month']] for entry in order_data]
-#         chart_data = [entry['total_orders'] for entry in order_data]
-
-#         data = {
-#             "labels": labels,
-#             "chartLabel": "Order Count per Month",
-#             "chartdata": chart_data,
-#         }
-#         return Response(data)
-
-
-
-
 
 

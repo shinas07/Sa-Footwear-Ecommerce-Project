@@ -24,5 +24,6 @@ urlpatterns = [
     path('submit_review_and_rating/', views.submit_review_and_rating, name='submit_review_and_rating'),
 
     path('user/wallet/',views.wallet_balance,name='wallet'),
+    path('about/',views.about_page,name='about')
   
 ]

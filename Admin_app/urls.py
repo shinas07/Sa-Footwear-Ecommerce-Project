@@ -37,7 +37,6 @@ urlpatterns = [
     path('admin-add-coupon/', views.admin_add_coupon, name='admin_add_coupon'),
     path('admin-delete-coupon/<int:coupon_id>/',views.admin_delete_coupon, name='admin_delete_coupon'),
 
-    # path('admin_order_details/<int:order_id>/<int:product_id>/', views.admin_order_details, name='admin_order_details'),
     path('admin-product-status/<int:order_id>/<int:order_product_id>/', views.admin_product_status, name='admin_product_status'),
 
     path('discount-product-list/',views.discount_product_list,name='discount_product_list'),
@@ -45,7 +44,6 @@ urlpatterns = [
 
     path('admin-sales-report/',views.admin_sales_report,name='admin_sales_report'),
     path('download-report/', views.download_report, name='download_report'),
-    # path('test-home-view/', views.HomeView.as_view(),name='test_home_view'),
 
      path('api/', views.ChartData.as_view(), name='api-chart-data'),
 

@@ -271,13 +271,27 @@
                         <form method="post" action="{% url 'admin_product_status' order_id=order_product.order.id order_product_id=order_product.id %}">
                             {% csrf_token %}
                             <div class="input-group">
+                                {% if order_product.status == 'Delivered' %}
+                                    <p class="text-success">Product delivered</p>
+                                {% else %}
+                                    <select name="new_status" class="form-select">
+                                        {% for choice in order_product.ORDER_STATUS_CHOICES %}
+                                            {% if choice.0 != 'Delivered' or order_product.status != 'Delivered' %}
+                                                <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                    <button type="submit" class="btn btn-primary">Update Status</button>
+                                {% endif %}
+                            </div>
+                            {% comment %} <div class="input-group">
                                 <select name="new_status" class="form-select">
                                     {% for choice in order_product.ORDER_STATUS_CHOICES %}
                                         <option value="{{ choice.0 }}">{{ choice.1 }}</option>
                                     {% endfor %}
                                 </select>
                                 <button type="submit" class="btn btn-primary">Update Status</button>
-                            </div>
+                            </div> {% endcomment %}
                         </form>
                     </td>
                 </tr>
@@ -285,71 +299,7 @@
             </tbody>
         </table>
     </div>
-</div>
-
-
-
-
-
-
-{% comment %} <div class="container">
-    <h1>Admin Order Details</h1>
-    
-    <div class="order-details">
-        <h2>Order ID: {{ order.id }}</h2>
-        <p>Status: {{ order.status }}</p>
-        
-        <h3>Products</h3>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Product Name</th>
-                    <th>Quantity</th>
-                    <th>Action</th>
-                    <th>status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for order_product in order_products %}
-                <tr>
-                    <td>{{ order_product.product.product_name }}</td>
-                    <td>{{ order_product.quantity }}</td>
-                    <td>{{ order.status }}</td>
-                    <td>
-                        <form method="post" action="{% url 'admin_order_details' order_id=order.id product_id=order_product.id %}">
-                            {% csrf_token %}
-                            <div class="dropdown">
-                                <button class="btn btn-secondary dropdown-toggle" type="button" id="actionDropdown{{ order_product.id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Select Action
-                                </button>
-                                <div class="dropdown-menu" aria-labelledby="actionDropdown{{ order_product.id }}">
-                                    {% for status_key, status_display in order.ORDER_STATUS_CHOICES %}
-                                        <button class="dropdown-item" type="submit" name="action" value="{{ status_key }}">{{ status_display }}</button>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-                <tr>
-                    <td colspan="3">
-                        <form method="post" action="{% url 'admin_order_management' %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="order_id" value="{{ order.id }}">
-                            <button class="btn btn-primary mt-2" type="submit">Submit</button>
-                        </form>
-                    </td>
-                </tr>
-            </tbody>
-            
-        </table>
-    </div>
-</div>
- {% endcomment %}
-
-     
-                
+</div>             
             
 
                

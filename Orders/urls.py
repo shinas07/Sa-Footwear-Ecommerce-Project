@@ -13,9 +13,8 @@ urlpatterns = [
     path('order_complete', views.order_complete, name='order_complete'),
     path('generate-invoice/<str:order_id>/', views.generate_invoice, name='generate_invoice'),
     path('apply_wallet/', views.apply_wallet, name='apply_wallet'),
-    # path('download-invoice/', views.download_invoice_, name='download_invoice'),
+    path('cancel_wallet_deduction/',views.cancel_wallet_deduction,name='cancel_wallet_deduction'),
 
-    # path('generate-invoice/<str:product1_name>/<int:product1_quantity>/<str:product2_name>/<int:product2_quantity>/<str:product3_name>/<int:product3_quantity>/', views.generate_invoice, name='generate_invoice'),
 
 
 

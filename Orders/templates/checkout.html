@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 
+
 	<div class="colorlib-loader"></div>
 
 	<div id="page">
@@ -19,16 +20,11 @@
 
 	
 			{% comment %} <h1>Checkout</h1> {% endcomment %}
-			
-			{% if error %}
-			<div class="alert alert-danger" role="alert">
-				{{ error }}
-			</div>
-			{% endif %}
+
 
 
 			{% if messages %}
-		<div class="alert alert-danger" role="alert">
+		<div class="alert alert-success" role="alert">
 			<ul>
 				{% for message in messages %}
 				{{ message }}
@@ -150,9 +146,18 @@
 												</li>
 												{% comment %} <li><span>Shipping</span> <span>$0.00</span></li> {% endcomment %}
 												<li><span>Discount</span> <span>{{ coupon_discount }}</span></li>
-												<li><span>wallet deduction</span> <span>{{ wallet_deduction }}</span></li>
+												<li><span>wallet deduction</span> <span>{{ wallet_deduction }}</span>
+												</li>
 												<li><span>Order Total</span> <span>{{ discount_amount }}</span></li>
 											</ul>
+											{% if wallet_deduction %}
+											<button id="cancelWalletDeductionBtn" class="btn btn-light mt-2" style="color: red;">
+												<i class="fas fa-times"></i> Cancel Wallet Deduction
+											</button>
+											
+											{% endif %}
+										
+											
 										</div>
 										
 									</div>
@@ -294,6 +299,32 @@
 				});
 			});
 		});
+
+
+
+    $(document).ready(function() {
+        $('#cancelWalletDeductionBtn').click(function() {
+            $.ajax({
+                type: "POST",
+                url: "{% url 'cancel_wallet_deduction' %}",  // Replace with the URL of your cancel wallet deduction endpoint
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'  // Include CSRF token for security
+                },
+                success: function(response) {
+					if(response.success){
+						window.location.href = '/order/checkout'
+					}
+
+
+                },
+                error: function(xhr, status, error) {
+                    // Handle error response (e.g., display error message)
+                    alert('Error: ' + error);
+                }
+            });
+        });
+    });
+
 	</script>
 	
     {% endblock %}

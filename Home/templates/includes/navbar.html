@@ -58,17 +58,14 @@
                         <li class="has-dropdown">
                             <a href=" ">Details</a>
                             <ul class="dropdown">
-                                <li><a href="#">Product Detail</a></li>
-                                <li><a href="cart.html">Shopping Cart</a></li>
-                                <li><a href="checkout.html">Checkout</a></li>
-                                <li><a href="order-complete.html">Order Complete</a></li>
-                                <li><a href="add-to-wishlist.html">Wishlist</a></li>
-                                <li><a href="about.html">About</a></li>
+                                <li><a href="{% url 'view_cart' %}">Shopping Cart</a></li>
+                                <li><a href="{% url 'product:wishlist_view' %}">Wishlist</a></li>
+                                <li><a href="{% url 'about' %}">About</a></li>
                             </ul>
                         </li>
 
                        
-                        <li ><a href="contact.html">Contact</a></li>
+          
                         {% if user.is_authenticated %}
     <!-- Show these options only if the user is logged in -->
                        

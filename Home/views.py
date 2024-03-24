@@ -54,7 +54,10 @@ def home(request):
         'brands' : brands,
     }
     return render(request, 'home.html',context)
-from django.http import HttpResponseBadRequest
+
+
+
+
 @never_cache
 def home_filter(request):
     categories = request.GET.getlist('category')
@@ -64,70 +67,25 @@ def home_filter(request):
     banners = Banner.objects.all()
     categorys = Category.objects.filter(is_listed=True)
     brands = Brand.objects.filter(is_active=True)
-    
     if categories and all(categories):
         products = products.filter(category__in=categories)
-    
     if prices:
         for price_range in prices:
-            # Check if price range is valid
-            price_parts = price_range.split('-')
-            if len(price_parts) == 2:
-                min_price, max_price = price_parts
-                try:
-                    min_price = int(min_price)
-                    max_price = int(max_price)
-                    products = products.filter(price__range=(min_price, max_price))
-                except ValueError:
-                    # Invalid price format
-                    return HttpResponseBadRequest("Invalid price format")
-            else:
-                # Invalid price range format
-                return HttpResponseBadRequest("Invalid price range format")
-    
+            min_price, max_price = map(int, price_range.split('-'))
+            products = products.filter(price__range=(min_price, max_price))
     if brand_ids: 
         products = products.filter(product_brand__id__in=brand_ids) 
     
     no_results = not products.exists()
     context = {
-        'products': products,
-        'banners': banners,
-        'categorys': categorys,
-        'brands': brands,
-        'no_results': no_results,
-    }
-    
-    return render(request, 'home.html', context)
-
-
-# @never_cache
-# def home_filter(request):
-#     categories = request.GET.getlist('category')
-#     prices = request.GET.getlist('price')
-#     brand_ids = request.GET.getlist('brands')
-#     products = Product.objects.all()
-#     banners = Banner.objects.all()
-#     categorys = Category.objects.filter(is_listed=True)
-#     brands = Brand.objects.filter(is_active=True)
-#     if categories and all(categories):
-#         products = products.filter(category__in=categories)
-#     if prices:
-#         for price_range in prices:
-#             min_price, max_price = map(int, price_range.split('-'))
-#             products = products.filter(price__range=(min_price, max_price))
-#     if brand_ids: 
-#         products = products.filter(product_brand__id__in=brand_ids) 
-    
-#     no_results = not products.exists()
-#     context = {
-#         'products':products,
-#         'banners':banners,
-#         'categorys':categorys,
-#         'brands' : brands,
-#         'no_results':no_results,
+        'products':products,
+        'banners':banners,
+        'categorys':categorys,
+        'brands' : brands,
+        'no_results':no_results,
         
-#     }
-#     return render(request, 'home.html', context)
+    }
+    return render(request, 'home.html', context)
 
 #USER PROFILE
 @login_required(login_url='Accounts:login')
@@ -413,21 +371,9 @@ def product_return(request,order_product_id):
 def wallet_balance(request):
     wallet, created = Wallet.objects.get_or_create(user=request.user)
     refund_history = CancelOrder.objects.filter(user=request.user).order_by('-created_at')
-
+    print(wallet.balance)
     returned_products = OrderProduct.objects.filter(order__user=request.user, status='Returned')
-
-    total_refund_amount = Decimal(0)
-    for order_product in returned_products:
-        # Check if the product has already been processed for refund
-        if not order_product.processed_for_refund:
-            total_refund_amount += order_product.product.price * order_product.quantity
-            order_product.processed_for_refund = True
-            order_product.save()
-
-    # Add the total refund amount to the wallet balance
-    wallet.balance += total_refund_amount
-    wallet.save()
-
+    print(wallet.balance)
     # Pass the wallet balance, refund history, and returned products to the template
     return render(request, 'user_wallet.html', {
         'wallet': wallet,
@@ -535,3 +481,6 @@ def search_filter_result(request):
         'no_stock_message': no_stock_message,  
     }
     return render(request, 'search_result.html', context)
+
+def about_page(request):
+    return render(request,'about.html')

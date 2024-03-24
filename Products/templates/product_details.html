@@ -148,13 +148,7 @@
 			</div>
 		</div>
 
-		{% comment %} {% if messages %}
-			{% for message in messages %}
-				<div class ="alert alert-{{ message.tags }}" >
-					{{ message }}
-				</div>
-			{% endfor %}
-		{% endif %} {% endcomment %}
+}
 			
 		{% if messages %}
 		{% for message in messages %}
@@ -174,15 +168,7 @@
 				<div class="row row-pb-lg product-detail-wrap">
 					<div class="col-sm-7">
 						<div class="owl-carousel">
-							{% comment %} <div class="item">
-								<a href="#" class="prod-img">
-									<div class="product-entry border">
-										<div id="img-container" class="img-container">
-											<img id="featured" src="{{ product.full_view_image.url }}" alt="Product Image" class="product-img">
-										</div>
-									</div>
-								</a>
-							</div> {% endcomment %}
+					
 							<div class="item">
 								<a href="#" class="prod-img">
 									<div class="product-entry border">
@@ -287,94 +273,6 @@
 					
 					
 				
-					{% comment %} <div class="col-sm-4">
-						<div class="product-desc">
-							<h3>{{ product.product_name }}</h3>
-							<p class="price">
-								<div class="price-section">
-									{% if product.offer_price %}
-										<p class="offer-price"><strong>Offer Price:</strong> {{ product.offer_price }}</p>
-									<p class="regular-price"><strong>Price:</strong> {{ product.price }}</p>
-								   {% else %}
-								   <span class="price">MRP : {{ product.price }}</span>
-									{% endif %}
-								</div>
-							</p>
-							
-
-							<div class="row">
-								<div class="col-sm-12 text-center">
-									<p class="addtocart">
-									{% if not product_size_colors or product_size_colors.0.is_unlisted %}
-										<span class="coming-soon">Coming soon</span>
-									{% else %}
-
-										<div class="size-wrap">
-											<div class="block-26 mb-2">
-												<h3 class="size-heading">Size</h3>
-												<ul>
-													{% for psc in product_size_colors %}
-														{% if psc.product_id == product.id %}
-															<li><a href="{% url 'product:stock_of_size' size_id=psc.id %}">{{ psc.size }}</a></li>
-														{% endif %}
-													{% endfor %}
-												</ul>
-											</div> {% endcomment %}
-											{% comment %} <div class="block-26 mb-2">
-												<h3 class="size-heading">Color</h3>
-												<ul class="color-list">
-													{% for psc in product_size_colors %}
-														{% if psc.product_id == product.id %}
-															<li><a href="{% url 'product:stock_of_size' size_id=psc.id %}">{{ psc.color }}</a></li>
-														{% endif %}
-													{% endfor %}
-												</ul>
-											</div> {% endcomment %}
-											
-
-{% comment %} 
-
-											{% if selected_product_size.Stock > 0 %} 
-					
-											<div class="stock-info">
-												{% if selected_product_size %}
-													<h6>Stock Availability for Size: {{ selected_product_size.size }}</h6>
-													<p><strong>Stock</strong>: {{ selected_product_size.Stock }}</p>
-												{% endif %}
-											</div>
-										</div> 
-
-
-
-											
-
-										<form id="add-to-cart-form" action="{% url 'add_to_cart' product_id=product.pk %}" method="post">
-												{% csrf_token %}
-												<input type="hidden" name="product_id" value="{{ product.pk }}">
-												<div class="input-group mb-4">
-									
-													<input type="number" id="quantity" name="quantity" class="form-control input-number" value="1" min="1" max="5">
-													
-										
-												</div> {% if  user.is_authenticated %}
-												<button type="submit" class="btn btn-primary btn-addtocart"> Add to Cart</button>
-												{% else %}
-
-												<a href="{% url 'Accounts:login' %}" class="btn btn-primary">Add to Cart</a>
-
-												{% endif %}
-											</form> 
-											
-											
-											{% else %}
-											 Out of Stock 
-											 {% endif %}
-										{% endif %}
-									</p>
-								</div>
-							</div>
-						</div>
-					</div> {% endcomment %}
 
 					
 				<div class='container'>
