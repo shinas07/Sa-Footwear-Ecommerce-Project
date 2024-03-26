@@ -1,5 +1,5 @@
 
-{% extends 'admin_base.html '%}
+{% extends 'admin_base.html' %}
 {% load static %}
 {% block content %}
 <style>
@@ -307,8 +307,8 @@
             <tr>
                 <th>Order ID</th>
                 <th>Username</th>
-                <th>Product Name</th>
                 <th>Payment Method</th>
+                <th>Product Name</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -337,49 +337,6 @@
 </div>
 
 
-
-{% comment %} 
-<div class="container">
-    <h1>Admin Order Management</h1>
-    
-    <table>
-        <thead>
-            <tr>
-                <th>Order ID</th>
-                <th>Username</th>
-                <th>Product Name</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for order in orders %}
-            <tr>
-                <td>{{ order.id }}</td>
-                <td>{{ order.user }}</td>
-                <td>
-                    {% for order_product in order.orderproduct_set.all %}
-                        {{ order_product.product.product_name }}{% if not forloop.last %}, {% endif %}
-                    {% endfor %}
-                <td>{{ order.status }}</td>
-                <td>
-                    <form method="post" action="{% url 'admin_order_management' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="order_id" value="{{ order.id }}">
-                        <select name="action" class="form-select">
-                            <option value="" selected disabled>Select Action</option>
-                            {% for status_key, status_display in order.ORDER_STATUS_CHOICES %}
-                                <option value="{{ status_key }}">{{ status_display }}</option>
-                            {% endfor %}
-                        </select>
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div> {% endcomment %}
 
     
 

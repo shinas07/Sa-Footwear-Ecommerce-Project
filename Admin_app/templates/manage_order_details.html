@@ -273,6 +273,8 @@
                             <div class="input-group">
                                 {% if order_product.status == 'Delivered' %}
                                     <p class="text-success">Product delivered</p>
+                                {% elif order_product.status == 'Returned' %}
+                                    <p class="text-success">Product Returned</p>
                                 {% else %}
                                     <select name="new_status" class="form-select">
                                         {% for choice in order_product.ORDER_STATUS_CHOICES %}
@@ -284,14 +286,6 @@
                                     <button type="submit" class="btn btn-primary">Update Status</button>
                                 {% endif %}
                             </div>
-                            {% comment %} <div class="input-group">
-                                <select name="new_status" class="form-select">
-                                    {% for choice in order_product.ORDER_STATUS_CHOICES %}
-                                        <option value="{{ choice.0 }}">{{ choice.1 }}</option>
-                                    {% endfor %}
-                                </select>
-                                <button type="submit" class="btn btn-primary">Update Status</button>
-                            </div> {% endcomment %}
                         </form>
                     </td>
                 </tr>

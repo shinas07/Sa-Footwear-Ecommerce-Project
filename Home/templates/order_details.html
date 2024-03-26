@@ -131,7 +131,6 @@
 
                     
                     {% if order_product.status == "Delivered" %}
-                   
                     <td>
                         <!-- Button to trigger the review modal -->
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#reviewModal{{ order_product.id }}">
@@ -182,7 +181,7 @@
 
                                     
                                  
-                                        {% comment %} <button type="button" class="btn btn-primary" onclick="submitReview()" data-order-product-id="{{ order_product.id }}">Submit</button> {% endcomment %}
+                     
 
                                     </div>
                                 </div>
@@ -196,11 +195,6 @@
                             {% elif order_product.status == "Cancelled" %}
                                 <p>Product has been cancelled.</p>
                             {% else %}
-                                <!-- Form for cancelling the product -->
-                                {% comment %} <form method="post" action="{% url 'cancel_product' order_product_id=order_product.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger">Cancel Product</button>
-                                </form> {% endcomment %}
                                 <form id="cancel-product-form-{{ order_product.id }}" method="post" action="{% url 'cancel_product' order_product_id=order_product.id %}">
                                     {% csrf_token %}
                                     <button type="button" class="btn btn-danger" onclick="showConfirmation('{{ order_product.id }}')">Cancel Product</button>

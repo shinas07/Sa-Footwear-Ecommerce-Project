@@ -313,19 +313,6 @@ def place_order(request):
             amount=total_amount
         )
 
-        # Create the order instance
-        order = Order.objects.create(
-            user=request.user, 
-            # address_id=selected_address, 
-            payment=payment,
-            total_amount=total_amount, 
-            payment_method=payment_mode,
-            coupon_id=cart.coupon.discount if cart.coupon else None  # Save the coupon ID with the order
-
-
-        )
-
-        # selected_address = Address.objects.get(id=address_id) 
         user = request.user
         order = Order.objects.create(
                     user=request.user,
@@ -341,7 +328,6 @@ def place_order(request):
                     state=selected_address.state,
                     country=selected_address.country,
                     pincode=selected_address.pincode
-
                 )
 
         # Retrieve the user's cart
@@ -400,7 +386,6 @@ def apply_wallet(request):
         
         cart.total_amount = total_amount_after_wallet_deduction
         cart.save()
-        print(f'cart updated total amount: {cart.total_amount}')
         
 
         wallet.balance -= wallet_amount

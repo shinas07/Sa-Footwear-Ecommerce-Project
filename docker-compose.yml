@@ -3,7 +3,11 @@ version: '3'
 services:
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    image: app:ecommerce
+    container_name: ecommerce_container
+    command: gunicorn SaFootwear.wsgi:application --bind 0.0.0.0:8000
+      
+
     volumes:
       - .:/code
     ports:
@@ -13,6 +17,7 @@ services:
 
   db:
     image: postgres:latest
+    container_name: postgres_container
     environment:
       POSTGRES_DB: safootwear_db
       POSTGRES_USER: safootwear_user
@@ -22,3 +27,6 @@ services:
 
 volumes:
   postgres_data:
+
+
+

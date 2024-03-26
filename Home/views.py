@@ -346,7 +346,7 @@ def cancel_product(request, order_product_id):
 
 
 
-
+#admin_product_return
 @login_required(login_url='Accounts:login')
 def product_return(request,order_product_id):
     order_product = get_object_or_404(OrderProduct, id=order_product_id)
@@ -359,6 +359,10 @@ def product_return(request,order_product_id):
         order_product.status = 'Returned'
         order_product.delivery_date = None  # Clear delivery date when returning
         order_product.save()
+        if order_product.order.payment_method == 'Paid by Razorypay':
+            wallet_balance = Wallet.objects.get(user=request.user)
+            wallet_balance.balance += order_product.order.total_amount
+            wallet_balance.save()
 
         messages.success(request, 'Product returned successfully.')
         return redirect('order_history')
@@ -371,9 +375,7 @@ def product_return(request,order_product_id):
 def wallet_balance(request):
     wallet, created = Wallet.objects.get_or_create(user=request.user)
     refund_history = CancelOrder.objects.filter(user=request.user).order_by('-created_at')
-    print(wallet.balance)
     returned_products = OrderProduct.objects.filter(order__user=request.user, status='Returned')
-    print(wallet.balance)
     # Pass the wallet balance, refund history, and returned products to the template
     return render(request, 'user_wallet.html', {
         'wallet': wallet,

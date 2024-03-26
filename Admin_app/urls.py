@@ -45,6 +45,8 @@ urlpatterns = [
     path('admin-sales-report/',views.admin_sales_report,name='admin_sales_report'),
     path('download-report/', views.download_report, name='download_report'),
 
+
+
      path('api/', views.ChartData.as_view(), name='api-chart-data'),
 
 
