@@ -35,8 +35,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # RUN pipenv install --deploy --ignore-pipfile
 
 
-# Install Gunicorn
-RUN pip install gunicorn
+# # Install Gunicorn
+# RUN pip install gunicorn
 
 
 # Expose port 8000 to allow external access to the application
