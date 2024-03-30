@@ -1,1 +1,6 @@
 .env
+
+
+# Compiled Python files and cache directories
+__pycache__/
+*.pyc
