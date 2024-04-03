@@ -307,6 +307,7 @@
             <tr>
                 <th>Order ID</th>
                 <th>Username</th>
+                <th>Total Amount</th>
                 <th>Payment Method</th>
                 <th>Product Name</th>
                 <th>Action</th>
@@ -317,6 +318,7 @@
             <tr>
                 <td>{{ order.id }}</td>
                 <td>{{ order.user }}</td>
+                <td>{{ order.total_amount}}
                 <td>{{ order.payment_method }}</td>
                 <td>
                     {% for order_product in order.orderproduct_set.all %}

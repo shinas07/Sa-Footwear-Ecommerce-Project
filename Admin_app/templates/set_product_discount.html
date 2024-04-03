@@ -69,21 +69,26 @@
         <p><strong>Product Category: </strong>{{product.category}}</p>
         <form method="post">
             {% csrf_token %}
+            {{ form.non_field_errors }}
+        
             <div class="form-group">
                 <label for="id_discount">Discount (%)</label>
-                <input type="number" id="id_discount" name="discount_percentage" placeholder="Enter discount percentage" required>
-
+                {{ form.discount_percentage }}
+                {{ form.discount_percentage.errors }}
             </div>
+        
             <div class="form-group">
                 <label for="id_end_date">End Date</label>
                 <input type="date" id="id_end_date" name="end_date" required>
+                {{ form.end_date.errors }}
             </div>
+        
             <div class="form-group">
                 <button type="submit">Set Discount</button>
             </div>
         </form>
     </div>
-    <button id="goToHomePageButton" class="btn btn-primary">Go Back</button>
+        <button id="goToHomePageButton" class="btn btn-primary">Go Back</button>
 
 
 <script>
