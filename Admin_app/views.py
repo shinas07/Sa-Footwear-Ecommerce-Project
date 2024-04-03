@@ -256,7 +256,23 @@ def edit_product(request, pk):
                 messages.success(request, 'Product updated successfully.')
                 return redirect('admin_product')
             else:
-                messages.error(request, 'Please correct the errors below.')
+                FIELD_NAME_MAPPING = {
+                    'product_name': 'Product Name',
+                    'description': 'Description',
+                    'price': 'Price',
+                    'category': 'Category',
+                    'is_available': 'Availability',
+                    'product_brand': 'Brand',
+                    'left_view_image': 'Left View Image',
+                    'right_view_image': 'Right View Image',
+                    'full_view_image': 'Full View Image',
+                }
+                for field, errors in product_form.errors.items():
+                    for error in errors:
+                        field_name = FIELD_NAME_MAPPING.get(field,field)
+                        messages.error(request, f"{field_name } : {error}")
+                        return render(request, 'admin_edit_product.html', {'product_form': product_form})
+                    
         return render(request, 'admin_edit_product.html', {'product_form': product_form,})
     else:
         return redirect('/')
@@ -441,7 +457,6 @@ def admin_product_status(request, order_id, order_product_id):
 
                     product_price = order_product.product.price
 
-                    print(product_price)
                     user_wallet.balance += product_price
                     user_wallet.save()
  
@@ -619,7 +634,6 @@ def get_sales_data(form, time_frame):
         start_date = now - timedelta(days=365)
         return Sale.objects.filter(date__date__range=(start_date, now))
     elif time_frame == 'custom':
-        print('iam in the custom side')
         start_date = form.cleaned_data['start_date']
         end_date = form.cleaned_data['end_date']
         return Sale.objects.filter(date__date__range=(start_date, end_date))
