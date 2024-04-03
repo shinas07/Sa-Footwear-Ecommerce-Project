@@ -322,12 +322,18 @@ def cancel_product(request, order_product_id):
         if order.payment_method == 'Paid by Razorypay' or order_product.status == 'Delivered':
             order_product.status = 'Cancelled'
             order_product.save()
-
+ 
             refund_amount = order_product.quantity * order_product.product.price
 
-            wallet = Wallet.objects.get(user=request.user)
-            wallet.balance += refund_amount
-            wallet.save()
+            if order_product.product.offer_price:
+                    wallet = Wallet.objects.get(user=order_product.order.user)
+                    product_price = order_product.product.offer_price
+                    wallet.balance += product_price
+                    wallet.save()
+            else:
+                wallet = Wallet.objects.get(user=request.user)
+                wallet.balance += refund_amount
+                wallet.save()
 
             messages.success(request, 'Product Cancellation Success')
             response_data['status'] = 'success'
@@ -350,7 +356,6 @@ def cancel_product(request, order_product_id):
 @login_required(login_url='Accounts:login')
 def product_return(request,order_product_id):
     order_product = get_object_or_404(OrderProduct, id=order_product_id)
-
     if order_product.status == 'Returned':
         messages.warning(request, 'A return is already pending for this product.')
         return redirect(reverse('order_details', kwargs={'order_id': order_product.order.id}))
@@ -359,10 +364,21 @@ def product_return(request,order_product_id):
         order_product.status = 'Returned'
         order_product.delivery_date = None  # Clear delivery date when returning
         order_product.save()
-        if order_product.order.payment_method == 'Paid by Razorypay':
-            wallet_balance = Wallet.objects.get(user=request.user)
-            wallet_balance.balance += order_product.order.total_amount
-            wallet_balance.save()
+
+        if order_product.status == 'Returned':
+            if order_product.product.offer_price:
+                refund_amount = order_product.quantity * order_product.product.offer_price
+                if order_product.order.coupon_id:
+                    refund_amount -= Decimal(order_product.order.coupon_id)
+
+                wallet = Wallet.objects.get(user=request.user)
+                wallet.balance += refund_amount
+                wallet.save()
+            else:
+                refund_amount = order_product.quantity * order_product.product.price
+                wallet = Wallet.objects.get(user=request.user)
+                wallet.balance += refund_amount
+                wallet.save()
 
         messages.success(request, 'Product returned successfully.')
         return redirect('order_history')
@@ -375,7 +391,16 @@ def product_return(request,order_product_id):
 def wallet_balance(request):
     wallet, created = Wallet.objects.get_or_create(user=request.user)
     refund_history = CancelOrder.objects.filter(user=request.user).order_by('-created_at')
-    returned_products = OrderProduct.objects.filter(order__user=request.user, status='Returned')
+    returned_products = OrderProduct.objects.filter(Q(order__user=request.user) & (Q(status='Returned') | Q(status='Cancelled')))
+
+    for product in returned_products:
+        if product.order.coupon_id:
+            coupon_amount =  Decimal(product.order.coupon_id)
+            if product.product.offer_price:
+                product.product.price = product.product.offer_price - coupon_amount
+            else:
+                product.product.price = product.product.price - coupon_amount
+
     # Pass the wallet balance, refund history, and returned products to the template
     return render(request, 'user_wallet.html', {
         'wallet': wallet,
