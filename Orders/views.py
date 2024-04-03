@@ -44,6 +44,24 @@ def check_out(request):
     cart_items = CartItem.objects.all()
     use_wallet = request.POST.get('use_wallet')
 
+
+
+    for cart_item in CartItem.objects.filter(cart=cart):
+        product = cart_item.product
+        quantity_ordered = cart_item.quantity
+
+        
+        # Retrieve ProductSizeColor instance
+        product_size_colors = ProductSizeColor.objects.filter(product=product)
+        if product_size_colors.exists():
+            product_size_color = product_size_colors.first()
+            if product_size_color.Stock < quantity_ordered:
+                messages.error(request, f"Sorry, '{product.product_name}' is out of stock.")
+                return redirect('view_cart')
+            # Assuming you want to decrease the stock of the first ProductSizeColor instance
+            product_size_color.Stock = F('Stock') - quantity_ordered
+
+
     if not cart.cartitem_set.exists():  # Check if the cart has any associated cart items
         messages.error(request, 'There is no products in your cart.')
         return redirect('view_cart')
@@ -135,7 +153,6 @@ def check_out(request):
                                 if amount_to_deduct > 0:
                                     wallet.balance -= amount_to_deduct
                                     wallet.save()
-
                                     total_amount -= amount_to_deduct
 
                                     # Inform the user about the wallet amount applied
@@ -148,11 +165,6 @@ def check_out(request):
 
                  
                             payment = Payment.objects.create(user=request.user, method=payment_method, amount=total_amount)
-
-                            # Create order instance
-                            # order = Order.objects.create(user=request.user, payment=payment, total_amount=total_amount,payment_method=payment_method,name=address_id)
-                            
-                
                             selected_address = Address.objects.get(id=address_id)
         
                         # Create an Order instance with the selected address details
@@ -191,13 +203,9 @@ def check_out(request):
                                     product_size_color = product_size_colors.first()
                                     if product_size_color.Stock < quantity_ordered:
                                         messages.error(request, f"Sorry, '{product.product_name}' is out of stock.")
-                                        return redirect('Cart:view_cart')
-                                    # Assuming you want to decrease the stock of the first ProductSizeColor instance
+                                        return redirect('view_cart')
                                     product_size_color.Stock = F('Stock') - quantity_ordered
-
                                     product_size_color.save()
-
-                                    # Create order item
                                     OrderProduct.objects.create(order=order, product=product, quantity=quantity_ordered)
 
                             cart.delete()
@@ -437,14 +445,16 @@ def order_complete(request):
 
 
 
-
 @never_cache
 @login_required(login_url='Accoutns:login')
 def generate_invoice(request, order_id):
     order = get_object_or_404(Order, id=order_id)
-    order_products = order.orderproduct_set.all()
+    order_products = order.orderproduct_set.filter(status='Delivered')
 
-    total_price = sum(product.product.price * product.quantity for product in order_products)
+    total_price = sum((product.product.offer_price if product.product.offer_price else product.product.price) * product.quantity for product in order_products)
+
+    if order.coupon_id:
+        total_price -= Decimal(order.coupon_id)
 
     # Company details
     company_name = "Sa Footwear"
@@ -498,8 +508,10 @@ def generate_invoice(request, order_id):
     for order_product in order_products:
         product_name = order_product.product.product_name
         quantity = order_product.quantity
-        unit_price = order_product.product.price
+        unit_price =  order_product.product.offer_price if order_product.product.offer_price else order_product.product.price
         total_product_price = unit_price * quantity
+        if order.coupon_id:
+            total_price -= Decimal(order.coupon_id)
         data.append([product_name, quantity, unit_price, total_product_price])
 
     # Create the table and define its style

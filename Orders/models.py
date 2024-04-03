@@ -29,7 +29,7 @@ class Order(models.Model):
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     payment_method = models.CharField(max_length=20, choices=[('COD', 'Cash on Delivery'), ('Razorpay', 'Razorpay')], null=True, default=True)
     
-    # Address fields with null=True`    `
+    # Address fields with null=True
     name = models.CharField(max_length=100, blank=True, null=True)
     address = models.CharField(max_length=100, blank=True, null=True)
     House_no = models.CharField(max_length=100, blank=True, null=True)
