@@ -28,9 +28,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
-DEBUG = bool(os.environ.get("DEBUG", default=0))
+DEBUG=True
 
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'safootwear.online', '13.60.56.118','www.safootwear.online']
+
 
 
 # SITE_ID = 1
@@ -170,8 +171,6 @@ STATIC_ROOT = BASE_DIR  /'static'
 STATICFILES_DIRS = [
     'SaFootwear/static',
 ]
-
-
 
 
 
