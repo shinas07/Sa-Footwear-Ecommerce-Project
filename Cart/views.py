@@ -86,10 +86,7 @@ def view_cart(request):
         return render(request, 'cart.html',)
     else:
         cart_items = CartItem.objects.filter(product__is_available=True,product_size_color__is_unlisted=False,cart__user=request.user)
-        # print(cart_items)
-        # cart_items =CartItem.objects.filter(product__productsizecolor__is_unlisted=False)
 
- 
 
     
     for item in cart_items:
@@ -153,9 +150,7 @@ def update_cart_item(request):
         try:
             cart_item = CartItem.objects.get(cart=cart, id=item_id)
             product_stock = ProductSizeColor.objects.filter(product=cart_item.product)
-            # for stock in product_stock:
-            #     print(f'this is the stock {stock.Stock}')
-
+      
             if not product_stock.exists():
                 return JsonResponse({"status": "error", "message": "Product have no stock"})
             total_stock = sum(stock.Stock for stock in product_stock)
@@ -173,21 +168,21 @@ def update_cart_item(request):
                 p_stock.Stock = remaining_stock
                 # product_stock.save()
             
-            cart_items = CartItem.objects.all()
-            for item in cart_items:
-                if item.product.offer_price:
-                    item.total_price = item.quantity * item.product.offer_price
-                else:
-                    item.total_price = item.quantity * item.product.price
+            # cart_items = CartItem.objects.filter(cart__user=request.user)
+            # for item in cart_items:
+            #     if item.product.offer_price:
+            #         item.total_price = item.quantity * item.product.offer_price
+            #     else:
+            #         item.total_price = item.quantity * item.product.price
 
-            total_price = sum(item.total_price for item in cart_items)
+            # total_price = sum(item.total_price for item in cart_items)
 
 
             cart, created = Cart.objects.get_or_create(user=request.user)
             if created:
                 cart_items = [] 
             else:
-                cart_items = CartItem.objects.all()
+                cart_items = CartItem.objects.filter(cart__user=request.user)
 
             
             for item in cart_items:
@@ -244,6 +239,11 @@ def coupon_apply(request):
         if CustomerCoupon.objects.filter(user=user, coupon=coupon).exists():
             messages.error(request, 'You have already applied this coupon')
             return redirect('view_cart')
+        
+        if cart.total_amount < coupon.discount:
+            messages.error(request, 'Coupon discount cannot exceed the total amount in the cart.')
+            return redirect('view_cart')
+    
 
         CustomerCoupon.objects.create(user=user, coupon=coupon)
         
@@ -282,3 +282,4 @@ def remove_coupen(request):
     else:
         return redirect('view_cart')
     
+

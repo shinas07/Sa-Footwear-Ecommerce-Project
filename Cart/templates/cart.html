@@ -169,7 +169,6 @@
 											<div class="total">
 												<div class="sub">
 													<p><span>Subtotal:</span> <span id='subtotal'>{{ total_price }}</span></p>
-													<p><span>Delivery:</span> <span>0.00</span></p>
 													<p><span>Discount:</span> <span>{{ coupon_discount }}</span></p>
 
 												</div>
@@ -282,9 +281,6 @@ Copyright &copy; All rights reserved | This template is made with <i class="icon
 		<a href="#" class="js-gotop"><i class="ion-ios-arrow-up"></i></a>
 	</div>
 
-	{% comment %} {% block scripts %}
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-	{% endblock scripts %} {% endcomment %}
 
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -343,7 +339,7 @@ Copyright &copy; All rights reserved | This template is made with <i class="icon
 	
 						},
 						success: function(response) {
-							console.log("Success:", response);
+						
 							// Update the total price dynamically
 							var totalPriceElement = $(`#total_${itemId}`);
 							totalPriceElement.text(response.total_price);
@@ -352,6 +348,7 @@ Copyright &copy; All rights reserved | This template is made with <i class="icon
 							productPrice.textContent=newQuantity*ogPrice.textContent
 							document.getElementById('subtotal').textContent = response.totalPrice
 							document.getElementById('discount_amount').textContent = response.discountAmount
+							document.querySelectorAll
 					
 						},
 					
