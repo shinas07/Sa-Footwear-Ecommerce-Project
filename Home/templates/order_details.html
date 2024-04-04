@@ -105,7 +105,7 @@
         
         <h1>Order Details</h1>
         <h2>Order ID: {{ order.id }}</h2>
-        <p>Total Amount: ${{ order.payment.amount }}</p>
+        <p>Total Amount: {{ order.total_amount }}</p>
     
         <h3>Products</h3>
         <table>
@@ -117,7 +117,6 @@
                     <th>Address</th>
                     <th>Quantity</th>
                     <th>Action</th>
-                 
                 </tr>
             </thead>
             <tbody>
@@ -127,11 +126,12 @@
                     <td>{{ order_product.product.product_name }}</td>
                     <td>{{ order.name }}</td>
                     <td>{{ order.address }}</td>
-                    <td>{{ order_product.quantity }}
-
-                    
+                    <td>{{ order_product.quantity }}</td>
                     {% if order_product.status == "Delivered" %}
                     <td>
+                        {% if order_product.status == 'Delivered' %}
+                        <a href="{% url 'generate_invoice' order_id=order.id %}" class="btn btn-primary">Download Invoice</a>
+                        {% endif %}
                         <!-- Button to trigger the review modal -->
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#reviewModal{{ order_product.id }}">
                             Review Product
@@ -178,10 +178,6 @@
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                         <!-- Submit button -->
                                         <button type="button" class="btn btn-primary submitReview" data-order-product-id="{{ order_product.id }}">Submit</button>
-
-                                    
-                                 
-                     
 
                                     </div>
                                 </div>

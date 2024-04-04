@@ -76,7 +76,7 @@
             <th style="text-align: center;">Product Name</th>
             <th style="text-align: center;">Quantity</th>
             <th style="text-align: center;">Refund Amount</th>
-            <th style="text-align: center;">Date</th>
+
         </tr>
     </thead>
     <tbody>
@@ -84,8 +84,11 @@
         <tr>
             <td style="text-align: center;">{{ order_product.product.product_name }}</td>
             <td style="text-align: center;">{{ order_product.quantity }}</td>
-            <td style="text-align: center;">{{ order_product.order.total_amount }}</td>
-            <td style="text-align: center;">{{ order_product.delivery_date }}</td>
+            {% if order_product.product.offer_price %}
+            <td style="text-align: center;">{{ order_product.product.offer_price }}</td>
+            {% else %}
+            <td style="text-align: center;">{{ order_product.product.price }}</td>
+            {% endif %}
         </tr>
         {% empty %}
         <tr>
