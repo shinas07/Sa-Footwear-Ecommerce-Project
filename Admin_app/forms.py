@@ -8,6 +8,9 @@ from Products.models import Brand
 from Home.models import Banner
 from Cart.models import Coupon
 from .models import ProductOffer
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
@@ -107,6 +110,18 @@ class CouponForm(forms.ModelForm):
             'valid_to': forms.DateInput(attrs={'type': 'date'}),
         }
 
+    def clean(self):
+        cleaned_data = super().clean()
+        discount = cleaned_data.get('discount')
+
+        if discount is not None:
+            if discount < 0:
+                raise ValidationError("Discount must be between 0 and 100.")
+
+        return cleaned_data
+
+
+
 
 
 class TimeFrameForm(forms.Form):
@@ -131,3 +146,9 @@ class ProductOfferForm(forms.ModelForm):
         labels = {
             'discount_percentage': 'Discount (%)',
         }
+    
+    def clean_discount_percentage(self):
+        discount_percentage = self.cleaned_data['discount_percentage']
+        if discount_percentage < 0 or discount_percentage > 100:
+            raise forms.ValidationError('Discount percentage must be between 0 and 100.')
+        return discount_percentage

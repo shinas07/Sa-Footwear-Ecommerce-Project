@@ -251,7 +251,7 @@ def edit_product(request, pk):
         product = get_object_or_404(Product, pk=pk)
         product_form = ProductForm(request.POST or None, request.FILES or None, instance=product)
         if request.method == 'POST':
-            if product_form.is_valid:
+            if product_form.is_valid():
                 product_form.save()
                 messages.success(request, 'Product updated successfully.')
                 return redirect('admin_product')
@@ -453,13 +453,32 @@ def admin_product_status(request, order_id, order_product_id):
             if new_status:
                 order_product.status = new_status
                 if new_status == 'Returned' and order_product.order.payment_method == 'Paid by Razorypay' :
-                    user_wallet = Wallet.objects.get(user=order_product.order.user)
+                    if order_product.product.offer_price:
+                        user_wallet = Wallet.objects.get(user=order_product.order.user)
+                        product_price = order_product.product.offer_price
+                        user_wallet.balance += product_price
+                        user_wallet.save()
+                    else:
+                        user_wallet = Wallet.objects.get(user=order_product.order.user)
+                        product_price = order_product.product.price
 
-                    product_price = order_product.product.price
+                        user_wallet.balance += product_price
+                        user_wallet.save()
+                    
+                elif new_status == 'Cancelled' and order_product.order.payment_method == 'Paid by Razorypay':
+                     
+                    if order_product.product.offer_price:
+                        user_wallet = Wallet.objects.get(user=order_product.order.user)
+                        product_price = order_product.product.offer_price
+                        user_wallet.balance += product_price
+                        user_wallet.save()
+                    else:
+                        user_wallet = Wallet.objects.get(user=order_product.order.user)
+                        product_price = order_product.product.price
 
-                    user_wallet.balance += product_price
-                    user_wallet.save()
- 
+                        user_wallet.balance += product_price
+                        user_wallet.save()
+
                 elif new_status == 'Delivered':
                     order_product.delivery_date = timezone.now()
 

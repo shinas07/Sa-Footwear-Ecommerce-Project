@@ -116,12 +116,14 @@ class Signup(View):
             error_message = "Username must be no more than  15 characters long."
         elif Customer.objects.filter(username=data['username']).exists():
             error_message ='Username is already taken.'
+
         elif not data['first_name']:
             error_message = "Please enter your First Name!"
         elif len(data['first_name']) < 3:
             error_message = "First Name must be at least 3 characters long."
         elif not data['last_name']:
             error_message = "Please enter your Last Name!"
+
         elif not data['password']:
             error_message = "Please enter a Password!"
         elif len(data['password']) < 5:
@@ -130,6 +132,10 @@ class Signup(View):
             error_message = "Please confirm your Password!"
         elif data['password'] != data['confirm_password']:
             error_message = "Password and Confirm Password do not match."
+        elif not re.match(r'^[A-Za-z0-9@#$%^&+=]*$', data['password']):
+            error_message = "Password must contain only letters, numbers, and special characters (@#$%^&+=)."
+
+            
         elif not data['email']:
             error_message = "Please enter your Email!"
         elif Customer.objects.filter(email=data['email']).exists():
@@ -141,6 +147,7 @@ class Signup(View):
             error_message = "Invalid Email Address"
         elif data['email'].strip() != data['email']:
             error_message = 'Email address cannot start or end with spaces.'
+
         elif data['phone'] == '1234567890':
             error_message = "Phone number cannot be a sequence of  1234567890."
         elif data['phone'] == '9876543210':
@@ -259,12 +266,10 @@ class VerifyOTP(View):
 
 class NewPasswordView(View):
     def get(self, request):
-        print('iam here you')
         return render(request, 'new_password.html')
     
     def post(self, request):
         password = request.POST.get('password')
-        print(password)
         confirm_password = request.POST.get('confirm_password')
         if password != confirm_password:
             error_message = 'Password do not match.Pleace try again.'
