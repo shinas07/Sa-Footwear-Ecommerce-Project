@@ -37,6 +37,7 @@ def add_to_cart(request, product_id):
             if  existing_cart_item:
                 messages.warning(request,'Item already in the cart')
                 return redirect('view_cart')
+            
             form = AddToCartForm(request.POST, product=product)
             if form.is_valid():
                 quantity = form.cleaned_data['quantity']
