@@ -238,8 +238,6 @@ AUTHENTICATION_BACKENDS = [
 # LOGOUT_REDIRECT_URL = "/"
 
 
-# razor_pay_key_id = 'rzp_test_9mI3x0STwZvFoe'
-# key_secret = 'mszifdLQHihn0RpHi2Eucnqq'
 
 #Razorpay API credentials
 RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID')
