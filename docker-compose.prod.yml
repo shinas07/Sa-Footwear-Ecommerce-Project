@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  web:
+    image: shinas07/ecommerce:latest
+    restart: always
+    expose:
+      - 8000
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=safootwear_db
+      - POSTGRES_USER=safootwear_user
+      - POSTGRES_PASSWORD=safootwear_user1234
+
+
+volumes:
+  postgres_data:
