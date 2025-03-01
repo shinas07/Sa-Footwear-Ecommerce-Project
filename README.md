@@ -1,6 +1,6 @@
 # SaFootwear
 
-![SaFootwear Logo]()
+![SaFootwear Logo](path/to/logo.png)
 
 ## 👟 Overview
 SaFootwear is a comprehensive e-commerce platform specializing in footwear, offering a seamless shopping experience for customers. Built with Django, this multi-page application provides a robust framework for browsing, purchasing, and managing footwear products with integrated payment processing.
@@ -46,12 +46,12 @@ SaFootwear is a comprehensive e-commerce platform specializing in footwear, offe
 - HTML5, CSS3, JavaScript
 - Bootstrap for responsive design
 - jQuery for DOM manipulation
-- AJAX for dynamic content loading
 
 ### Additional Technologies
 - Payment gateway integration
 - Email service integration
 - Image processing libraries
+- Session management
 
 ## 📁 Project Structure
 ```
@@ -70,14 +70,7 @@ SaFootwear/
 ├── media/                # User-uploaded media files
 │   ├── products/         # Product images
 │   ├── banners/          # Banner images
-│   └── user_profiles/    # User profile pictures
 ├── templates/            # HTML templates
-│   ├── base/             # Base templates
-│   ├── admin/            # Admin templates
-│   ├── home/             # Homepage templates
-│   ├── products/         # Product templates
-│   ├── cart/             # Cart templates
-│   └── accounts/         # User account templates
 ├── SaFootwear/           # Project configuration
 │   ├── settings.py       # Project settings
 │   ├── urls.py           # Main URL configuration
@@ -85,6 +78,7 @@ SaFootwear/
 │   └── asgi.py           # ASGI configuration
 ├── manage.py             # Django management script
 ├── requirements.txt      # Project dependencies
+├── Dockerfile            # Docker configuration
 └── README.md             # Project documentation
 ```
 
@@ -95,7 +89,7 @@ SaFootwear/
 # Required installations
 - Python 3.8+
 - PostgreSQL
-- pip (Python package installer)
+- Docker (for containerized deployment)
 ```
 
 ### Installation
@@ -103,13 +97,14 @@ SaFootwear/
 1. **Clone Repository**
 ```bash
 git clone https://github.com/shinas07/Sa-Footwear-Ecommerce-Project.git
-cd SaFootwear
+cd Sa-Footwear-Ecommerce-Project
 ```
 
 2. **Set Up Virtual Environment**
 ```bash
 python -m venv venv
 source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
 ```
 
 3. **Install Dependencies**
@@ -140,6 +135,15 @@ Frontend: http://localhost:8000
 Admin Panel: http://localhost:8000/admin
 ```
 
+### Docker Deployment
+```bash
+# Build Docker image
+docker build -t safootwear .
+
+# Run Docker container
+docker run -p 8000:8000 safootwear
+```
+
 ## 🔒 Security Features
 - Django's built-in security features
 - CSRF protection
@@ -149,21 +153,8 @@ Admin Panel: http://localhost:8000/admin
 - Input validation and sanitization
 
 ## 🌐 Deployment
-The application is deployed using Es2 and can be accessed at [https://safootwear.store/].
+This application is containerized using Docker and deployed on an AWS EC2 instance.
+---
 
-### Deployment Requirements
-- Web server (Nginx/Apache)
-- WSGI server (Gunicorn/uWSGI)
-- Database server
-- Static file serving configuration
-- SSL certificate for HTTPS
-- Docker 
-
-Thank You
+## Thank You
 Thank you for checking out SaFootwear! This project was built with care to provide an excellent shopping experience for footwear enthusiasts.
-
-## 📫 Contact
-For inquiries and support, please contact [your-email@example.com].
-
-## 📝 License
-[Include your license information here]
