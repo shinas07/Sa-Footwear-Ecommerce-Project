@@ -1,6 +1,6 @@
 # SaFootwear
 
-![SaFootwear Logo](path/to/logo.png)
+![SaFootwear Logo](media/website_previews/safootwear_preview.png)
 
 ## 👟 Overview
 SaFootwear is a comprehensive e-commerce platform specializing in footwear, offering a seamless shopping experience for customers. Built with Django, this multi-page application provides a robust framework for browsing, purchasing, and managing footwear products with integrated payment processing.
